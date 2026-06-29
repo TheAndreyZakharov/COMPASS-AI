@@ -1,0 +1,23 @@
+paths:
+  data_raw: data/raw
+  data_synthetic: data/synthetic
+  data_processed: data/processed
+  models: models
+  notebooks: notebooks
+  reports: reports
+  figures: reports/figures
+  report_notebooks: reports/notebooks
+
+files:
+  employees_csv: data/synthetic/employees.csv
+  employees_json: data/synthetic/employees.json
+  tasks_csv: data/synthetic/tasks.csv
+  tasks_json: data/synthetic/tasks.json
+  assignments_csv: data/synthetic/assignments.csv
+  assignments_json: data/synthetic/assignments.json
+  training_pairs: data/processed/training_pairs.parquet
+  train_dataset: data/processed/train.parquet
+  val_dataset: data/processed/val.parquet
+  test_dataset: data/processed/test.parquet
+  model_checkpoint: models/compass_matching_model.pt
+  onnx_model: models/task_employee_matcher.onnx

@@ -1,0 +1,56 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Synthetic data can be regenerated, but keep folder
+data/synthetic/*
+!data/synthetic/.gitkeep
+
+# Models
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.ckpt
+!models/.gitkeep
+
+# Reports
+reports/*.html
+reports/*.pdf
+reports/*.csv
+reports/*.json
+reports/notebooks/
+reports/figures/
+!reports/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/

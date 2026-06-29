@@ -1,0 +1,27 @@
+project:
+  name: COMPASS AI
+  version: 0.1.0
+  environment: local
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  cors_origins:
+    - http://localhost:3000
+    - http://localhost:8501
+
+plane:
+  base_url_env: PLANE_BASE_URL
+  api_key_env: PLANE_API_KEY
+  workspace_slug_env: PLANE_WORKSPACE_SLUG
+
+llm:
+  provider: ollama
+  base_url_env: OLLAMA_BASE_URL
+  model_env: OLLAMA_MODEL
+  timeout_seconds: 60
+
+recommendation:
+  default_mode: balanced_workload
+  top_k: 3
+  auto_assign_threshold: 0.75
