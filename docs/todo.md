@@ -382,16 +382,16 @@ pip install -r requirements-dev.txt
 
 ## 4.6. Настроить `Makefile`
 
-- [ ] Добавить команду `make install`.
-- [ ] Добавить команду `make dev`.
-- [ ] Добавить команду `make test`.
-- [ ] Добавить команду `make lint`.
-- [ ] Добавить команду `make format`.
-- [ ] Добавить команду `make api`.
-- [ ] Добавить команду `make notebooks`.
-- [ ] Добавить команду `make train`.
-- [ ] Добавить команду `make export-onnx`.
-- [ ] Добавить команду `make reports`.
+- [x] Добавить команду `make install`.
+- [x] Добавить команду `make dev`.
+- [x] Добавить команду `make test`.
+- [x] Добавить команду `make lint`.
+- [x] Добавить команду `make format`.
+- [x] Добавить команду `make api`.
+- [x] Добавить команду `make notebooks`.
+- [x] Добавить команду `make train`.
+- [x] Добавить команду `make export-onnx`.
+- [x] Добавить команду `make reports`.
 
 Пример команд, которые должны вызываться:
 
