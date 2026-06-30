@@ -445,6 +445,8 @@ docker ps
 - Disk limit: минимум 30 GB.
 - Если MacBook с 8 GB RAM, не запускать одновременно тяжёлую LLM и много контейнеров.
 
+**Фактический результат:** Docker Desktop работает, Docker Compose работает, Plane containers успешно запускаются локально.
+
 **Ожидаемый результат:** Docker работает.
 
 **Примерное время:** 30–60 минут.  
@@ -460,8 +462,11 @@ docker ps
 - [x] Зафиксировать, какой способ запуска актуален.
 - [x] Не копировать слепо старые compose-файлы из чужих гайдов.
 - [x] Использовать официальный self-hosting способ Plane.
+- [x] Зафиксировать локальные заметки по запуску Plane в `plane/docker/plane_local_setup.md`.
 
 **Важно:** сначала поднять Plane отдельно, без COMPASS AI. Не надо сразу смешивать Plane и свой backend.
+
+**Фактический способ запуска:** Plane запускается отдельно из локального checkout `plane/docker/plane-source` через официальный Docker Compose подход.
 
 **Ожидаемый результат:** понятно, как локально запускать Plane.
 
@@ -475,25 +480,136 @@ docker ps
 - [x] Создать отдельную папку вне основного кода или внутри `plane/docker`.
 - [x] Скачать/склонировать нужные self-hosting файлы Plane по официальной инструкции.
 - [x] Создать `.env` для Plane.
+- [x] Создать локальные `.env` файлы для Plane apps.
 - [x] Проверить порты Plane.
 - [x] Запустить Plane через Docker Compose.
 - [x] Открыть Plane в браузере.
-- [x] Создать локальный workspace.
 - [x] Создать первого пользователя-админа.
+- [x] Открыть God Mode / Instance Admin.
+- [x] Проверить, что Plane API отвечает.
+- [x] Проверить, что Plane main UI отвечает.
+- [x] Проверить, что Plane containers работают.
 
-Примерная команда, если официальный способ требует клонирование репозитория:
+Plane source расположен здесь:
+
+```text
+plane/docker/plane-source
+```
+
+Команда клонирования:
 
 ```bash
 git clone https://github.com/makeplane/plane.git plane/docker/plane-source
 ```
 
-Примерная команда запуска, если используется docker compose:
+Текущая ветка Plane:
+
+```text
+preview
+```
+
+Plane source не коммитится в COMPASS AI и должен быть добавлен в `.gitignore`:
+
+```gitignore
+# External Plane source checkout
+plane/docker/plane-source/
+```
+
+Созданы локальные env-файлы:
+
+```text
+plane/docker/plane-source/.env
+plane/docker/plane-source/apps/api/.env
+plane/docker/plane-source/apps/web/.env
+plane/docker/plane-source/apps/admin/.env
+plane/docker/plane-source/apps/space/.env
+plane/docker/plane-source/apps/live/.env
+```
+
+Важные локальные URL-настройки Plane:
+
+```text
+WEB_URL=http://localhost
+APP_BASE_URL=http://localhost
+ADMIN_BASE_URL=http://localhost/god-mode
+ADMIN_BASE_PATH=/god-mode
+SPACE_BASE_URL=http://localhost/spaces
+SPACE_BASE_PATH=/spaces
+LIVE_BASE_URL=http://localhost/live
+LIVE_BASE_PATH=/live
+```
+
+Команда проверки Docker Compose config:
+
+```bash
+docker compose config
+```
+
+Команда запуска Plane через Docker Compose:
 
 ```bash
 docker compose up -d
 ```
 
+Команда проверки контейнеров:
+
+```bash
+docker compose ps
+```
+
+Команда проверки API:
+
+```bash
+docker compose exec proxy wget -S -O- http://api:8000 2>&1 | head -30
+```
+
+Ожидаемый API-ответ:
+
+```text
+HTTP/1.1 200 OK
+{"status": "OK"}
+```
+
+Команда проверки main UI:
+
+```bash
+curl -I http://localhost
+```
+
+Ожидаемый UI-ответ:
+
+```text
+HTTP/1.1 200 OK
+```
+
+Локальный Plane main UI:
+
+```text
+http://localhost
+```
+
+Локальный God Mode / Instance Admin:
+
+```text
+http://localhost/god-mode/general/
+```
+
+Первый instance admin создан через God Mode setup.
+
+Данные instance admin:
+
+```text
+First name: Andrey
+Last name: Zakharov
+Email: admin@compass.local
+Company name: COMPASS AI Lab
+```
+
+Пароль admin-пользователя является локальным секретом и не должен храниться в git или документации.
+
 **Важно:** точные команды Plane брать из актуальной официальной документации, потому что структура self-hosting может меняться.
+
+**Фактический результат:** Plane доступен локально, containers запускаются, API отвечает, main UI отвечает, God Mode доступен, первый instance admin создан.
 
 **Ожидаемый результат:** Plane доступен в браузере локально.
 
@@ -504,42 +620,237 @@ docker compose up -d
 
 ## 5.4. Создать тестовый workspace в Plane
 
-- [ ] Открыть локальный Plane.
-- [ ] Создать workspace `compass-ai-lab`.
-- [ ] Создать проект `Backend Platform`.
-- [ ] Создать проект `Frontend Platform`.
-- [ ] Создать проект `Data Platform`.
-- [ ] Создать проект `Internal Tools`.
-- [ ] Создать несколько статусов задач.
-- [ ] Создать несколько labels.
-- [ ] Создать несколько cycles/sprints, если Plane это поддерживает в установленной версии.
+- [x] Открыть локальный Plane.
+- [x] Создать workspace `compass-ai-lab`.
+- [x] Создать проект `Backend Platform`.
+- [x] Создать проект `Frontend Platform`.
+- [x] Создать проект `Data Platform`.
+- [x] Создать проект `Internal Tools`.
+- [x] Создать несколько статусов задач.
+- [x] Создать несколько labels.
+- [x] Создать несколько cycles/sprints, если Plane это поддерживает в установленной версии.
+- [x] Создать тестовый cycle в `Backend Platform`.
+- [x] Создать тестовый work item в `Backend Platform`.
 
-Статусы:
+Workspace:
 
-- `Backlog`
-- `Ready`
-- `In Progress`
-- `Review`
-- `Done`
-- `Blocked`
+```text
+compass-ai-lab
+```
+
+Workspace display/company name:
+
+```text
+COMPASS AI Lab
+```
+
+Созданные проекты:
+
+```text
+Backend Platform
+Frontend Platform
+Data Platform
+Internal Tools
+```
+
+Рекомендуемые project identifiers:
+
+```text
+BACK
+FRONT
+DATA
+TOOLS
+```
+
+Фактические статусы Plane используются стандартные:
+
+```text
+Backlog -> Backlog
+Unstarted -> Todo
+Started -> In Progress
+Completed -> Done
+Cancelled -> Cancelled
+```
+
+Целевые статусы из roadmap:
+
+```text
+Backlog
+Ready
+In Progress
+Review
+Done
+Blocked
+```
+
+Фактическое решение: стандартные Plane states оставлены без ручной переработки, потому что они покрывают базовый workflow для учебного workspace.
 
 Labels:
 
-- `backend`
-- `frontend`
-- `ml`
-- `data`
-- `devops`
-- `bug`
-- `feature`
-- `refactoring`
-- `urgent`
-- `growth-task`
+```text
+backend
+frontend
+ml
+data
+devops
+bug
+feature
+refactoring
+urgent
+growth-task
+```
+
+Фактическое решение по labels: labels созданы в проекте `Backend Platform`, потому что в текущем UI Plane общие workspace-level labels не были найдены. В следующем этапе labels можно будет автоматизировать через API/seed-скрипт и размножить по остальным проектам при необходимости.
+
+Cycles/sprints:
+
+```text
+Cycles созданы во всех проектах.
+```
+
+Тестовый cycle в `Backend Platform`:
+
+```text
+Sprint 1 — COMPASS AI Setup
+```
+
+Тестовый work item создан в проекте:
+
+```text
+Backend Platform
+```
+
+Тестовый work item title:
+
+```text
+Реализовать JWT-авторизацию
+```
+
+Тестовый work item description:
+
+```text
+Нужно реализовать авторизацию через JWT для backend API. Требуется добавить login endpoint, refresh token flow, logout сценарий и защиту приватных endpoint-ов. Задача важна для безопасности MVP и должна быть выполнена с тестами.
+```
+
+Labels тестового work item:
+
+```text
+backend
+feature
+urgent
+```
+
+Priority:
+
+```text
+High
+```
+
+Assignee:
+
+```text
+empty
+```
+
+**Фактический результат:** в Plane есть учебная рабочая область `compass-ai-lab`, проекты, labels в `Backend Platform`, стандартные workflow states, cycles во всех проектах и тестовый work item.
 
 **Ожидаемый результат:** в Plane есть учебная рабочая область, похожая на настоящую команду.
 
 **Примерное время:** 1 час.  
 **Коммит:** коммит не нужен, если всё делалось только в Plane UI.
+
+---
+
+## 5.5. Добавить локальные скрипты управления Plane
+
+- [x] Создать скрипт полного запуска Plane.
+- [x] Создать скрипт полного выключения Plane без удаления данных.
+- [x] Проверить, что stop script останавливает Plane и освобождает ресурсы.
+- [x] Проверить, что после stop сайт `http://localhost` недоступен.
+- [x] Проверить, что start script снова поднимает Plane.
+- [x] Проверить, что данные Plane сохраняются после stop/start.
+
+Скрипт запуска:
+
+```text
+scripts/start_plane.sh
+```
+
+Команда запуска:
+
+```bash
+./scripts/start_plane.sh
+```
+
+Скрипт остановки:
+
+```text
+scripts/stop_plane.sh
+```
+
+Команда остановки:
+
+```bash
+./scripts/stop_plane.sh
+```
+
+Stop script использует:
+
+```bash
+docker compose stop
+```
+
+Это значит:
+
+```text
+контейнеры останавливаются
+CPU/RAM освобождаются
+сайт http://localhost перестаёт открываться
+Docker volumes сохраняются
+данные Plane не удаляются
+```
+
+Команду ниже не использовать для обычного выключения Plane:
+
+```bash
+docker compose down -v
+```
+
+Потому что `down -v` удаляет volumes и может удалить локальные данные Plane.
+
+**Фактический результат:** Plane можно полностью запускать и останавливать из корня COMPASS AI через shell scripts.
+
+**Ожидаемый результат:** локальный Plane удобно поднимать и выключать без удаления данных.
+
+**Примерное время:** 30–60 минут.  
+**Коммит:** `Add Plane local setup notes`
+
+---
+
+## 5.6. Зафиксировать локальные заметки по Plane
+
+- [x] Создать или обновить `plane/docker/plane_local_setup.md`.
+- [x] Описать локальный путь Plane source.
+- [x] Описать локальные env-файлы.
+- [x] Описать основные локальные URL.
+- [x] Описать God Mode / Instance Admin.
+- [x] Описать созданный admin account без сохранения пароля.
+- [x] Описать workspace, projects, labels, states, cycles и test work item.
+- [x] Описать команды запуска и остановки.
+- [x] Описать, что Plane source и env-файлы не должны коммититься.
+
+Файл заметок:
+
+```text
+plane/docker/plane_local_setup.md
+```
+
+**Фактический результат:** локальная инструкция по Plane сохранена в репозитории COMPASS AI.
+
+**Ожидаемый результат:** состояние локального Plane понятно и воспроизводимо.
+
+**Примерное время:** 30 минут.  
+**Коммит:** `Add Plane local setup notes`
 
 ---
 
