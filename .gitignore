@@ -54,3 +54,6 @@ logs/
 # IDE
 .idea/
 .vscode/
+
+# External Plane source checkout
+plane/docker/plane-source/
