@@ -418,11 +418,11 @@ make api
 
 ## 5.1. Проверить Docker Desktop
 
-- [ ] Установить Docker Desktop для Mac, если не установлен.
-- [ ] Запустить Docker Desktop.
-- [ ] Проверить работу Docker.
-- [ ] Проверить работу Docker Compose.
-- [ ] Убедиться, что Docker использует достаточно ресурсов.
+- [x] Установить Docker Desktop для Mac, если не установлен.
+- [x] Запустить Docker Desktop.
+- [x] Проверить работу Docker.
+- [x] Проверить работу Docker Compose.
+- [x] Убедиться, что Docker использует достаточно ресурсов.
 
 Команды:
 
@@ -454,12 +454,12 @@ docker ps
 
 ## 5.2. Изучить официальный способ запуска Plane
 
-- [ ] Открыть `https://github.com/makeplane/plane`.
-- [ ] Открыть `https://developers.plane.so/self-hosting`.
-- [ ] Открыть Docker Compose guide.
-- [ ] Зафиксировать, какой способ запуска актуален.
-- [ ] Не копировать слепо старые compose-файлы из чужих гайдов.
-- [ ] Использовать официальный self-hosting способ Plane.
+- [x] Открыть `https://github.com/makeplane/plane`.
+- [x] Открыть `https://developers.plane.so/self-hosting`.
+- [x] Открыть Docker Compose guide.
+- [x] Зафиксировать, какой способ запуска актуален.
+- [x] Не копировать слепо старые compose-файлы из чужих гайдов.
+- [x] Использовать официальный self-hosting способ Plane.
 
 **Важно:** сначала поднять Plane отдельно, без COMPASS AI. Не надо сразу смешивать Plane и свой backend.
 
