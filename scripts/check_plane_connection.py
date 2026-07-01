@@ -11,6 +11,14 @@ def main() -> None:
             print(f"Workspace slug: {client.workspace_slug}")
             print(f"Base URL: {client.base_url}")
 
+            if not client.healthcheck():
+                raise PlaneClientError(
+                    "Plane API healthcheck failed. Check PLANE_BASE_URL, "
+                    "PLANE_WORKSPACE_SLUG and PLANE_API_KEY."
+                )
+
+            print("Plane API healthcheck: OK")
+
             projects = client.list_projects()
             print(f"Projects found: {len(projects)}")
 

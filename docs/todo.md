@@ -863,15 +863,61 @@ plane/docker/plane_local_setup.md
 - [x] Сохранить токен только в локальный `.env`.
 - [x] Добавить пример переменных в `.env.example` без секретов.
 - [x] Проверить доступ к API через `curl` или `httpx`.
+- [x] Проверить, что API работает через local Plane proxy.
+- [x] Проверить, что авторизация работает через header `x-api-key`.
+- [x] Проверить, что COMPASS AI видит workspace `compass-ai-lab`.
 
 Поля в `.env.example`:
 
 ```text
-PLANE_BASE_URL=http://localhost:3000
+PLANE_BASE_URL=http://localhost
 PLANE_API_KEY=replace_with_your_token
 PLANE_WORKSPACE_SLUG=compass-ai-lab
 COMPASS_API_URL=http://localhost:8000
 OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:1.5b-instruct
+```
+
+Фактические локальные значения:
+
+```text
+PLANE_BASE_URL=http://localhost
+PLANE_WORKSPACE_SLUG=compass-ai-lab
+```
+
+Секретное значение хранится только в локальном `.env`:
+
+```text
+PLANE_API_KEY=<local_api_token>
+```
+
+API token нельзя коммитить.
+
+Формат авторизации:
+
+```text
+x-api-key: $PLANE_API_KEY
+```
+
+Проверенный endpoint проектов:
+
+```text
+GET /api/v1/workspaces/compass-ai-lab/projects/
+```
+
+Проверочная команда:
+
+```bash
+curl --request GET --url "$PLANE_BASE_URL/api/v1/workspaces/$PLANE_WORKSPACE_SLUG/projects/" --header "x-api-key: $PLANE_API_KEY"
+```
+
+Фактический результат:
+
+```text
+Plane API доступен.
+Авторизация через x-api-key работает.
+Workspace compass-ai-lab найден.
+Список проектов успешно читается.
 ```
 
 **Ожидаемый результат:** понятно, как COMPASS AI будет авторизоваться в Plane.
@@ -892,6 +938,12 @@ OLLAMA_BASE_URL=http://localhost:11434
 - [x] Выяснить, как добавить комментарий к задаче.
 - [x] Выяснить, как обновить assignee.
 - [x] Зафиксировать найденные поля в локальном техническом файле, но не в финальной документации.
+- [x] Сохранить raw API samples локально в `data/raw/plane_api_samples/`.
+- [x] Зафиксировать реальные project IDs.
+- [x] Зафиксировать реальные state IDs.
+- [x] Зафиксировать реальные label IDs.
+- [x] Зафиксировать test work item ID.
+- [x] Зафиксировать, какие поля COMPASS AI будет использовать первыми.
 
 Рабочий файл для заметок:
 
@@ -905,7 +957,163 @@ plane/seed/plane_schema_notes.md
 touch plane/seed/plane_schema_notes.md
 ```
 
-Минимально нужно узнать поля задачи:
+Raw API samples:
+
+```text
+data/raw/plane_api_samples/projects.json
+data/raw/plane_api_samples/backend_work_items.json
+data/raw/plane_api_samples/backend_work_item_detail.json
+data/raw/plane_api_samples/backend_states.json
+data/raw/plane_api_samples/backend_labels.json
+data/raw/plane_api_samples/backend_work_item_comments.json
+```
+
+Эти файлы не коммитятся, потому что могут содержать локальные user IDs, emails, workspace IDs и project IDs.
+
+Фактический термин Plane для задач:
+
+```text
+work items
+```
+
+Совместимый термин roadmap:
+
+```text
+issues
+```
+
+Решение в коде:
+
+```text
+основные методы используют work_item / work_items
+alias-методы используют issue / issues
+```
+
+Локальный workspace:
+
+```text
+slug: compass-ai-lab
+id: c81d4a58-ee30-4b3f-9221-cc1d95566440
+```
+
+Проверенный endpoint проектов:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/
+```
+
+Фактические проекты:
+
+```text
+Backend Platform: e608e7ad-f4fe-401d-b0f3-5570e82f08ee, identifier BACK
+Frontend Platform: 33832fc6-ade4-4ac0-a937-9ba70b0859d8, identifier FRONT
+Data Platform: cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab, identifier DATA
+Internal Tools: 50d969c6-ae4c-4afe-a8aa-33cdb478f787, identifier TOOLS
+```
+
+Фактическая структура projects response:
+
+```text
+grouped_by
+sub_grouped_by
+total_count
+next_cursor
+prev_cursor
+next_page_results
+prev_page_results
+count
+total_pages
+total_results
+extra_stats
+results
+```
+
+Фактический список проектов находится в:
+
+```text
+results
+```
+
+Поля проекта, которые COMPASS AI использует первыми:
+
+```text
+id
+name
+identifier
+total_members
+total_cycles
+workspace
+```
+
+Backend Platform:
+
+```text
+project_id: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+identifier: BACK
+total_members: 1
+total_cycles: 1
+total_modules: 0
+cycle_view: true
+is_time_tracking_enabled: false
+is_issue_type_enabled: false
+```
+
+Проверенный endpoint work items:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/{project_id}/work-items/
+```
+
+Фактический Backend Platform endpoint:
+
+```text
+GET /api/v1/workspaces/compass-ai-lab/projects/e608e7ad-f4fe-401d-b0f3-5570e82f08ee/work-items/
+```
+
+Фактическая структура work items response:
+
+```text
+grouped_by
+sub_grouped_by
+total_count
+next_cursor
+prev_cursor
+next_page_results
+prev_page_results
+count
+total_pages
+total_results
+extra_stats
+results
+```
+
+Фактический список work items находится в:
+
+```text
+results
+```
+
+Тестовый work item:
+
+```text
+id: 22ab005a-a3b1-49e1-947b-3d3251c63e47
+name: Реализовать JWT-авторизацию
+sequence_id: 1
+priority: high
+project: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+state: 633f3777-fce6-40bb-a6e7-096df86429a4
+assignees: []
+```
+
+Labels тестового work item:
+
+```text
+backend: 19ad9f4d-9f1f-4518-9076-419b4fb2f3e5
+feature: 5b1f0192-7664-4679-b2c3-98e1fe8a4e8e
+urgent: caa1adb5-1451-48dd-9d07-8e1c641c633e
+```
+
+Минимально нужные поля задачи по roadmap:
 
 ```text
 id
@@ -923,6 +1131,165 @@ target_date
 estimate
 ```
 
+Фактически найденные важные поля work item:
+
+```text
+id
+name
+description_html
+priority
+start_date
+target_date
+sequence_id
+completed_at
+project
+state
+estimate_point
+assignees
+labels
+created_at
+updated_at
+```
+
+COMPASS AI mapping:
+
+```text
+Plane work item id -> plane_work_item_id / plane_issue_id
+Plane work item name -> task title
+Plane description_html -> task description
+Plane priority -> task priority
+Plane state -> task state id
+Plane labels -> required stack / task type hints
+Plane assignees -> current assignees
+Plane target_date -> deadline signal
+Plane estimate_point -> estimate signal, if enabled later
+```
+
+Проверенный endpoint detail одного work item:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/{project_id}/work-items/{work_item_id}/
+```
+
+Фактический test work item detail endpoint:
+
+```text
+GET /api/v1/workspaces/compass-ai-lab/projects/e608e7ad-f4fe-401d-b0f3-5570e82f08ee/work-items/22ab005a-a3b1-49e1-947b-3d3251c63e47/
+```
+
+Проверенный endpoint states:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/{project_id}/states/
+```
+
+Фактические states Backend Platform:
+
+```text
+Backlog: 8325f1a6-aa63-46a9-8cbb-340848a506aa, group backlog
+Todo: 633f3777-fce6-40bb-a6e7-096df86429a4, group unstarted
+In Progress: 74855d6f-1911-4e7d-a355-07521647c3f5, group started
+Done: b68d69f3-e88a-4ea1-b8c6-626e083a2d41, group completed
+Cancelled: 34a698dc-d031-43f5-b875-a4af26fcc24d, group cancelled
+```
+
+COMPASS AI state interpretation:
+
+```text
+backlog -> not ready or future work
+unstarted -> ready to be assigned or started
+started -> already active
+completed -> finished
+cancelled -> excluded from recommendation backlog
+```
+
+Текущий test work item state:
+
+```text
+state id: 633f3777-fce6-40bb-a6e7-096df86429a4
+state name: Todo
+state group: unstarted
+```
+
+Проверенный endpoint labels:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/{project_id}/labels/
+```
+
+Фактические Backend Platform labels:
+
+```text
+growth-task: dff694be-63b4-40bc-ade8-96920df9673d
+urgent: caa1adb5-1451-48dd-9d07-8e1c641c633e
+refactoring: 97ee2eee-eaa8-4fd6-8742-dd9c46e54979
+feature: 5b1f0192-7664-4679-b2c3-98e1fe8a4e8e
+bug: ce9f294a-bef7-4441-97b3-49576aafc371
+devops: a12c8e8c-3bf5-49c7-a20a-43a344e07090
+data: bb5f64d5-870a-4b26-bbd4-980b983c7261
+ml: 754b3ad4-c8ce-4f8a-8c93-4013e6e6acd0
+frontend: 8d02ccac-3438-492c-b087-f54c12abb6fd
+backend: 19ad9f4d-9f1f-4518-9076-419b4fb2f3e5
+```
+
+Фактическое решение по labels:
+
+```text
+Labels созданы в Backend Platform.
+Shared workspace-level labels в текущем Plane UI не найдены.
+Если нужно, labels будут размножены по другим проектам позже через seed script.
+```
+
+COMPASS AI label interpretation:
+
+```text
+backend -> backend stack / backend task
+frontend -> frontend stack / frontend task
+ml -> ML/data science task signal
+data -> data/analytics task signal
+devops -> infrastructure/deployment task signal
+bug -> bugfix task type
+feature -> feature task type
+refactoring -> refactoring task type
+urgent -> urgency/business priority signal
+growth-task -> learning/development signal
+```
+
+Проверенный endpoint comments на чтение:
+
+```text
+GET /api/v1/workspaces/{workspace_slug}/projects/{project_id}/work-items/{work_item_id}/comments/
+```
+
+Фактический comments endpoint тестовой задачи:
+
+```text
+GET /api/v1/workspaces/compass-ai-lab/projects/e608e7ad-f4fe-401d-b0f3-5570e82f08ee/work-items/22ab005a-a3b1-49e1-947b-3d3251c63e47/comments/
+```
+
+Фактический результат comments:
+
+```text
+total_count: 0
+count: 0
+total_pages: 0
+total_results: 0
+results: []
+```
+
+Подготовленный будущий endpoint для создания комментария:
+
+```text
+POST /api/v1/workspaces/{workspace_slug}/projects/{project_id}/work-items/{work_item_id}/comments/
+```
+
+Важно:
+
+```text
+POST comment body будет проверяться отдельно на этапе write-back.
+На текущем этапе реальные комментарии в Plane не писались.
+```
+
 Минимально нужно узнать поля пользователя:
 
 ```text
@@ -931,6 +1298,29 @@ display_name
 email
 avatar
 role
+```
+
+Фактический статус по пользователям:
+
+```text
+project members endpoint добавлен в PlaneClient как list_project_members(project_id)
+точный response shape будет проверяться на следующем этапе, когда появится синтетическая команда и mapping employee -> Plane user
+```
+
+Фактический статус по assignee update:
+
+```text
+update_work_item_assignee(project_id, work_item_id, assignee_id) подготовлен в PlaneClient
+реальный PATCH payload будет проверяться позже на этапе optional auto-assignment
+по умолчанию автоматическое назначение делать нельзя
+```
+
+Фактический статус по cycles:
+
+```text
+Cycles созданы во всех проектах через UI
+Backend Platform имеет total_cycles: 1
+cycles endpoint будет проверяться позже, если cycle data понадобится для workload/context
 ```
 
 **Ожидаемый результат:** ты не придумываешь интеграцию вслепую, а опираешься на реальные поля Plane.
@@ -954,6 +1344,11 @@ role
 - [x] Добавить метод добавления комментария.
 - [x] Добавить метод обновления assignee, если API позволяет.
 - [x] Не добавлять ML-логику в этот файл.
+- [x] Добавить методы для современной терминологии Plane: `work_items`.
+- [x] Добавить compatibility aliases для roadmap-терминологии: `issues`.
+- [x] Добавить метод получения states.
+- [x] Добавить метод чтения comments.
+- [x] Добавить обработку HTTP-ошибок через `PlaneClientError`.
 
 Файл:
 
@@ -967,17 +1362,64 @@ src/integration/plane_client.py
 PlaneClient
 ```
 
-Методы:
+Основные методы:
 
 ```text
 healthcheck()
+api_healthcheck()
 get_workspace()
 list_projects()
 list_project_members(project_id)
+list_work_items(project_id)
+get_work_item(project_id, work_item_id)
+list_states(project_id)
+list_labels(project_id)
+list_work_item_comments(project_id, work_item_id)
+create_work_item_comment(project_id, work_item_id, text)
+update_work_item_assignee(project_id, work_item_id, assignee_id)
+```
+
+Compatibility alias methods:
+
+```text
 list_issues(project_id)
 get_issue(project_id, issue_id)
 create_issue_comment(project_id, issue_id, text)
 update_issue_assignee(project_id, issue_id, assignee_id)
+```
+
+Важно:
+
+```text
+PlaneClient содержит только REST API communication.
+PlaneClient не содержит ML-логику.
+PlaneClient не принимает решений по рекомендации.
+PlaneClient не логирует секреты.
+```
+
+Текущий проверенный read path:
+
+```text
+list_projects()
+list_work_items(project_id)
+get_work_item(project_id, work_item_id)
+list_states(project_id)
+list_labels(project_id)
+list_work_item_comments(project_id, work_item_id)
+```
+
+Подготовленные write methods:
+
+```text
+create_work_item_comment(project_id, work_item_id, text)
+update_work_item_assignee(project_id, work_item_id, assignee_id)
+```
+
+Важно:
+
+```text
+write methods подготовлены, но реальные write-back операции будут проверяться позже,
+когда будет реализован формат комментария COMPASS AI и защита от дублей.
 ```
 
 **Ожидаемый результат:** есть отдельный слой для общения с Plane.
@@ -989,12 +1431,16 @@ update_issue_assignee(project_id, issue_id, assignee_id)
 
 ## 6.4. Написать CLI для проверки Plane client
 
-- [ ] Создать `scripts/check_plane_connection.py`.
-- [ ] Скрипт должен загружать `.env`.
-- [ ] Скрипт должен вызывать `PlaneClient.healthcheck()`.
-- [ ] Скрипт должен вывести список проектов.
-- [ ] Скрипт должен вывести количество задач в каждом проекте.
-- [ ] Скрипт должен завершаться понятной ошибкой, если Plane недоступен.
+- [x] Создать `scripts/check_plane_connection.py`.
+- [x] Скрипт должен загружать `.env`.
+- [x] Скрипт должен вызывать `PlaneClient.healthcheck()`.
+- [x] Скрипт должен вывести список проектов.
+- [x] Скрипт должен вывести количество задач в каждом проекте.
+- [x] Скрипт должен завершаться понятной ошибкой, если Plane недоступен.
+- [x] Скрипт должен вывести количество states в каждом проекте.
+- [x] Скрипт должен вывести количество labels в каждом проекте.
+- [x] Скрипт должен вывести первый work item, если он есть.
+- [x] Скрипт должен продолжать проверку остальных проектов, если один проект частично не проверился.
 
 Файл:
 
@@ -1006,6 +1452,54 @@ scripts/check_plane_connection.py
 
 ```bash
 python scripts/check_plane_connection.py
+```
+
+Фактический успешный вывод:
+
+```text
+Checking Plane connection...
+Workspace slug: compass-ai-lab
+Base URL: http://localhost
+Plane API healthcheck: OK
+Projects found: 4
+
+Project: Backend Platform (BACK)
+Project ID: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+  Work items: 1
+  States: 5
+  Labels: 10
+  First work item: Реализовать JWT-авторизацию
+
+Project: Frontend Platform (FRONT)
+Project ID: 33832fc6-ade4-4ac0-a937-9ba70b0859d8
+  Work items: 0
+  States: 5
+  Labels: 0
+
+Project: Data Platform (DATA)
+Project ID: cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab
+  Work items: 0
+  States: 5
+  Labels: 0
+
+Project: Internal Tools (TOOLS)
+Project ID: 50d969c6-ae4c-4afe-a8aa-33cdb478f787
+  Work items: 0
+  States: 5
+  Labels: 0
+
+Plane connection check completed.
+```
+
+Фактический результат:
+
+```text
+COMPASS AI видит Plane.
+COMPASS AI видит workspace compass-ai-lab.
+COMPASS AI видит 4 проекта.
+COMPASS AI читает work items.
+COMPASS AI читает states.
+COMPASS AI читает labels.
 ```
 
 **Ожидаемый результат:** можно быстро проверить, что Plane и COMPASS AI видят друг друга.

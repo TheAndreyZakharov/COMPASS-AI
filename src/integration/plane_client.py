@@ -89,10 +89,13 @@ class PlaneClient:
         return []
 
     def healthcheck(self) -> bool:
-        payload = self._request("GET", "/")
-        if isinstance(payload, str):
-            return "status" in payload.lower() or bool(payload)
-        return bool(payload)
+        """Check that Plane API authentication and workspace access work."""
+        try:
+            projects = self.list_projects()
+        except PlaneClientError:
+            return False
+
+        return isinstance(projects, list)
 
     def api_healthcheck(self) -> dict[str, Any] | str:
         return self._request("GET", "/api/")
