@@ -57,3 +57,5 @@ logs/
 
 # External Plane source checkout
 plane/docker/plane-source/
+
+secret-key-1782922070009.csv
