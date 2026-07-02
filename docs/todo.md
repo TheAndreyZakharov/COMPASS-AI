@@ -2002,21 +2002,21 @@ python src/data/generate_tasks.py
 
 ## 8.4. Реализовать генерацию истории назначений
 
-- [ ] Создать `src/data/generate_assignments.py`.
-- [ ] Загружать сотрудников из `employees.csv`.
-- [ ] Загружать задачи из `tasks.csv`.
-- [ ] Для каждой исторической задачи выбирать сотрудника не полностью случайно, а с учётом навыков и загрузки.
-- [ ] Рассчитывать `skill_match_score`.
-- [ ] Рассчитывать `growth_match_score`.
-- [ ] Рассчитывать вероятность успешного выполнения.
-- [ ] Генерировать `completed_on_time`.
-- [ ] Генерировать `actual_hours`.
-- [ ] Генерировать `quality_score`.
-- [ ] Генерировать `reopened_count`.
-- [ ] Генерировать `manager_rating`.
-- [ ] Генерировать `success_label`.
-- [ ] Сохранить результат в `data/synthetic/assignments.csv`.
-- [ ] Сохранить JSON-версию в `data/synthetic/assignments.json`.
+- [x] Создать `src/data/generate_assignments.py`.
+- [x] Загружать сотрудников из `employees.csv`.
+- [x] Загружать задачи из `tasks.csv`.
+- [x] Для каждой исторической задачи выбирать сотрудника не полностью случайно, а с учётом навыков и загрузки.
+- [x] Рассчитывать `skill_match_score`.
+- [x] Рассчитывать `growth_match_score`.
+- [x] Рассчитывать вероятность успешного выполнения.
+- [x] Генерировать `completed_on_time`.
+- [x] Генерировать `actual_hours`.
+- [x] Генерировать `quality_score`.
+- [x] Генерировать `reopened_count`.
+- [x] Генерировать `manager_rating`.
+- [x] Генерировать `success_label`.
+- [x] Сохранить результат в `data/synthetic/assignments.csv`.
+- [x] Сохранить JSON-версию в `data/synthetic/assignments.json`.
 
 Команда запуска:
 
