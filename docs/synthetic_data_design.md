@@ -914,3 +914,219 @@ Average complexity:
 - Labels from Plane are used as signals, not as the only source of truth.
 - `required_skills` is a dictionary because the model needs levels, not only skill names.
 - `deadline_days`, `estimated_hours`, `complexity` and `business_criticality` are numeric because they will be used in ML features.
+
+---
+
+# 4. Assignment history schema
+
+## Goal
+
+Assignment history is the supervised learning source for COMPASS AI.
+
+Each row describes the historical result of assigning one task to one employee.
+
+The neural network will learn from pairs:
+
+```text
+task_id + employee_id -> success_label
+```
+
+## Assignment fields
+
+```text
+assignment_id
+task_id
+employee_id
+plane_work_item_id
+plane_issue_id
+assigned_at
+completed_at
+completed_on_time
+estimated_hours
+actual_hours
+quality_score
+reopened_count
+manager_rating
+employee_workload_at_assignment
+skill_match_score
+growth_match_score
+speed_score
+collaboration_score
+risk_score
+success_label
+```
+
+## Field meanings
+
+### assignment_id
+
+Internal stable assignment identifier.
+
+Example:
+
+```text
+ASN-000001
+```
+
+### task_id
+
+Internal COMPASS AI task ID.
+
+### employee_id
+
+Internal COMPASS AI employee ID.
+
+### plane_work_item_id
+
+Optional Plane work item ID.
+
+Can be empty for purely synthetic historical data.
+
+### plane_issue_id
+
+Compatibility alias.
+
+### assigned_at
+
+Assignment timestamp.
+
+### completed_at
+
+Completion timestamp.
+
+Can be empty if synthetic task failed or was not completed.
+
+### completed_on_time
+
+Boolean flag.
+
+True if completed before target date.
+
+### estimated_hours
+
+Estimated effort.
+
+### actual_hours
+
+Actual effort.
+
+### quality_score
+
+Quality score from 0 to 1.
+
+### reopened_count
+
+How many times the work item was reopened or returned for rework.
+
+### manager_rating
+
+Manager rating from 1 to 5.
+
+### employee_workload_at_assignment
+
+Employee workload from 0 to 1 at assignment time.
+
+### skill_match_score
+
+Precomputed skill match score from 0 to 1.
+
+### growth_match_score
+
+Precomputed growth match score from 0 to 1.
+
+### speed_score
+
+Normalized speed score from 0 to 1.
+
+### collaboration_score
+
+Team/collaboration score from 0 to 1.
+
+### risk_score
+
+Risk score from 0 to 1.
+
+Higher means more risky.
+
+### success_label
+
+Binary supervised learning label.
+
+Allowed values:
+
+```text
+0
+1
+```
+
+## Success label rules
+
+Base positive rule:
+
+```text
+success_label = 1 if:
+completed_on_time = true
+quality_score >= 0.75
+reopened_count <= 1
+employee_workload_at_assignment <= 0.85
+```
+
+Base negative rule:
+
+```text
+success_label = 0 if:
+completed_on_time = false
+or quality_score < 0.60
+or reopened_count >= 3
+or employee_workload_at_assignment > 0.95
+```
+
+Ambiguous middle cases should be generated probabilistically.
+
+## Recommended probability formula for synthetic data
+
+The generator can calculate success probability using weighted factors:
+
+```text
+success_probability =
+  0.35 * skill_match_score
++ 0.20 * deadline_reliability
++ 0.15 * avg_quality_score
++ 0.10 * avg_completion_speed
++ 0.10 * collaboration_score
++ 0.10 * growth_match_score
+- 0.25 * overload_penalty
+- 0.15 * complexity_gap_penalty
+```
+
+Then sample `success_label` from this probability.
+
+## Overload penalty
+
+```text
+0.00 if workload <= 0.70
+0.20 if 0.70 < workload <= 0.85
+0.50 if 0.85 < workload <= 0.95
+0.80 if workload > 0.95
+```
+
+## Complexity gap penalty
+
+The penalty should increase when task complexity is too high for the employee grade.
+
+Suggested comfortable complexity:
+
+```text
+junior: 1–2
+middle: 2–4
+senior: 3–5
+lead: 4–5
+```
+
+## Design decisions
+
+- `success_label` is binary for MVP neural network training.
+- Detailed scores are still stored because future multi-output training may predict speed, quality, learning score and overload risk.
+- Synthetic labels should not be perfectly deterministic, otherwise the ML task becomes too easy and unrealistic.
+- Workload is included both as an employee field and as `employee_workload_at_assignment` because historical workload may differ from current workload.
+- `plane_work_item_id` is optional because most historical assignments will be synthetic and not necessarily present in Plane.

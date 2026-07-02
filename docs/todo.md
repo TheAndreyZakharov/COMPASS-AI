@@ -1522,8 +1522,28 @@ COMPASS AI читает labels.
 - [x] Добавить разные цели развития.
 - [x] Добавить разную текущую загрузку.
 - [x] Не использовать реальные персональные данные.
+- [x] Создать человекочитаемый design-документ.
+- [x] Создать машинно-читаемую YAML-схему для будущего генератора данных.
 
-Рекомендуемый состав:
+Design-документ:
+
+```text
+docs/synthetic_data_design.md
+```
+
+Машинно-читаемая схема:
+
+```text
+config/synthetic_schema.yaml
+```
+
+Фактический размер синтетической команды:
+
+```text
+18 сотрудников
+```
+
+Фактический состав:
 
 ```text
 Backend Developer Junior — 2 человека
@@ -1538,6 +1558,26 @@ DevOps Engineer — 1 человек
 Team Lead — 1 человек
 ```
 
+Роли в YAML:
+
+```text
+backend_developer
+frontend_developer
+qa_engineer
+data_ml_engineer
+devops_engineer
+team_lead
+```
+
+Грейды:
+
+```text
+junior
+middle
+senior
+lead
+```
+
 Поля сотрудника:
 
 ```text
@@ -1550,11 +1590,21 @@ experience_years
 primary_stack
 skills
 current_workload
+active_tasks_count
 avg_completion_speed
 avg_quality_score
 deadline_reliability
 learning_goals
 mentor_level
+availability
+timezone
+```
+
+Важное решение:
+
+```text
+plane_user_id может быть пустым на этапе synthetic data.
+Связь employee_id -> plane_user_id будет сделана позже через data/processed/employee_plane_mapping.csv.
 ```
 
 **Ожидаемый результат:** есть понятная учебная команда, для которой можно генерировать задачи и историю.
@@ -1571,6 +1621,9 @@ mentor_level
 - [x] Создать список доменных навыков.
 - [x] Создать шкалу уровней навыков от 0 до 5.
 - [x] Привязать навыки к ролям.
+- [x] Подготовить taxonomy для будущего `skill_vectorizer.py`.
+- [x] Подготовить taxonomy для rule-based baseline.
+- [x] Подготовить taxonomy для ML features.
 
 Технические навыки:
 
@@ -1609,6 +1662,19 @@ planning
 risk_management
 ```
 
+Доменные навыки:
+
+```text
+backend_architecture
+frontend_architecture
+qa_strategy
+data_pipelines
+ml_experimentation
+devops_operations
+product_thinking
+team_coordination
+```
+
 Уровни:
 
 ```text
@@ -1618,6 +1684,14 @@ risk_management
 3 — уверенный рабочий уровень
 4 — сильный уровень
 5 — эксперт
+```
+
+Фактическое решение:
+
+```text
+Одна taxonomy используется и для сотрудников, и для задач.
+Отсутствующий навык считается уровнем 0.
+Порядок skills должен быть стабильным при feature engineering.
 ```
 
 **Ожидаемый результат:** skills можно превратить в вектор для модели.
@@ -1634,6 +1708,8 @@ risk_management
 - [x] Для каждого типа определить среднюю сложность.
 - [x] Для каждого типа определить среднее время выполнения.
 - [x] Добавить задачи для развития junior/middle сотрудников.
+- [x] Учесть реальные поля Plane work items из этапа 6.
+- [x] Добавить совместимость `plane_work_item_id` и `plane_issue_id`.
 
 Типы задач:
 
@@ -1656,7 +1732,10 @@ documentation_task
 
 ```text
 task_id
+plane_work_item_id
 plane_issue_id
+plane_project_id
+project_key
 title
 description
 task_type
@@ -1669,6 +1748,49 @@ deadline_days
 estimated_hours
 dependencies_count
 is_growth_task
+source
+created_at
+updated_at
+```
+
+Project keys:
+
+```text
+BACK -> Backend Platform
+FRONT -> Frontend Platform
+DATA -> Data Platform
+TOOLS -> Internal Tools
+```
+
+Приоритеты, совместимые с Plane:
+
+```text
+none
+low
+medium
+high
+urgent
+```
+
+Связь с Plane:
+
+```text
+Plane id -> plane_work_item_id
+Plane name -> title
+Plane description_html -> description
+Plane priority -> priority
+Plane target_date -> deadline_days
+Plane project -> plane_project_id
+Plane labels -> required_stack / task_type / urgency hints
+Plane estimate_point -> estimated_hours or estimate feature later
+Plane state -> workflow state
+```
+
+Важное решение:
+
+```text
+Внутри COMPASS AI предпочитаем plane_work_item_id.
+plane_issue_id оставляем как alias для совместимости с roadmap.
 ```
 
 **Ожидаемый результат:** задачи можно генерировать системно, а не случайным хаосом.
@@ -1680,11 +1802,15 @@ is_growth_task
 
 ## 7.4. Определить историю назначений
 
-- [ ] Описать, как будет выглядеть историческое назначение.
-- [ ] Каждое назначение — это пара `task_id + employee_id`.
-- [ ] Для каждой пары хранить результат выполнения.
-- [ ] Добавить признаки качества, скорости и просрочки.
-- [ ] Добавить целевую метку `success_label`.
+- [x] Описать, как будет выглядеть историческое назначение.
+- [x] Каждое назначение — это пара `task_id + employee_id`.
+- [x] Для каждой пары хранить результат выполнения.
+- [x] Добавить признаки качества, скорости и просрочки.
+- [x] Добавить целевую метку `success_label`.
+- [x] Добавить признаки для будущего multi-output ML.
+- [x] Добавить вероятностную формулу synthetic success.
+- [x] Добавить overload penalty.
+- [x] Добавить complexity gap penalty.
 
 Поля истории:
 
@@ -1692,6 +1818,8 @@ is_growth_task
 assignment_id
 task_id
 employee_id
+plane_work_item_id
+plane_issue_id
 assigned_at
 completed_at
 completed_on_time
@@ -1703,6 +1831,9 @@ manager_rating
 employee_workload_at_assignment
 skill_match_score
 growth_match_score
+speed_score
+collaboration_score
+risk_score
 success_label
 ```
 
@@ -1711,6 +1842,31 @@ success_label
 ```text
 success_label = 1, если completed_on_time = true, quality_score >= 0.75, reopened_count <= 1, employee_workload_at_assignment <= 0.85
 success_label = 0, если задача просрочена, quality_score < 0.6, reopened_count >= 3 или workload > 0.95
+```
+
+Формула вероятности успеха для synthetic data:
+
+```text
+success_probability =
+  0.35 * skill_match_score
++ 0.20 * deadline_reliability
++ 0.15 * avg_quality_score
++ 0.10 * avg_completion_speed
++ 0.10 * collaboration_score
++ 0.10 * growth_match_score
+- 0.25 * overload_penalty
+- 0.15 * complexity_gap_penalty
+```
+
+Важное решение:
+
+```text
+success_label остаётся binary для MVP.
+Дополнительные score-поля сохраняются заранее для будущего multi-output варианта модели:
+speed_score
+quality_score
+learning_score
+overload_risk
 ```
 
 **Ожидаемый результат:** данные подходят для supervised learning.

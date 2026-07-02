@@ -401,3 +401,84 @@ tasks:
     labels: required_stack
     estimate_point: estimated_hours
     state: workflow_states
+
+assignments:
+  assignment_fields:
+    - assignment_id
+    - task_id
+    - employee_id
+    - plane_work_item_id
+    - plane_issue_id
+    - assigned_at
+    - completed_at
+    - completed_on_time
+    - estimated_hours
+    - actual_hours
+    - quality_score
+    - reopened_count
+    - manager_rating
+    - employee_workload_at_assignment
+    - skill_match_score
+    - growth_match_score
+    - speed_score
+    - collaboration_score
+    - risk_score
+    - success_label
+
+  success_label:
+    positive_rule:
+      completed_on_time: true
+      min_quality_score: 0.75
+      max_reopened_count: 1
+      max_employee_workload_at_assignment: 0.85
+
+    negative_rule:
+      completed_on_time: false
+      max_quality_score: 0.60
+      min_reopened_count: 3
+      min_employee_workload_at_assignment: 0.95
+
+  success_probability_weights:
+    skill_match_score: 0.35
+    deadline_reliability: 0.20
+    avg_quality_score: 0.15
+    avg_completion_speed: 0.10
+    collaboration_score: 0.10
+    growth_match_score: 0.10
+    overload_penalty: -0.25
+    complexity_gap_penalty: -0.15
+
+  overload_penalty:
+    low_or_normal:
+      max_workload: 0.70
+      penalty: 0.00
+    high:
+      min_workload: 0.70
+      max_workload: 0.85
+      penalty: 0.20
+    risky:
+      min_workload: 0.85
+      max_workload: 0.95
+      penalty: 0.50
+    critical:
+      min_workload: 0.95
+      max_workload: 1.00
+      penalty: 0.80
+
+  comfortable_complexity_by_grade:
+    junior:
+      min: 1
+      max: 2
+    middle:
+      min: 2
+      max: 4
+    senior:
+      min: 3
+      max: 5
+    lead:
+      min: 4
+      max: 5
+
+  label_values:
+    - 0
+    - 1
