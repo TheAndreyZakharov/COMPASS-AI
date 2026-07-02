@@ -107,3 +107,141 @@ team:
     - available
     - partially_available
     - unavailable
+
+skills:
+  level_scale:
+    0: no_skill
+    1: basic_awareness
+    2: simple_tasks
+    3: working_level
+    4: strong_level
+    5: expert_level
+
+  technical:
+    - Python
+    - FastAPI
+    - Django
+    - PostgreSQL
+    - Redis
+    - Docker
+    - Kubernetes
+    - React
+    - TypeScript
+    - Next.js
+    - HTML/CSS
+    - Testing
+    - CI/CD
+    - Data Analysis
+    - Machine Learning
+    - PyTorch
+    - API Design
+    - System Design
+    - Monitoring
+    - Security
+
+  soft_management:
+    - communication
+    - ownership
+    - mentoring
+    - documentation
+    - code_review
+    - planning
+    - risk_management
+
+  domain:
+    - backend_architecture
+    - frontend_architecture
+    - qa_strategy
+    - data_pipelines
+    - ml_experimentation
+    - devops_operations
+    - product_thinking
+    - team_coordination
+
+  role_skill_profiles:
+    backend_developer:
+      primary:
+        - Python
+        - FastAPI
+        - PostgreSQL
+        - Redis
+        - Docker
+        - API Design
+        - Testing
+        - System Design
+      secondary:
+        - CI/CD
+        - Monitoring
+        - Security
+        - documentation
+        - code_review
+
+    frontend_developer:
+      primary:
+        - React
+        - TypeScript
+        - Next.js
+        - HTML/CSS
+        - Testing
+        - API Design
+      secondary:
+        - documentation
+        - code_review
+        - communication
+        - frontend_architecture
+
+    qa_engineer:
+      primary:
+        - Testing
+        - API Design
+        - documentation
+        - risk_management
+      secondary:
+        - Python
+        - CI/CD
+        - Monitoring
+        - qa_strategy
+
+    data_ml_engineer:
+      primary:
+        - Python
+        - Data Analysis
+        - Machine Learning
+        - PyTorch
+        - data_pipelines
+        - ml_experimentation
+      secondary:
+        - PostgreSQL
+        - Docker
+        - Testing
+        - documentation
+
+    devops_engineer:
+      primary:
+        - Docker
+        - Kubernetes
+        - CI/CD
+        - Monitoring
+        - Security
+        - devops_operations
+      secondary:
+        - Python
+        - PostgreSQL
+        - Redis
+        - risk_management
+
+    team_lead:
+      primary:
+        - planning
+        - risk_management
+        - mentoring
+        - communication
+        - ownership
+        - team_coordination
+        - System Design
+        - code_review
+      secondary:
+        - API Design
+        - documentation
+        - backend_architecture
+        - product_thinking

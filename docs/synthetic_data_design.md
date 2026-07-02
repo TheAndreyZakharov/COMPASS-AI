@@ -258,3 +258,215 @@ Europe/Berlin
 - `plane_user_id` is nullable because synthetic employees do not have to be real Plane users at the schema design stage.
 - Workload and quality fields are numeric from the beginning because they will be used by rule-based scoring and neural network features.
 - Learning goals are included from the beginning because one recommendation mode is `growth`.
+
+---
+
+# 2. Skills taxonomy
+
+## Skill level scale
+
+All skills use integer levels from 0 to 5.
+
+```text
+0 -> no skill
+1 -> basic awareness
+2 -> can solve simple tasks
+3 -> confident working level
+4 -> strong level
+5 -> expert level
+```
+
+## Technical skills
+
+```text
+Python
+FastAPI
+Django
+PostgreSQL
+Redis
+Docker
+Kubernetes
+React
+TypeScript
+Next.js
+HTML/CSS
+Testing
+CI/CD
+Data Analysis
+Machine Learning
+PyTorch
+API Design
+System Design
+Monitoring
+Security
+```
+
+## Soft and management skills
+
+```text
+communication
+ownership
+mentoring
+documentation
+code_review
+planning
+risk_management
+```
+
+## Domain skills
+
+```text
+backend_architecture
+frontend_architecture
+qa_strategy
+data_pipelines
+ml_experimentation
+devops_operations
+product_thinking
+team_coordination
+```
+
+## Role-to-skill expectations
+
+### backend_developer
+
+Primary skills:
+
+```text
+Python
+FastAPI
+PostgreSQL
+Redis
+Docker
+API Design
+Testing
+System Design
+```
+
+Secondary skills:
+
+```text
+CI/CD
+Monitoring
+Security
+documentation
+code_review
+```
+
+### frontend_developer
+
+Primary skills:
+
+```text
+React
+TypeScript
+Next.js
+HTML/CSS
+Testing
+API Design
+```
+
+Secondary skills:
+
+```text
+documentation
+code_review
+communication
+frontend_architecture
+```
+
+### qa_engineer
+
+Primary skills:
+
+```text
+Testing
+API Design
+documentation
+risk_management
+```
+
+Secondary skills:
+
+```text
+Python
+CI/CD
+Monitoring
+qa_strategy
+```
+
+### data_ml_engineer
+
+Primary skills:
+
+```text
+Python
+Data Analysis
+Machine Learning
+PyTorch
+data_pipelines
+ml_experimentation
+```
+
+Secondary skills:
+
+```text
+PostgreSQL
+Docker
+Testing
+documentation
+```
+
+### devops_engineer
+
+Primary skills:
+
+```text
+Docker
+Kubernetes
+CI/CD
+Monitoring
+Security
+devops_operations
+```
+
+Secondary skills:
+
+```text
+Python
+PostgreSQL
+Redis
+risk_management
+```
+
+### team_lead
+
+Primary skills:
+
+```text
+planning
+risk_management
+mentoring
+communication
+ownership
+team_coordination
+System Design
+code_review
+```
+
+Secondary skills:
+
+```text
+API Design
+documentation
+backend_architecture
+product_thinking
+```
+
+## Design decisions
+
+- Technical skills are capitalized because they represent technologies and concrete engineering capabilities.
+- Soft and domain skills are lowercase snake_case because they are abstract competency dimensions.
+- The same taxonomy will be used for employees and tasks.
+- Missing skills should be treated as level 0.
+- Skill vectors must keep a stable order in feature engineering.
