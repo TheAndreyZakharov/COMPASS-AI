@@ -30,6 +30,10 @@ def clamp(value: float, min_value: float = 0.0, max_value: float = 1.0) -> float
     return round(max(min_value, min(max_value, value)), 4)
 
 
+def weighted_choice(weights: dict[str, float], rng: random.Random) -> str:
+    return rng.choices(list(weights.keys()), weights=list(weights.values()), k=1)[0]
+
+
 def skill_match_score(
     employee_skills: dict[str, int],
     required_skills: dict[str, int],
@@ -124,7 +128,6 @@ def role_task_affinity(role: str, task_type: str) -> float:
         "devops_engineer": {
             "devops_task",
             "security_task",
-            "monitoring_task",
         },
         "team_lead": {
             "refactoring",
@@ -137,7 +140,48 @@ def role_task_affinity(role: str, task_type: str) -> float:
     if task_type in affinity.get(role, set()):
         return 1.0
 
-    return 0.45
+    return 0.35
+
+
+def deadline_pressure(task: pd.Series) -> float:
+    deadline_days = float(task["deadline_days"])
+    complexity = float(task["complexity"])
+    estimated_hours = float(task["estimated_hours"])
+
+    pressure = 0.0
+
+    if deadline_days <= 3:
+        pressure += 0.35
+    elif deadline_days <= 7:
+        pressure += 0.22
+    elif deadline_days <= 14:
+        pressure += 0.10
+
+    if estimated_hours >= 80:
+        pressure += 0.18
+    elif estimated_hours >= 50:
+        pressure += 0.10
+
+    if complexity >= 5:
+        pressure += 0.18
+    elif complexity >= 4:
+        pressure += 0.10
+
+    return clamp(pressure)
+
+
+def business_risk(task: pd.Series) -> float:
+    criticality = float(task["business_criticality"])
+    priority = str(task["priority"])
+
+    risk = (criticality - 1.0) / 4.0
+
+    if priority == "urgent":
+        risk += 0.20
+    elif priority == "high":
+        risk += 0.12
+
+    return clamp(risk)
 
 
 def calculate_assignment_scores(
@@ -157,8 +201,9 @@ def calculate_assignment_scores(
         str(employee["grade"]),
         int(task["complexity"]),
     )
-
     role_affinity = role_task_affinity(str(employee["role"]), str(task["task_type"]))
+    deadline_risk = deadline_pressure(task)
+    business_risk_score = business_risk(task)
 
     speed_score = clamp(float(employee["avg_completion_speed"]) * (1.05 - overload / 2))
     collaboration_score = clamp(
@@ -166,11 +211,25 @@ def calculate_assignment_scores(
         + float(employee["mentor_level"]) * 0.06
         + (0.08 if employee["grade"] in {"senior", "lead"} else 0.0)
     )
+
     risk_score = clamp(
-        overload * 0.50
+        overload * 0.45
         + complexity_gap * 0.35
         + (1.0 - skill_score) * 0.25
         + (1.0 - role_affinity) * 0.20
+        + deadline_risk * 0.15
+        + business_risk_score * 0.12
+    )
+
+    suitability = clamp(
+        0.40 * skill_score
+        + 0.18 * role_affinity
+        + 0.13 * float(employee["deadline_reliability"])
+        + 0.12 * float(employee["avg_quality_score"])
+        + 0.08 * speed_score
+        + 0.09 * growth_score
+        - 0.22 * overload
+        - 0.15 * complexity_gap
     )
 
     return {
@@ -182,58 +241,325 @@ def calculate_assignment_scores(
         "overload_penalty": overload,
         "complexity_gap_penalty": complexity_gap,
         "role_affinity": role_affinity,
+        "deadline_pressure": deadline_risk,
+        "business_risk": business_risk_score,
+        "suitability": suitability,
     }
 
 
 def success_probability(
     employee: pd.Series,
+    task: pd.Series,
     scores: dict[str, float],
+    scenario: str,
     rng: random.Random,
+    noise_std: float,
 ) -> float:
     probability = (
-        0.35 * scores["skill_match_score"]
-        + 0.20 * float(employee["deadline_reliability"])
-        + 0.15 * float(employee["avg_quality_score"])
+        0.34 * scores["skill_match_score"]
+        + 0.17 * float(employee["deadline_reliability"])
+        + 0.14 * float(employee["avg_quality_score"])
         + 0.10 * float(employee["avg_completion_speed"])
-        + 0.10 * scores["collaboration_score"]
-        + 0.10 * scores["growth_match_score"]
-        - 0.25 * scores["overload_penalty"]
-        - 0.15 * scores["complexity_gap_penalty"]
+        + 0.08 * scores["collaboration_score"]
+        + 0.07 * scores["growth_match_score"]
+        + 0.05 * scores["role_affinity"]
+        - 0.22 * scores["overload_penalty"]
+        - 0.18 * scores["complexity_gap_penalty"]
+        - 0.10 * scores["deadline_pressure"]
+        - 0.08 * scores["business_risk"]
     )
 
-    probability += rng.normalvariate(0.0, 0.08)
-    return clamp(probability, 0.02, 0.98)
+    scenario_shift = {
+        "ideal_match": 0.08,
+        "balanced_match": 0.03,
+        "growth_stretch": -0.03,
+        "overload_risk": -0.16,
+        "wrong_role": -0.28,
+        "urgent_deadline": -0.12,
+        "random_assignment": -0.08,
+    }[scenario]
+
+    probability += scenario_shift
+    probability += rng.normalvariate(0.0, noise_std)
+
+    return clamp(probability, 0.01, 0.99)
 
 
-def choose_employee_for_task(
+def employee_candidates_for_task(
     employees: pd.DataFrame,
     task: pd.Series,
-    rng: random.Random,
-) -> tuple[pd.Series, dict[str, float]]:
-    candidates: list[tuple[float, int, dict[str, float]]] = []
+) -> list[tuple[int, dict[str, float]]]:
+    candidates: list[tuple[int, dict[str, float]]] = []
 
     for employee_index, employee in employees.iterrows():
         scores = calculate_assignment_scores(employee, task)
-        suitability = (
-            0.45 * scores["skill_match_score"]
-            + 0.20 * scores["role_affinity"]
-            + 0.15 * float(employee["deadline_reliability"])
-            + 0.10 * float(employee["avg_quality_score"])
-            + 0.10 * scores["growth_match_score"]
-            - 0.25 * scores["overload_penalty"]
-        )
-        suitability += rng.normalvariate(0.0, 0.05)
-        candidates.append((suitability, int(employee_index), scores))
+        candidates.append((int(employee_index), scores))
 
-    candidates.sort(reverse=True, key=lambda item: item[0])
+    candidates.sort(reverse=True, key=lambda item: item[1]["suitability"])
+    return candidates
 
-    pool_size = min(5, len(candidates))
-    top_candidates = candidates[:pool_size]
-    weights = [max(0.01, item[0]) for item in top_candidates]
-    chosen = rng.choices(top_candidates, weights=weights, k=1)[0]
 
-    employee = employees.loc[chosen[1]]
-    return employee, chosen[2]
+def choose_employee_by_scenario(
+    employees: pd.DataFrame,
+    task: pd.Series,
+    scenario: str,
+    rng: random.Random,
+    candidate_pool_size: int,
+) -> tuple[pd.Series, dict[str, float]]:
+    candidates = employee_candidates_for_task(employees, task)
+
+    if scenario == "ideal_match":
+        pool = candidates[: max(1, candidate_pool_size)]
+        weights = [max(0.01, item[1]["suitability"]) for item in pool]
+
+    elif scenario == "balanced_match":
+        upper = max(candidate_pool_size, len(candidates) // 2)
+        pool = candidates[:upper]
+        weights = [
+            max(
+                0.01,
+                item[1]["suitability"] - item[1]["overload_penalty"] * 0.20,
+            )
+            for item in pool
+        ]
+
+    elif scenario == "growth_stretch":
+        pool = sorted(
+            candidates,
+            reverse=True,
+            key=lambda item: (
+                item[1]["growth_match_score"],
+                -item[1]["complexity_gap_penalty"],
+                item[1]["suitability"],
+            ),
+        )[: max(candidate_pool_size, 6)]
+        weights = [
+            max(0.01, 0.50 + item[1]["growth_match_score"] - item[1]["risk_score"] * 0.30)
+            for item in pool
+        ]
+
+    elif scenario == "overload_risk":
+        pool = sorted(
+            candidates,
+            reverse=True,
+            key=lambda item: (
+                item[1]["overload_penalty"],
+                item[1]["skill_match_score"],
+            ),
+        )[: max(candidate_pool_size, 6)]
+        weights = [max(0.01, 0.40 + item[1]["overload_penalty"]) for item in pool]
+
+    elif scenario == "wrong_role":
+        pool = sorted(
+            candidates,
+            key=lambda item: (
+                item[1]["role_affinity"],
+                item[1]["skill_match_score"],
+            ),
+        )[: max(candidate_pool_size, 6)]
+        weights = [
+            max(0.01, 1.0 - item[1]["role_affinity"] + 1.0 - item[1]["skill_match_score"])
+            for item in pool
+        ]
+
+    elif scenario == "urgent_deadline":
+        pool = sorted(
+            candidates,
+            reverse=True,
+            key=lambda item: (
+                item[1]["deadline_pressure"],
+                item[1]["skill_match_score"],
+                item[1]["overload_penalty"],
+            ),
+        )[: max(candidate_pool_size, 6)]
+        weights = [
+            max(
+                0.01,
+                item[1]["skill_match_score"]
+                + item[1]["deadline_pressure"]
+                + item[1]["overload_penalty"] * 0.40,
+            )
+            for item in pool
+        ]
+
+    else:
+        pool = candidates
+        weights = [1.0 for _ in pool]
+
+    chosen_index, scores = rng.choices(pool, weights=weights, k=1)[0]
+    employee = employees.loc[chosen_index]
+    return employee, scores
+
+
+def choose_task_for_scenario(
+    tasks: pd.DataFrame,
+    scenario: str,
+    seed: int,
+    index: int,
+    attempt: int,
+) -> pd.Series:
+    if scenario == "urgent_deadline":
+        urgent_tasks = tasks[
+            (tasks["priority"].isin(["high", "urgent"]))
+            | (tasks["deadline_days"].astype(float) <= 7)
+        ]
+
+        if not urgent_tasks.empty:
+            return urgent_tasks.sample(n=1, random_state=seed + index + attempt).iloc[0]
+
+    if scenario in {"wrong_role", "overload_risk"}:
+        hard_tasks = tasks[
+            (tasks["complexity"].astype(int) >= 4)
+            | (tasks["business_criticality"].astype(int) >= 4)
+        ]
+
+        if not hard_tasks.empty:
+            return hard_tasks.sample(n=1, random_state=seed + index + attempt).iloc[0]
+
+    return tasks.sample(n=1, random_state=seed + index + attempt).iloc[0]
+
+
+def outcome_from_probability(
+    probability: float,
+    scenario: str,
+    rng: random.Random,
+) -> tuple[str, int]:
+    random_value = rng.random()
+
+    if random_value < probability:
+        if scenario == "growth_stretch" and rng.random() < 0.22:
+            return "partial_success", 1
+
+        if scenario == "urgent_deadline" and rng.random() < 0.18:
+            return "delayed_delivery", 0
+
+        return "full_success", 1
+
+    if scenario == "wrong_role":
+        return rng.choice(["failed_delivery", "cancelled_or_not_finished"]), 0
+
+    if scenario == "overload_risk":
+        return rng.choice(["delayed_delivery", "failed_delivery"]), 0
+
+    if scenario == "urgent_deadline":
+        return rng.choice(["delayed_delivery", "failed_delivery"]), 0
+
+    if scenario == "growth_stretch":
+        return rng.choice(["partial_success", "delayed_delivery", "failed_delivery"]), 
+    rng.choice([0, 1])
+
+    return rng.choice(["delayed_delivery", "failed_delivery", "cancelled_or_not_finished"]), 0
+
+
+def delivery_speed_category(
+    outcome_status: str,
+    actual_hours: float,
+    estimated_hours: float,
+    completed_on_time: bool,
+) -> str:
+    if outcome_status == "cancelled_or_not_finished":
+        return "not_finished"
+
+    ratio = actual_hours / max(1.0, estimated_hours)
+
+    if completed_on_time and ratio <= 0.75:
+        return "very_fast"
+
+    if completed_on_time:
+        return "on_time"
+
+    if ratio <= 1.35:
+        return "slightly_delayed"
+
+    return "heavily_delayed"
+
+
+def build_outcome_metrics(
+    task: pd.Series,
+    employee: pd.Series,
+    outcome_status: str,
+    success_label: int,
+    rng: random.Random,
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    estimated_hours = float(task["estimated_hours"])
+
+    actual_multiplier = rng.uniform(
+        float(config["assignment_generation"]["min_actual_hours_multiplier"]),
+        float(config["assignment_generation"]["max_actual_hours_multiplier"]),
+    )
+
+    if outcome_status == "full_success":
+        actual_multiplier *= rng.uniform(0.60, 1.02)
+        quality_score = clamp(rng.normalvariate(0.86, 0.07))
+        reopened_count = rng.choice([0, 0, 0, 1])
+        manager_rating = rng.choice([4, 4, 5, 5])
+
+    elif outcome_status == "partial_success":
+        actual_multiplier *= rng.uniform(0.90, 1.25)
+        quality_score = clamp(rng.normalvariate(0.74, 0.09))
+        reopened_count = rng.choice([0, 1, 1, 2])
+        manager_rating = rng.choice([3, 4, 4])
+
+    elif outcome_status == "delayed_delivery":
+        actual_multiplier *= rng.uniform(1.20, 1.80)
+        quality_score = clamp(rng.normalvariate(0.68, 0.12))
+        reopened_count = rng.choice([1, 1, 2, 3])
+        manager_rating = rng.choice([2, 3, 3, 4])
+
+    elif outcome_status == "failed_delivery":
+        actual_multiplier *= rng.uniform(1.30, 2.20)
+        quality_score = clamp(rng.normalvariate(0.48, 0.15))
+        reopened_count = rng.randint(2, int(config["assignment_generation"]["reopened_count_max"]))
+        manager_rating = rng.choice([1, 2, 2, 3])
+
+    else:
+        actual_multiplier *= rng.uniform(0.20, 0.80)
+        quality_score = clamp(rng.normalvariate(0.25, 0.12))
+        reopened_count = rng.randint(0, 3)
+        manager_rating = rng.choice([1, 1, 2])
+
+    actual_hours = round(max(0.5, estimated_hours * actual_multiplier), 1)
+
+    planned_duration_days = max(1, int(float(task["deadline_days"])))
+
+    if outcome_status == "cancelled_or_not_finished":
+        completed_on_time = False
+        delay_days = planned_duration_days + rng.randint(3, 21)
+
+    elif outcome_status in {"full_success", "partial_success"}:
+        completed_on_time = rng.random() < 0.92
+        delay_days = 0 if completed_on_time else rng.randint(1, 5)
+
+    elif outcome_status == "delayed_delivery":
+        completed_on_time = False
+        delay_days = rng.randint(1, 14)
+
+    else:
+        completed_on_time = False
+        delay_days = rng.randint(3, 30)
+
+    employee_workload = clamp(
+        float(employee["current_workload"]) + rng.normalvariate(0.0, 0.10)
+    )
+
+    return {
+        "estimated_hours": estimated_hours,
+        "actual_hours": actual_hours,
+        "quality_score": quality_score,
+        "reopened_count": reopened_count,
+        "manager_rating": manager_rating,
+        "completed_on_time": bool(completed_on_time),
+        "delay_days": int(delay_days),
+        "employee_workload_at_assignment": employee_workload,
+        "delivery_speed_category": delivery_speed_category(
+            outcome_status=outcome_status,
+            actual_hours=actual_hours,
+            estimated_hours=estimated_hours,
+            completed_on_time=completed_on_time,
+        ),
+        "success_label": int(success_label),
+    }
 
 
 def generate_assignments() -> pd.DataFrame:
@@ -256,6 +582,10 @@ def generate_assignments() -> pd.DataFrame:
     tasks = pd.read_csv(tasks_path)
 
     assignments_count = int(config["assignments_count"])
+    candidate_pool_size = int(config["assignment_generation"]["candidate_pool_size"])
+    scenario_weights = config["assignment_generation"]["scenario_weights"]
+    noise_std = float(config["assignment_generation"]["success_probability_noise"])
+
     date_start = datetime.fromisoformat(config["date_range_start"])
     date_end = datetime.fromisoformat(config["date_range_end"])
     total_days = (date_end - date_start).days
@@ -271,9 +601,18 @@ def generate_assignments() -> pd.DataFrame:
         )
 
     for index in range(1, assignments_count + 1):
-        for attempt in range(100):
-            task = tasks.sample(n=1, random_state=seed + index + attempt).iloc[0]
-            employee, scores = choose_employee_for_task(employees, task, rng)
+        scenario = weighted_choice(scenario_weights, rng)
+
+        for attempt in range(250):
+            task = choose_task_for_scenario(tasks, scenario, seed, index, attempt)
+            employee, scores = choose_employee_by_scenario(
+                employees=employees,
+                task=task,
+                scenario=scenario,
+                rng=rng,
+                candidate_pool_size=candidate_pool_size,
+            )
+
             pair_key = (str(task["task_id"]), str(employee["employee_id"]))
 
             if pair_key not in used_pairs:
@@ -282,50 +621,35 @@ def generate_assignments() -> pd.DataFrame:
         else:
             raise RuntimeError("Could not generate a unique task+employee assignment pair.")
 
-        probability = success_probability(employee, scores, rng)
-        success_label = int(rng.random() < probability)
-
-        estimated_hours = float(task["estimated_hours"])
-        actual_multiplier = rng.uniform(
-            config["assignment_generation"]["min_actual_hours_multiplier"],
-            config["assignment_generation"]["max_actual_hours_multiplier"],
+        probability = success_probability(
+            employee=employee,
+            task=task,
+            scores=scores,
+            scenario=scenario,
+            rng=rng,
+            noise_std=noise_std,
         )
 
-        if success_label == 1:
-            actual_multiplier *= rng.uniform(0.75, 1.10)
-        else:
-            actual_multiplier *= rng.uniform(1.05, 1.60)
+        outcome_status, success_label = outcome_from_probability(probability, scenario, rng)
 
-        actual_hours = round(max(1.0, estimated_hours * actual_multiplier), 1)
+        outcome_metrics = build_outcome_metrics(
+            task=task,
+            employee=employee,
+            outcome_status=outcome_status,
+            success_label=success_label,
+            rng=rng,
+            config=config,
+        )
 
         assigned_at = date_start + timedelta(days=rng.randint(0, total_days))
-        planned_duration_days = max(1, int(float(task["deadline_days"])))
-        completed_on_time = success_label == 1 or rng.random() < 0.25
 
-        if completed_on_time:
-            completed_at = assigned_at + timedelta(
-                days=rng.randint(1, planned_duration_days),
-            )
+        if outcome_status == "cancelled_or_not_finished":
+            completed_at = ""
         else:
             completed_at = assigned_at + timedelta(
-                days=planned_duration_days + rng.randint(1, 14),
+                days=max(1, int(float(task["deadline_days"])) + outcome_metrics["delay_days"])
             )
-
-        if success_label == 1:
-            quality_score = clamp(rng.normalvariate(0.82, 0.08))
-            reopened_count = rng.choice([0, 0, 0, 1])
-            manager_rating = rng.choice([4, 4, 5])
-        else:
-            quality_score = clamp(rng.normalvariate(0.58, 0.16))
-            reopened_count = rng.randint(
-                1,
-                int(config["assignment_generation"]["reopened_count_max"]),
-            )
-            manager_rating = rng.choice([1, 2, 2, 3])
-
-        employee_workload = clamp(
-            float(employee["current_workload"]) + rng.normalvariate(0.0, 0.08)
-        )
+            completed_at = completed_at.isoformat()
 
         assignments.append(
             {
@@ -335,20 +659,27 @@ def generate_assignments() -> pd.DataFrame:
                 "plane_work_item_id": task.get("plane_work_item_id", ""),
                 "plane_issue_id": task.get("plane_issue_id", ""),
                 "assigned_at": assigned_at.isoformat(),
-                "completed_at": completed_at.isoformat(),
-                "completed_on_time": bool(completed_on_time),
-                "estimated_hours": estimated_hours,
-                "actual_hours": actual_hours,
-                "quality_score": quality_score,
-                "reopened_count": reopened_count,
-                "manager_rating": manager_rating,
-                "employee_workload_at_assignment": employee_workload,
+                "completed_at": completed_at,
+                "completed_on_time": outcome_metrics["completed_on_time"],
+                "estimated_hours": outcome_metrics["estimated_hours"],
+                "actual_hours": outcome_metrics["actual_hours"],
+                "quality_score": outcome_metrics["quality_score"],
+                "reopened_count": outcome_metrics["reopened_count"],
+                "manager_rating": outcome_metrics["manager_rating"],
+                "employee_workload_at_assignment": outcome_metrics[
+                    "employee_workload_at_assignment"
+                ],
                 "skill_match_score": scores["skill_match_score"],
                 "growth_match_score": scores["growth_match_score"],
                 "speed_score": scores["speed_score"],
                 "collaboration_score": scores["collaboration_score"],
                 "risk_score": scores["risk_score"],
-                "success_label": success_label,
+                "success_probability": probability,
+                "assignment_scenario": scenario,
+                "outcome_status": outcome_status,
+                "delay_days": outcome_metrics["delay_days"],
+                "delivery_speed_category": outcome_metrics["delivery_speed_category"],
+                "success_label": outcome_metrics["success_label"],
             }
         )
 
@@ -369,7 +700,11 @@ def save_assignments(df: pd.DataFrame) -> None:
         "assignment_id",
         "task_id",
         "employee_id",
+        "assignment_scenario",
+        "outcome_status",
         "skill_match_score",
+        "risk_score",
+        "success_probability",
         "success_label",
     ]
 
@@ -378,9 +713,22 @@ def save_assignments(df: pd.DataFrame) -> None:
     print(f"JSON: {json_path}")
     print()
     print(df[preview_columns].head(20).to_string(index=False))
+
     print()
     print("Success label distribution:")
     print(df["success_label"].value_counts(normalize=True).sort_index().to_string())
+
+    print()
+    print("Outcome status distribution:")
+    print(df["outcome_status"].value_counts(normalize=True).sort_index().to_string())
+
+    print()
+    print("Assignment scenario distribution:")
+    print(df["assignment_scenario"].value_counts(normalize=True).sort_index().to_string())
+
+    print()
+    print("Duplicate task+employee pairs:")
+    print(df.duplicated(["task_id", "employee_id"]).sum())
 
 
 def main() -> None:
