@@ -245,3 +245,159 @@ skills:
         - documentation
         - backend_architecture
         - product_thinking
+
+tasks:
+  task_types:
+    backend_feature:
+      average_complexity: 3
+      default_required_skills:
+        Python: 3
+        FastAPI: 3
+        PostgreSQL: 2
+        API Design: 3
+        Testing: 2
+      default_project_key: BACK
+
+    frontend_feature:
+      average_complexity: 3
+      default_required_skills:
+        React: 3
+        TypeScript: 3
+        Next.js: 2
+        HTML/CSS: 3
+        Testing: 2
+      default_project_key: FRONT
+
+    bugfix:
+      average_complexity: 2
+      default_required_skills:
+        Testing: 3
+        Monitoring: 2
+        API Design: 2
+      default_project_key: BACK
+
+    refactoring:
+      average_complexity: 3
+      default_required_skills:
+        System Design: 3
+        Testing: 3
+        code_review: 3
+        documentation: 2
+      default_project_key: BACK
+
+    database_migration:
+      average_complexity: 4
+      default_required_skills:
+        PostgreSQL: 4
+        System Design: 3
+        Testing: 3
+        risk_management: 3
+      default_project_key: BACK
+
+    api_integration:
+      average_complexity: 3
+      default_required_skills:
+        API Design: 3
+        FastAPI: 3
+        Testing: 2
+        documentation: 2
+      default_project_key: BACK
+
+    ml_pipeline:
+      average_complexity: 4
+      default_required_skills:
+        Python: 4
+        Machine Learning: 3
+        PyTorch: 3
+        Data Analysis: 3
+        data_pipelines: 3
+      default_project_key: DATA
+
+    analytics_report:
+      average_complexity: 3
+      default_required_skills:
+        Data Analysis: 3
+        PostgreSQL: 2
+        Python: 2
+        documentation: 2
+      default_project_key: DATA
+
+    devops_task:
+      average_complexity: 4
+      default_required_skills:
+        Docker: 4
+        CI/CD: 3
+        Monitoring: 3
+        Security: 2
+      default_project_key: TOOLS
+
+    testing_task:
+      average_complexity: 2
+      default_required_skills:
+        Testing: 4
+        documentation: 2
+        API Design: 2
+      default_project_key: BACK
+
+    security_task:
+      average_complexity: 4
+      default_required_skills:
+        Security: 4
+        System Design: 3
+        risk_management: 3
+        Testing: 3
+      default_project_key: BACK
+
+    documentation_task:
+      average_complexity: 1
+      default_required_skills:
+        documentation: 4
+        communication: 2
+        ownership: 2
+      default_project_key: TOOLS
+
+  task_fields:
+    - task_id
+    - plane_work_item_id
+    - plane_issue_id
+    - plane_project_id
+    - project_key
+    - title
+    - description
+    - task_type
+    - required_stack
+    - required_skills
+    - complexity
+    - priority
+    - business_criticality
+    - deadline_days
+    - estimated_hours
+    - dependencies_count
+    - is_growth_task
+    - source
+    - created_at
+    - updated_at
+
+  priorities:
+    - none
+    - low
+    - medium
+    - high
+    - urgent
+
+  project_keys:
+    BACK: Backend Platform
+    FRONT: Frontend Platform
+    DATA: Data Platform
+    TOOLS: Internal Tools
+
+  plane_mapping:
+    id: plane_work_item_id
+    name: title
+    description_html: description
+    priority: priority
+    target_date: deadline_days
+    project: plane_project_id
+    labels: required_stack
+    estimate_point: estimated_hours
+    state: workflow_states

@@ -470,3 +470,447 @@ product_thinking
 - The same taxonomy will be used for employees and tasks.
 - Missing skills should be treated as level 0.
 - Skill vectors must keep a stable order in feature engineering.
+
+---
+
+# 3. Task schema
+
+## Task types
+
+```text
+backend_feature
+frontend_feature
+bugfix
+refactoring
+database_migration
+api_integration
+ml_pipeline
+analytics_report
+devops_task
+testing_task
+security_task
+documentation_task
+```
+
+## Task fields
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+plane_project_id
+project_key
+title
+description
+task_type
+required_stack
+required_skills
+complexity
+priority
+business_criticality
+deadline_days
+estimated_hours
+dependencies_count
+is_growth_task
+source
+created_at
+updated_at
+```
+
+## Field meanings
+
+### task_id
+
+Internal stable COMPASS AI task identifier.
+
+Example:
+
+```text
+TASK-0001
+```
+
+### plane_work_item_id
+
+Current Plane API work item ID.
+
+This is the preferred field.
+
+### plane_issue_id
+
+Compatibility alias for older roadmap wording.
+
+Can contain the same value as `plane_work_item_id`.
+
+### plane_project_id
+
+Plane project ID.
+
+Example for current local Backend Platform:
+
+```text
+e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+```
+
+### project_key
+
+Logical project key.
+
+Allowed values:
+
+```text
+BACK
+FRONT
+DATA
+TOOLS
+```
+
+### title
+
+Task title in Russian.
+
+### description
+
+Task description in Russian.
+
+### task_type
+
+One of the predefined task types.
+
+### required_stack
+
+List of technology stack tags.
+
+Example:
+
+```text
+Python
+FastAPI
+PostgreSQL
+Docker
+```
+
+### required_skills
+
+Dictionary of required skills and minimum useful levels.
+
+Example:
+
+```json
+{
+  "Python": 3,
+  "FastAPI": 3,
+  "PostgreSQL": 2
+}
+```
+
+### complexity
+
+Integer task complexity from 1 to 5.
+
+```text
+1 -> very simple
+2 -> simple
+3 -> medium
+4 -> complex
+5 -> very complex
+```
+
+### priority
+
+Task priority.
+
+Allowed values aligned with Plane:
+
+```text
+none
+low
+medium
+high
+urgent
+```
+
+### business_criticality
+
+Business criticality from 1 to 5.
+
+This is separate from priority because a task can be technically urgent but not strategically critical.
+
+### deadline_days
+
+Number of days until target date.
+
+### estimated_hours
+
+Estimated implementation effort.
+
+### dependencies_count
+
+Number of blocking/related dependencies.
+
+### is_growth_task
+
+Boolean flag.
+
+If true, the task is suitable for employee development and growth-mode recommendations.
+
+### source
+
+Task origin.
+
+Allowed values:
+
+```text
+synthetic
+plane
+manual
+```
+
+## Plane mapping
+
+Current Plane work item fields from stage 6:
+
+```text
+id
+name
+description_html
+priority
+start_date
+target_date
+sequence_id
+completed_at
+project
+state
+estimate_point
+assignees
+labels
+created_at
+updated_at
+```
+
+COMPASS AI mapping:
+
+```text
+Plane id -> plane_work_item_id
+Plane name -> title
+Plane description_html -> description
+Plane priority -> priority
+Plane target_date -> deadline_days
+Plane project -> plane_project_id
+Plane labels -> required_stack / task_type / urgency hints
+Plane estimate_point -> estimated_hours or estimate feature later
+Plane state -> current workflow state
+```
+
+## Task type default requirements
+
+### backend_feature
+
+Typical skills:
+
+```text
+Python
+FastAPI
+PostgreSQL
+API Design
+Testing
+```
+
+Average complexity:
+
+```text
+3
+```
+
+### frontend_feature
+
+Typical skills:
+
+```text
+React
+TypeScript
+Next.js
+HTML/CSS
+Testing
+```
+
+Average complexity:
+
+```text
+3
+```
+
+### bugfix
+
+Typical skills:
+
+```text
+Testing
+Monitoring
+API Design
+```
+
+Average complexity:
+
+```text
+2
+```
+
+### refactoring
+
+Typical skills:
+
+```text
+System Design
+Testing
+code_review
+documentation
+```
+
+Average complexity:
+
+```text
+3
+```
+
+### database_migration
+
+Typical skills:
+
+```text
+PostgreSQL
+System Design
+Testing
+risk_management
+```
+
+Average complexity:
+
+```text
+4
+```
+
+### api_integration
+
+Typical skills:
+
+```text
+API Design
+FastAPI
+Testing
+documentation
+```
+
+Average complexity:
+
+```text
+3
+```
+
+### ml_pipeline
+
+Typical skills:
+
+```text
+Python
+Machine Learning
+PyTorch
+Data Analysis
+data_pipelines
+```
+
+Average complexity:
+
+```text
+4
+```
+
+### analytics_report
+
+Typical skills:
+
+```text
+Data Analysis
+PostgreSQL
+Python
+documentation
+```
+
+Average complexity:
+
+```text
+3
+```
+
+### devops_task
+
+Typical skills:
+
+```text
+Docker
+CI/CD
+Monitoring
+Security
+```
+
+Average complexity:
+
+```text
+4
+```
+
+### testing_task
+
+Typical skills:
+
+```text
+Testing
+documentation
+API Design
+```
+
+Average complexity:
+
+```text
+2
+```
+
+### security_task
+
+Typical skills:
+
+```text
+Security
+System Design
+risk_management
+Testing
+```
+
+Average complexity:
+
+```text
+4
+```
+
+### documentation_task
+
+Typical skills:
+
+```text
+documentation
+communication
+ownership
+```
+
+Average complexity:
+
+```text
+1
+```
+
+## Design decisions
+
+- Task schema contains both `plane_work_item_id` and `plane_issue_id` for compatibility.
+- The project should internally prefer `plane_work_item_id`.
+- Labels from Plane are used as signals, not as the only source of truth.
+- `required_skills` is a dictionary because the model needs levels, not only skill names.
+- `deadline_days`, `estimated_hours`, `complexity` and `business_criticality` are numeric because they will be used in ML features.
