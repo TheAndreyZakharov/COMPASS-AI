@@ -150,13 +150,13 @@ assignment_generation:
   success_probability_noise: 0.12
 
   scenario_weights:
-    ideal_match: 0.24
-    balanced_match: 0.22
-    growth_stretch: 0.14
-    overload_risk: 0.12
-    wrong_role: 0.10
-    urgent_deadline: 0.10
-    random_assignment: 0.08
+    ideal_match: 0.28
+    balanced_match: 0.24
+    growth_stretch: 0.15
+    overload_risk: 0.09
+    wrong_role: 0.08
+    urgent_deadline: 0.09
+    random_assignment: 0.07
 
   outcome_distribution:
     full_success: 0.48

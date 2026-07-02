@@ -1893,6 +1893,10 @@ overload_risk
 - [x] Добавить output paths для CSV/JSON файлов.
 - [x] Добавить реальные Plane project IDs из этапа 6.
 - [x] Добавить веса проектов для генерации backlog.
+- [x] Увеличить synthetic dataset до размера, подходящего для обучения ML-модели.
+- [x] Добавить разные сценарии назначений.
+- [x] Добавить разные типы исходов выполнения задач.
+- [x] Настроить баланс хороших и плохих исходов для supervised learning.
 
 Файл:
 
@@ -1913,23 +1917,31 @@ random_seed
 employees_count
 tasks_count
 assignments_count
-skills
-roles
-grades
 projects
+role_grade_plan
 task_types
+scenario_weights
+outcome_distribution
 date_range_start
 date_range_end
 ```
 
-Фактические значения MVP:
+Фактические значения MVP были:
 
 ```text
-random_seed: 42
 employees_count: 18
 tasks_count: 120
 assignments_count: 650
-date_range_start: 2025-01-01
+```
+
+Фактические значения после усиления training dataset:
+
+```text
+random_seed: 42
+employees_count: 36
+tasks_count: 2500
+assignments_count: 60000
+date_range_start: 2023-01-01
 date_range_end: 2026-06-30
 ```
 
@@ -1951,12 +1963,28 @@ data/synthetic/*.csv и data/synthetic/*.json не коммитятся,
 потому что они воспроизводимо генерируются одной командой.
 ```
 
+Важно:
+
+```text
+Большой synthetic dataset нужен для обучения нейросети.
+Его не нужно целиком загружать в Plane.
+Plane использует отдельный demo backlog из этапа 9.
+```
+
 **Ожидаемый результат:** генератор данных настраивается без изменения кода.
 
-**Фактический результат:** конфиг генерации создан и используется всеми генераторами.
+**Фактический результат:** конфиг генерации расширен до ML-ready training dataset.
 
 **Примерное время:** 1 час.  
 **Коммит:** `Add synthetic data configuration`
+
+Дополнительные коммиты:
+
+```text
+Scale synthetic training configuration
+Expand synthetic data schema
+Tune synthetic assignment scenario balance
+```
 
 ---
 
@@ -1980,6 +2008,9 @@ data/synthetic/*.csv и data/synthetic/*.json не коммитятся,
 - [x] Добавить `availability`.
 - [x] Добавить `timezone`.
 - [x] Оставить `plane_user_id` пустым до этапа mapping users.
+- [x] Убрать hardcoded team на 18 сотрудников.
+- [x] Читать `role_grade_plan` из `config/synthetic_data.yaml`.
+- [x] Поддержать команду на 36 сотрудников.
 
 Файл генератора:
 
@@ -2000,21 +2031,30 @@ data/synthetic/employees.json
 python src/data/generate_employees.py
 ```
 
-Фактический размер команды:
+Фактический размер команды после усиления dataset:
 
 ```text
-18 сотрудников
+36 сотрудников
 ```
 
 Фактический состав команды:
 
 ```text
-backend_developer: 7
-frontend_developer: 5
-qa_engineer: 2
-data_ml_engineer: 2
-devops_engineer: 1
-team_lead: 1
+backend_developer: 14
+frontend_developer: 9
+qa_engineer: 4
+data_ml_engineer: 4
+devops_engineer: 3
+team_lead: 2
+```
+
+Фактический состав по грейдам:
+
+```text
+middle: 15
+senior: 10
+junior: 9
+lead: 2
 ```
 
 Поля employees:
@@ -2039,10 +2079,10 @@ availability
 timezone
 ```
 
-Фактическая средняя загрузка команды:
+Фактическая средняя загрузка команды после усиления dataset:
 
 ```text
-0.511
+0.628
 ```
 
 Важно:
@@ -2056,16 +2096,22 @@ skills и learning_goals сохраняются как JSON-строки в CSV
 
 ```text
 plane_user_id пока пустой,
-потому что сопоставление synthetic employee -> Plane user будет сделано позже
+потому что сопоставление synthetic employee -> Plane user хранится отдельно
 в data/processed/employee_plane_mapping.csv.
 ```
 
 **Ожидаемый результат:** есть синтетическая команда.
 
-**Фактический результат:** `employees.csv` и `employees.json` генерируются корректно.
+**Фактический результат:** генератор сотрудников масштабирован до 36 человек и больше не завязан на hardcoded 18 rows.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Generate synthetic employees`
+
+Дополнительный коммит:
+
+```text
+Expand synthetic employee generation
+```
 
 ---
 
@@ -2092,6 +2138,8 @@ plane_user_id пока пустой,
 - [x] Добавить `project_key`.
 - [x] Добавить `source`.
 - [x] Добавить `created_at` и `updated_at`.
+- [x] Увеличить количество задач до 2500.
+- [x] Добавить дополнительную вариативность title/description через task contexts и business areas.
 
 Файл генератора:
 
@@ -2112,10 +2160,10 @@ data/synthetic/tasks.json
 python src/data/generate_tasks.py
 ```
 
-Фактическое количество задач:
+Фактическое количество задач после усиления dataset:
 
 ```text
-120
+2500
 ```
 
 Типы задач:
@@ -2135,30 +2183,30 @@ security_task
 documentation_task
 ```
 
-Фактическое распределение задач по типам:
+Фактическое распределение задач по типам после усиления dataset:
 
 ```text
-analytics_report: 15
-api_integration: 16
-backend_feature: 6
-bugfix: 5
-database_migration: 12
-devops_task: 8
-documentation_task: 12
-frontend_feature: 18
-ml_pipeline: 10
-refactoring: 4
-security_task: 5
-testing_task: 9
+analytics_report: 201
+api_integration: 210
+backend_feature: 213
+bugfix: 214
+database_migration: 186
+devops_task: 206
+documentation_task: 231
+frontend_feature: 210
+ml_pipeline: 216
+refactoring: 201
+security_task: 212
+testing_task: 200
 ```
 
-Фактическое распределение задач по проектам:
+Фактическое распределение задач по проектам после усиления dataset:
 
 ```text
-BACK: 56
-DATA: 26
-FRONT: 19
-TOOLS: 19
+BACK: 1422
+DATA: 416
+FRONT: 258
+TOOLS: 404
 ```
 
 Поля tasks:
@@ -2186,31 +2234,32 @@ created_at
 updated_at
 ```
 
-Примеры заголовков:
+Важно:
 
 ```text
-Реализовать JWT-авторизацию
-Добавить фильтрацию задач по статусу
-Оптимизировать SQL-запросы в отчётах
-Настроить Docker Compose для dev-окружения
-Добавить экспорт аналитики в CSV
-Починить ошибку при смене assignee
-Реализовать endpoint для статистики команды
+plane_work_item_id и plane_issue_id в большом training dataset остаются пустыми,
+потому что этот dataset нужен для обучения модели, а не для массовой загрузки в Plane.
 ```
 
 Важно:
 
 ```text
-plane_work_item_id и plane_issue_id пока пустые,
-потому что реальные задачи в Plane будут создаваться позже на этапе seed Plane.
+В Plane уже загружен отдельный demo backlog из 120 задач на этапе 9.
+Повторно запускать plane/seed/create_tasks.py после увеличения tasks_count не нужно.
 ```
 
 **Ожидаемый результат:** есть синтетический backlog задач.
 
-**Фактический результат:** `tasks.csv` и `tasks.json` генерируются корректно.
+**Фактический результат:** `tasks.csv` и `tasks.json` масштабированы до 2500 задач и стали разнообразнее.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Generate synthetic tasks`
+
+Дополнительный коммит:
+
+```text
+Increase synthetic task diversity
+```
 
 ---
 
@@ -2235,6 +2284,19 @@ plane_work_item_id и plane_issue_id пока пустые,
 - [x] Добавить защиту от дублей пары `task_id + employee_id`.
 - [x] Сохранить результат в `data/synthetic/assignments.csv`.
 - [x] Сохранить JSON-версию в `data/synthetic/assignments.json`.
+- [x] Увеличить историю назначений до 60000 строк.
+- [x] Добавить сценарии назначений.
+- [x] Добавить разные исходы выполнения.
+- [x] Добавить полностью не завершённые задачи.
+- [x] Добавить delayed delivery.
+- [x] Добавить failed delivery.
+- [x] Добавить partial success.
+- [x] Добавить `success_probability`.
+- [x] Добавить `assignment_scenario`.
+- [x] Добавить `outcome_status`.
+- [x] Добавить `delay_days`.
+- [x] Добавить `delivery_speed_category`.
+- [x] Настроить outcome logic так, чтобы successful и failed assignments имели понятные различия по quality, risk и delay.
 
 Файл генератора:
 
@@ -2255,10 +2317,10 @@ data/synthetic/assignments.json
 python src/data/generate_assignments.py
 ```
 
-Фактическое количество исторических назначений:
+Фактическое количество исторических назначений после усиления dataset:
 
 ```text
-650
+60000
 ```
 
 Поля assignments:
@@ -2283,39 +2345,90 @@ growth_match_score
 speed_score
 collaboration_score
 risk_score
+success_probability
+assignment_scenario
+outcome_status
+delay_days
+delivery_speed_category
 success_label
+```
+
+Сценарии назначений:
+
+```text
+ideal_match
+balanced_match
+growth_stretch
+overload_risk
+wrong_role
+urgent_deadline
+random_assignment
+```
+
+Фактическое распределение сценариев после финальной настройки:
+
+```text
+balanced_match: 0.230217
+growth_stretch: 0.169033
+ideal_match: 0.233800
+overload_risk: 0.089717
+random_assignment: 0.051117
+urgent_deadline: 0.089867
+wrong_role: 0.136250
+```
+
+Типы исходов:
+
+```text
+full_success
+partial_success
+delayed_delivery
+failed_delivery
+cancelled_or_not_finished
+```
+
+Фактическое распределение исходов после финальной настройки:
+
+```text
+cancelled_or_not_finished: 0.061017
+delayed_delivery: 0.160550
+failed_delivery: 0.207450
+full_success: 0.452367
+partial_success: 0.118617
+```
+
+Фактическое распределение `success_label` после финальной настройки:
+
+```text
+0: 0.487983
+1: 0.512017
 ```
 
 Логика выбора исполнителя:
 
 ```text
-не полностью случайная
-учитывает skill_match_score
-учитывает role_task_affinity
-учитывает deadline_reliability
-учитывает avg_quality_score
-учитывает growth_match_score
-штрафует overload_penalty
+ideal_match выбирает сильных подходящих кандидатов
+balanced_match учитывает skill match и загрузку
+growth_stretch создаёт задачи на развитие
+overload_risk создаёт случаи перегруза
+wrong_role создаёт плохие назначения по роли/скиллам
+urgent_deadline создаёт срочные рискованные назначения
+random_assignment добавляет шум и неожиданные пары
 ```
 
 Логика success_label:
 
 ```text
-success_label генерируется вероятностно,
-чтобы датасет не был слишком искусственным и идеально детерминированным.
+success_label остаётся binary:
+1 — успешный или допустимо успешный исход
+0 — плохой, сорванный, сильно просроченный или не завершённый исход
 ```
 
-Фактическое распределение `success_label`:
+Важно:
 
 ```text
-0: 0.26
-1: 0.74
-```
-
-Фактический средний `skill_match_score`:
-
-```text
-0.832
+Датасет содержит и хорошие, и плохие исходы почти в balanced-пропорции.
+Это удобно для обучения binary classifier, потому что модель видит достаточно примеров обоих классов.
 ```
 
 Проверка уникальности пар:
@@ -2324,26 +2437,49 @@ success_label генерируется вероятностно,
 python -c "import pandas as pd; df=pd.read_csv('data/synthetic/assignments.csv'); print('duplicate task+employee pairs:', df.duplicated(['task_id','employee_id']).sum())"
 ```
 
-Фактический результат проверки уникальности:
+Фактический результат:
 
 ```text
 duplicate task+employee pairs: 0
 ```
 
-Важно:
+Проверка различий между успешными и неуспешными назначениями:
+
+```bash
+python -c "import pandas as pd; df=pd.read_csv('data/synthetic/assignments.csv'); print(df.groupby('success_label')[['skill_match_score','risk_score','quality_score','employee_workload_at_assignment','delay_days']].mean())"
+```
+
+Фактический результат:
 
 ```text
-Уникальность пары task_id + employee_id нужна,
-чтобы future feature engineering, train/validation/test split и ranking metrics
-не получали повторяющиеся исторические примеры одной и той же пары.
+success_label=0:
+skill_match_score: 0.507875
+risk_score: 0.435771
+quality_score: 0.552405
+employee_workload_at_assignment: 0.643700
+delay_days: 14.615253
+
+success_label=1:
+skill_match_score: 0.640930
+risk_score: 0.327116
+quality_score: 0.842342
+employee_workload_at_assignment: 0.606869
+delay_days: 0.544448
 ```
 
 **Ожидаемый результат:** есть обучающая история назначений.
 
-**Фактический результат:** `assignments.csv` и `assignments.json` генерируются корректно, без дублей `task_id + employee_id`.
+**Фактический результат:** создан большой ML-ready assignment history dataset на 60000 строк с разными сценариями и исходами, без дублей `task_id + employee_id`.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Generate synthetic assignment history`
+
+Дополнительные коммиты:
+
+```text
+Generate diverse assignment outcomes
+Tune synthetic assignment outcome logic
+```
 
 ---
 
@@ -2358,6 +2494,11 @@ duplicate task+employee pairs: 0
 - [x] Добавить команду в `Makefile`.
 - [x] Проверить запуск через `python`.
 - [x] Проверить запуск через `make generate-data`.
+- [x] Добавить вывод outcome status distribution.
+- [x] Добавить вывод assignment scenario distribution.
+- [x] Добавить проверку дублей task+employee.
+- [x] Добавить средний risk score.
+- [x] Проверить финальный dataset на 36 сотрудников, 2500 задач и 60000 назначений.
 
 Файл pipeline:
 
@@ -2377,60 +2518,55 @@ python scripts/generate_synthetic_data.py
 make generate-data
 ```
 
-Фактическая статистика pipeline:
+Фактическая статистика pipeline после усиления dataset:
 
 ```text
-Employees: 18
-Tasks: 120
-Assignments: 650
+Employees: 36
+Tasks: 2500
+Assignments: 60000
 ```
 
 Pipeline печатает:
 
 ```text
 employees by role
+employees by grade
 tasks by type
 tasks by project
 success label distribution
+outcome status distribution
+assignment scenario distribution
+duplicate task+employee pairs
 average workload
 average skill match
-```
-
-Фактический успешный запуск проверен через:
-
-```bash
-python scripts/generate_synthetic_data.py
-```
-
-Фактический успешный запуск через Makefile проверен через:
-
-```bash
-make generate-data
+average risk score
 ```
 
 Проверка размеров датасетов:
 
 ```bash
-python -c "import pandas as pd; print(len(pd.read_csv('data/synthetic/employees.csv')), len(pd.read_csv('data/synthetic/tasks.csv')), len(pd.read_csv('data/synthetic/assignments.csv')))"
+python -c "import pandas as pd; print('employees', len(pd.read_csv('data/synthetic/employees.csv'))); print('tasks', len(pd.read_csv('data/synthetic/tasks.csv'))); print('assignments', len(pd.read_csv('data/synthetic/assignments.csv')))"
 ```
 
 Фактический результат:
 
 ```text
-18 120 650
+employees 36
+tasks 2500
+assignments 60000
 ```
 
 Проверка качества кода:
 
 ```bash
-python -m py_compile src/data/generate_assignments.py scripts/generate_synthetic_data.py
+python -m py_compile src/data/generate_employees.py src/data/generate_tasks.py src/data/generate_assignments.py scripts/generate_synthetic_data.py
 ```
 
 ```bash
-ruff check src/data/generate_assignments.py scripts/generate_synthetic_data.py
+ruff check src/data/generate_employees.py src/data/generate_tasks.py src/data/generate_assignments.py scripts/generate_synthetic_data.py
 ```
 
-Фактический результат:
+Ожидаемый результат:
 
 ```text
 All checks passed!
@@ -2438,10 +2574,17 @@ All checks passed!
 
 **Ожидаемый результат:** все данные генерируются одной командой.
 
-**Фактический результат:** общий pipeline генерации данных работает через Python и через Makefile.
+**Фактический результат:** общий pipeline генерации данных масштабирован и готовит большой датасет для ML-обучения.
 
 **Примерное время:** 2–3 часа.  
 **Коммит:** `Add synthetic data generation pipeline`
+
+Дополнительные коммиты:
+
+```text
+Report synthetic dataset outcome statistics
+Scale synthetic dataset for model training
+```
 
 ---
 

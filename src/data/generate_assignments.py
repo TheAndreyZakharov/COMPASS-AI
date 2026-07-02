@@ -270,13 +270,13 @@ def success_probability(
     )
 
     scenario_shift = {
-        "ideal_match": 0.08,
-        "balanced_match": 0.03,
-        "growth_stretch": -0.03,
-        "overload_risk": -0.16,
-        "wrong_role": -0.28,
-        "urgent_deadline": -0.12,
-        "random_assignment": -0.08,
+        "ideal_match": 0.12,
+        "balanced_match": 0.07,
+        "growth_stretch": 0.00,
+        "overload_risk": -0.14,
+        "wrong_role": -0.25,
+        "urgent_deadline": -0.10,
+        "random_assignment": -0.06,
     }[scenario]
 
     probability += scenario_shift
@@ -390,6 +390,41 @@ def choose_employee_by_scenario(
     employee = employees.loc[chosen_index]
     return employee, scores
 
+def choose_scenario_for_pair(
+    scores: dict[str, float],
+    task: pd.Series,
+    config: dict[str, Any],
+    rng: random.Random,
+) -> str:
+    scenario_weights = dict(config["assignment_generation"]["scenario_weights"])
+
+    skill_score = scores["skill_match_score"]
+    role_affinity = scores["role_affinity"]
+    overload = scores["overload_penalty"]
+    growth_score = scores["growth_match_score"]
+    complexity_gap = scores["complexity_gap_penalty"]
+    deadline_risk = scores["deadline_pressure"]
+
+    if skill_score >= 0.85 and role_affinity >= 1.0 and overload <= 0.20:
+        scenario_weights["ideal_match"] *= 2.8
+        scenario_weights["balanced_match"] *= 1.5
+
+    if skill_score >= 0.65 and overload <= 0.20:
+        scenario_weights["balanced_match"] *= 1.8
+
+    if growth_score > 0 and complexity_gap <= 0.25:
+        scenario_weights["growth_stretch"] *= 2.3
+
+    if overload >= 0.50:
+        scenario_weights["overload_risk"] *= 3.2
+
+    if role_affinity < 0.50 or skill_score < 0.35:
+        scenario_weights["wrong_role"] *= 3.0
+
+    if deadline_risk >= 0.22 or str(task["priority"]) == "urgent":
+        scenario_weights["urgent_deadline"] *= 2.6
+
+    return weighted_choice(scenario_weights, rng)
 
 def choose_task_for_scenario(
     tasks: pd.DataFrame,
@@ -427,10 +462,13 @@ def outcome_from_probability(
     random_value = rng.random()
 
     if random_value < probability:
-        if scenario == "growth_stretch" and rng.random() < 0.22:
+        if scenario == "growth_stretch" and rng.random() < 0.25:
             return "partial_success", 1
 
-        if scenario == "urgent_deadline" and rng.random() < 0.18:
+        if scenario == "urgent_deadline" and rng.random() < 0.12:
+            return "delayed_delivery", 0
+
+        if scenario == "overload_risk" and rng.random() < 0.10:
             return "delayed_delivery", 0
 
         return "full_success", 1
@@ -445,10 +483,17 @@ def outcome_from_probability(
         return rng.choice(["delayed_delivery", "failed_delivery"]), 0
 
     if scenario == "growth_stretch":
-        return rng.choice(["partial_success", "delayed_delivery", "failed_delivery"]), 
-    rng.choice([0, 1])
+        if rng.random() < 0.35:
+            return "partial_success", 1
 
-    return rng.choice(["delayed_delivery", "failed_delivery", "cancelled_or_not_finished"]), 0
+        return rng.choice(["delayed_delivery", "failed_delivery"]), 0
+
+    if scenario == "random_assignment":
+        return rng.choice(
+            ["partial_success", "delayed_delivery", "failed_delivery", "cancelled_or_not_finished"]
+        ), rng.choice([0, 0, 1])
+
+    return rng.choice(["partial_success", "delayed_delivery", "failed_delivery"]), 0
 
 
 def delivery_speed_category(
@@ -561,7 +606,6 @@ def build_outcome_metrics(
         "success_label": int(success_label),
     }
 
-
 def generate_assignments() -> pd.DataFrame:
     config = load_yaml(SYNTHETIC_DATA_CONFIG_PATH)
 
@@ -582,16 +626,10 @@ def generate_assignments() -> pd.DataFrame:
     tasks = pd.read_csv(tasks_path)
 
     assignments_count = int(config["assignments_count"])
-    candidate_pool_size = int(config["assignment_generation"]["candidate_pool_size"])
-    scenario_weights = config["assignment_generation"]["scenario_weights"]
-    noise_std = float(config["assignment_generation"]["success_probability_noise"])
 
     date_start = datetime.fromisoformat(config["date_range_start"])
     date_end = datetime.fromisoformat(config["date_range_end"])
     total_days = (date_end - date_start).days
-
-    assignments: list[dict[str, Any]] = []
-    used_pairs: set[tuple[str, str]] = set()
 
     max_unique_pairs = len(tasks) * len(employees)
     if assignments_count > max_unique_pairs:
@@ -600,26 +638,29 @@ def generate_assignments() -> pd.DataFrame:
             f"task+employee pairs. Maximum possible pairs: {max_unique_pairs}"
         )
 
-    for index in range(1, assignments_count + 1):
-        scenario = weighted_choice(scenario_weights, rng)
+    all_pairs = [
+        (task_index, employee_index)
+        for task_index in tasks.index
+        for employee_index in employees.index
+    ]
+    rng.shuffle(all_pairs)
 
-        for attempt in range(250):
-            task = choose_task_for_scenario(tasks, scenario, seed, index, attempt)
-            employee, scores = choose_employee_by_scenario(
-                employees=employees,
-                task=task,
-                scenario=scenario,
-                rng=rng,
-                candidate_pool_size=candidate_pool_size,
-            )
+    selected_pairs = all_pairs[:assignments_count]
 
-            pair_key = (str(task["task_id"]), str(employee["employee_id"]))
+    assignments: list[dict[str, Any]] = []
 
-            if pair_key not in used_pairs:
-                used_pairs.add(pair_key)
-                break
-        else:
-            raise RuntimeError("Could not generate a unique task+employee assignment pair.")
+    for index, (task_index, employee_index) in enumerate(selected_pairs, start=1):
+        task = tasks.loc[task_index]
+        employee = employees.loc[employee_index]
+
+        scores = calculate_assignment_scores(employee, task)
+
+        scenario = choose_scenario_for_pair(
+            scores=scores,
+            task=task,
+            config=config,
+            rng=rng,
+        )
 
         probability = success_probability(
             employee=employee,
@@ -627,7 +668,7 @@ def generate_assignments() -> pd.DataFrame:
             scores=scores,
             scenario=scenario,
             rng=rng,
-            noise_std=noise_std,
+            noise_std=float(config["assignment_generation"]["success_probability_noise"]),
         )
 
         outcome_status, success_label = outcome_from_probability(probability, scenario, rng)
@@ -647,7 +688,10 @@ def generate_assignments() -> pd.DataFrame:
             completed_at = ""
         else:
             completed_at = assigned_at + timedelta(
-                days=max(1, int(float(task["deadline_days"])) + outcome_metrics["delay_days"])
+                days=max(
+                    1,
+                    int(float(task["deadline_days"])) + outcome_metrics["delay_days"],
+                )
             )
             completed_at = completed_at.isoformat()
 
@@ -683,8 +727,10 @@ def generate_assignments() -> pd.DataFrame:
             }
         )
 
-    return pd.DataFrame(assignments)
+        if index % 10000 == 0:
+            print(f"Generated assignments: {index}/{assignments_count}")
 
+    return pd.DataFrame(assignments)
 
 def save_assignments(df: pd.DataFrame) -> None:
     config = load_yaml(SYNTHETIC_DATA_CONFIG_PATH)
