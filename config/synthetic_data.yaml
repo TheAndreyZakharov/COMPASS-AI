@@ -1,0 +1,104 @@
+random_seed: 42
+
+employees_count: 18
+tasks_count: 120
+assignments_count: 650
+
+date_range_start: "2025-01-01"
+date_range_end: "2026-06-30"
+
+output:
+  employees_csv: data/synthetic/employees.csv
+  employees_json: data/synthetic/employees.json
+  tasks_csv: data/synthetic/tasks.csv
+  tasks_json: data/synthetic/tasks.json
+  assignments_csv: data/synthetic/assignments.csv
+  assignments_json: data/synthetic/assignments.json
+
+projects:
+  BACK:
+    name: Backend Platform
+    plane_project_id: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+    weight: 0.45
+
+  FRONT:
+    name: Frontend Platform
+    plane_project_id: 33832fc6-ade4-4ac0-a937-9ba70b0859d8
+    weight: 0.25
+
+  DATA:
+    name: Data Platform
+    plane_project_id: cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab
+    weight: 0.20
+
+  TOOLS:
+    name: Internal Tools
+    plane_project_id: 50d969c6-ae4c-4afe-a8aa-33cdb478f787
+    weight: 0.10
+
+employee_generation:
+  timezone: Europe/Berlin
+
+  synthetic_names:
+    - Анна Смирнова
+    - Иван Петров
+    - Мария Кузнецова
+    - Дмитрий Соколов
+    - Екатерина Новикова
+    - Максим Орлов
+    - Ольга Волкова
+    - Алексей Морозов
+    - Наталья Фёдорова
+    - Сергей Павлов
+    - Полина Васильева
+    - Артём Михайлов
+    - Ксения Лебедева
+    - Никита Егоров
+    - Виктория Захарова
+    - Роман Киселёв
+    - Алиса Белова
+    - Андрей Громов
+
+  workload_distribution:
+    low: 0.20
+    normal: 0.45
+    high: 0.25
+    risky: 0.08
+    critical: 0.02
+
+task_generation:
+  priorities:
+    none: 0.05
+    low: 0.15
+    medium: 0.45
+    high: 0.25
+    urgent: 0.10
+
+  growth_task_probability: 0.18
+
+  complexity_noise: 1
+
+  deadline_days:
+    min: 2
+    max: 45
+
+  estimated_hours:
+    min: 2
+    max: 80
+
+  dependencies_count:
+    min: 0
+    max: 5
+
+assignment_generation:
+  candidate_pool_size: 5
+
+  min_actual_hours_multiplier: 0.60
+  max_actual_hours_multiplier: 1.80
+
+  reopened_count_max: 5
+
+  manager_rating_min: 1
+  manager_rating_max: 5
+
+  success_probability_noise: 0.08
