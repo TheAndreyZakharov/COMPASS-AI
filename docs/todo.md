@@ -1890,11 +1890,20 @@ overload_risk
 - [x] Указать список ролей.
 - [x] Указать список навыков.
 - [x] Указать распределения грейдов.
+- [x] Добавить output paths для CSV/JSON файлов.
+- [x] Добавить реальные Plane project IDs из этапа 6.
+- [x] Добавить веса проектов для генерации backlog.
 
 Файл:
 
 ```text
 config/synthetic_data.yaml
+```
+
+Дополнительная схема, на которую опирается генератор:
+
+```text
+config/synthetic_schema.yaml
 ```
 
 Параметры:
@@ -1913,7 +1922,38 @@ date_range_start
 date_range_end
 ```
 
+Фактические значения MVP:
+
+```text
+random_seed: 42
+employees_count: 18
+tasks_count: 120
+assignments_count: 650
+date_range_start: 2025-01-01
+date_range_end: 2026-06-30
+```
+
+Файлы результата:
+
+```text
+data/synthetic/employees.csv
+data/synthetic/employees.json
+data/synthetic/tasks.csv
+data/synthetic/tasks.json
+data/synthetic/assignments.csv
+data/synthetic/assignments.json
+```
+
+Важно:
+
+```text
+data/synthetic/*.csv и data/synthetic/*.json не коммитятся,
+потому что они воспроизводимо генерируются одной командой.
+```
+
 **Ожидаемый результат:** генератор данных настраивается без изменения кода.
+
+**Фактический результат:** конфиг генерации создан и используется всеми генераторами.
 
 **Примерное время:** 1 час.  
 **Коммит:** `Add synthetic data configuration`
@@ -1936,6 +1976,16 @@ date_range_end
 - [x] Сгенерировать learning goals.
 - [x] Сохранить результат в `data/synthetic/employees.csv`.
 - [x] Сохранить JSON-версию в `data/synthetic/employees.json`.
+- [x] Добавить `active_tasks_count`.
+- [x] Добавить `availability`.
+- [x] Добавить `timezone`.
+- [x] Оставить `plane_user_id` пустым до этапа mapping users.
+
+Файл генератора:
+
+```text
+src/data/generate_employees.py
+```
 
 Файлы результата:
 
@@ -1950,7 +2000,69 @@ data/synthetic/employees.json
 python src/data/generate_employees.py
 ```
 
+Фактический размер команды:
+
+```text
+18 сотрудников
+```
+
+Фактический состав команды:
+
+```text
+backend_developer: 7
+frontend_developer: 5
+qa_engineer: 2
+data_ml_engineer: 2
+devops_engineer: 1
+team_lead: 1
+```
+
+Поля employees:
+
+```text
+employee_id
+plane_user_id
+name
+role
+grade
+experience_years
+primary_stack
+skills
+current_workload
+active_tasks_count
+avg_completion_speed
+avg_quality_score
+deadline_reliability
+learning_goals
+mentor_level
+availability
+timezone
+```
+
+Фактическая средняя загрузка команды:
+
+```text
+0.511
+```
+
+Важно:
+
+```text
+skills и learning_goals сохраняются как JSON-строки в CSV
+и как нормальные JSON-значения в JSON export.
+```
+
+Важно по Plane:
+
+```text
+plane_user_id пока пустой,
+потому что сопоставление synthetic employee -> Plane user будет сделано позже
+в data/processed/employee_plane_mapping.csv.
+```
+
 **Ожидаемый результат:** есть синтетическая команда.
+
+**Фактический результат:** `employees.csv` и `employees.json` генерируются корректно.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Generate synthetic employees`
@@ -1974,6 +2086,105 @@ python src/data/generate_employees.py
 - [x] Сгенерировать dependencies count.
 - [x] Сохранить результат в `data/synthetic/tasks.csv`.
 - [x] Сохранить JSON-версию в `data/synthetic/tasks.json`.
+- [x] Добавить `plane_work_item_id`.
+- [x] Добавить `plane_issue_id`.
+- [x] Добавить `plane_project_id`.
+- [x] Добавить `project_key`.
+- [x] Добавить `source`.
+- [x] Добавить `created_at` и `updated_at`.
+
+Файл генератора:
+
+```text
+src/data/generate_tasks.py
+```
+
+Файлы результата:
+
+```text
+data/synthetic/tasks.csv
+data/synthetic/tasks.json
+```
+
+Команда запуска:
+
+```bash
+python src/data/generate_tasks.py
+```
+
+Фактическое количество задач:
+
+```text
+120
+```
+
+Типы задач:
+
+```text
+backend_feature
+frontend_feature
+bugfix
+refactoring
+database_migration
+api_integration
+ml_pipeline
+analytics_report
+devops_task
+testing_task
+security_task
+documentation_task
+```
+
+Фактическое распределение задач по типам:
+
+```text
+analytics_report: 15
+api_integration: 16
+backend_feature: 6
+bugfix: 5
+database_migration: 12
+devops_task: 8
+documentation_task: 12
+frontend_feature: 18
+ml_pipeline: 10
+refactoring: 4
+security_task: 5
+testing_task: 9
+```
+
+Фактическое распределение задач по проектам:
+
+```text
+BACK: 56
+DATA: 26
+FRONT: 19
+TOOLS: 19
+```
+
+Поля tasks:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+plane_project_id
+project_key
+title
+description
+task_type
+required_stack
+required_skills
+complexity
+priority
+business_criticality
+deadline_days
+estimated_hours
+dependencies_count
+is_growth_task
+source
+created_at
+updated_at
+```
 
 Примеры заголовков:
 
@@ -1987,13 +2198,16 @@ python src/data/generate_employees.py
 Реализовать endpoint для статистики команды
 ```
 
-Команда запуска:
+Важно:
 
-```bash
-python src/data/generate_tasks.py
+```text
+plane_work_item_id и plane_issue_id пока пустые,
+потому что реальные задачи в Plane будут создаваться позже на этапе seed Plane.
 ```
 
 **Ожидаемый результат:** есть синтетический backlog задач.
+
+**Фактический результат:** `tasks.csv` и `tasks.json` генерируются корректно.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Generate synthetic tasks`
@@ -2015,8 +2229,25 @@ python src/data/generate_tasks.py
 - [x] Генерировать `reopened_count`.
 - [x] Генерировать `manager_rating`.
 - [x] Генерировать `success_label`.
+- [x] Добавить `speed_score`.
+- [x] Добавить `collaboration_score`.
+- [x] Добавить `risk_score`.
+- [x] Добавить защиту от дублей пары `task_id + employee_id`.
 - [x] Сохранить результат в `data/synthetic/assignments.csv`.
 - [x] Сохранить JSON-версию в `data/synthetic/assignments.json`.
+
+Файл генератора:
+
+```text
+src/data/generate_assignments.py
+```
+
+Файлы результата:
+
+```text
+data/synthetic/assignments.csv
+data/synthetic/assignments.json
+```
 
 Команда запуска:
 
@@ -2024,7 +2255,92 @@ python src/data/generate_tasks.py
 python src/data/generate_assignments.py
 ```
 
+Фактическое количество исторических назначений:
+
+```text
+650
+```
+
+Поля assignments:
+
+```text
+assignment_id
+task_id
+employee_id
+plane_work_item_id
+plane_issue_id
+assigned_at
+completed_at
+completed_on_time
+estimated_hours
+actual_hours
+quality_score
+reopened_count
+manager_rating
+employee_workload_at_assignment
+skill_match_score
+growth_match_score
+speed_score
+collaboration_score
+risk_score
+success_label
+```
+
+Логика выбора исполнителя:
+
+```text
+не полностью случайная
+учитывает skill_match_score
+учитывает role_task_affinity
+учитывает deadline_reliability
+учитывает avg_quality_score
+учитывает growth_match_score
+штрафует overload_penalty
+```
+
+Логика success_label:
+
+```text
+success_label генерируется вероятностно,
+чтобы датасет не был слишком искусственным и идеально детерминированным.
+```
+
+Фактическое распределение `success_label`:
+
+```text
+0: 0.26
+1: 0.74
+```
+
+Фактический средний `skill_match_score`:
+
+```text
+0.832
+```
+
+Проверка уникальности пар:
+
+```bash
+python -c "import pandas as pd; df=pd.read_csv('data/synthetic/assignments.csv'); print('duplicate task+employee pairs:', df.duplicated(['task_id','employee_id']).sum())"
+```
+
+Фактический результат проверки уникальности:
+
+```text
+duplicate task+employee pairs: 0
+```
+
+Важно:
+
+```text
+Уникальность пары task_id + employee_id нужна,
+чтобы future feature engineering, train/validation/test split и ranking metrics
+не получали повторяющиеся исторические примеры одной и той же пары.
+```
+
 **Ожидаемый результат:** есть обучающая история назначений.
+
+**Фактический результат:** `assignments.csv` и `assignments.json` генерируются корректно, без дублей `task_id + employee_id`.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Generate synthetic assignment history`
@@ -2040,6 +2356,14 @@ python src/data/generate_assignments.py
 - [x] Скрипт должен проверять, что все CSV-файлы созданы.
 - [x] Скрипт должен печатать краткую статистику.
 - [x] Добавить команду в `Makefile`.
+- [x] Проверить запуск через `python`.
+- [x] Проверить запуск через `make generate-data`.
+
+Файл pipeline:
+
+```text
+scripts/generate_synthetic_data.py
+```
 
 Команда запуска:
 
@@ -2053,7 +2377,68 @@ python scripts/generate_synthetic_data.py
 make generate-data
 ```
 
+Фактическая статистика pipeline:
+
+```text
+Employees: 18
+Tasks: 120
+Assignments: 650
+```
+
+Pipeline печатает:
+
+```text
+employees by role
+tasks by type
+tasks by project
+success label distribution
+average workload
+average skill match
+```
+
+Фактический успешный запуск проверен через:
+
+```bash
+python scripts/generate_synthetic_data.py
+```
+
+Фактический успешный запуск через Makefile проверен через:
+
+```bash
+make generate-data
+```
+
+Проверка размеров датасетов:
+
+```bash
+python -c "import pandas as pd; print(len(pd.read_csv('data/synthetic/employees.csv')), len(pd.read_csv('data/synthetic/tasks.csv')), len(pd.read_csv('data/synthetic/assignments.csv')))"
+```
+
+Фактический результат:
+
+```text
+18 120 650
+```
+
+Проверка качества кода:
+
+```bash
+python -m py_compile src/data/generate_assignments.py scripts/generate_synthetic_data.py
+```
+
+```bash
+ruff check src/data/generate_assignments.py scripts/generate_synthetic_data.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
 **Ожидаемый результат:** все данные генерируются одной командой.
+
+**Фактический результат:** общий pipeline генерации данных работает через Python и через Makefile.
 
 **Примерное время:** 2–3 часа.  
 **Коммит:** `Add synthetic data generation pipeline`

@@ -261,10 +261,26 @@ def generate_assignments() -> pd.DataFrame:
     total_days = (date_end - date_start).days
 
     assignments: list[dict[str, Any]] = []
+    used_pairs: set[tuple[str, str]] = set()
+
+    max_unique_pairs = len(tasks) * len(employees)
+    if assignments_count > max_unique_pairs:
+        raise ValueError(
+            f"assignments_count={assignments_count} is too large for unique "
+            f"task+employee pairs. Maximum possible pairs: {max_unique_pairs}"
+        )
 
     for index in range(1, assignments_count + 1):
-        task = tasks.sample(n=1, random_state=seed + index).iloc[0]
-        employee, scores = choose_employee_for_task(employees, task, rng)
+        for attempt in range(100):
+            task = tasks.sample(n=1, random_state=seed + index + attempt).iloc[0]
+            employee, scores = choose_employee_for_task(employees, task, rng)
+            pair_key = (str(task["task_id"]), str(employee["employee_id"]))
+
+            if pair_key not in used_pairs:
+                used_pairs.add(pair_key)
+                break
+        else:
+            raise RuntimeError("Could not generate a unique task+employee assignment pair.")
 
         probability = success_probability(employee, scores, rng)
         success_label = int(rng.random() < probability)
