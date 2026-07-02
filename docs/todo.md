@@ -2449,16 +2449,16 @@ All checks passed!
 
 ## 9.1. Подготовить mapping между COMPASS AI и Plane
 
-- [ ] Создать `src/integration/plane_mapping.py`.
-- [ ] Определить, как поля COMPASS AI превращаются в поля Plane.
-- [ ] Сопоставить `task.title` с Plane issue title.
-- [ ] Сопоставить `task.description` с Plane issue description.
-- [ ] Сопоставить `priority` с Plane priority.
-- [ ] Сопоставить `required_stack` с labels.
-- [ ] Сопоставить `task_type` с labels.
-- [ ] Сопоставить `deadline_days` с target date.
-- [ ] Сопоставить `estimated_hours` с estimate, если поле доступно.
-- [ ] Сопоставить `employee_id` с `plane_user_id`.
+- [x] Создать `src/integration/plane_mapping.py`.
+- [x] Определить, как поля COMPASS AI превращаются в поля Plane.
+- [x] Сопоставить `task.title` с Plane issue title.
+- [x] Сопоставить `task.description` с Plane issue description.
+- [x] Сопоставить `priority` с Plane priority.
+- [x] Сопоставить `required_stack` с labels.
+- [x] Сопоставить `task_type` с labels.
+- [x] Сопоставить `deadline_days` с target date.
+- [x] Сопоставить `estimated_hours` с estimate, если поле доступно.
+- [x] Сопоставить `employee_id` с `plane_user_id`.
 
 Файл:
 
