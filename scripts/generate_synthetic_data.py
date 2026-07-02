@@ -63,12 +63,28 @@ def print_dataset_stats() -> None:
     print(assignments["success_label"].value_counts(normalize=True).sort_index().to_string())
 
     print()
+    print("Outcome status distribution:")
+    print(assignments["outcome_status"].value_counts(normalize=True).sort_index().to_string())
+
+    print()
+    print("Assignment scenario distribution:")
+    print(assignments["assignment_scenario"].value_counts(normalize=True).sort_index().to_string())
+
+    print()
+    print("Duplicate task+employee pairs:")
+    print(assignments.duplicated(["task_id", "employee_id"]).sum())
+
+    print()
     print("Average workload:")
     print(round(float(employees["current_workload"].mean()), 3))
 
     print()
     print("Average skill match:")
     print(round(float(assignments["skill_match_score"].mean()), 3))
+
+    print()
+    print("Average risk score:")
+    print(round(float(assignments["risk_score"].mean()), 3))
 
 
 def main() -> None:
