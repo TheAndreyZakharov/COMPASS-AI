@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 import httpx
@@ -59,25 +60,43 @@ class PlaneClient:
         self.close()
 
     def _request(self, method: str, path: str, **kwargs: Any) -> Any:
-        response = self._client.request(method, path, **kwargs)
+        max_attempts = 5
 
-        try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as exc:
-            body_preview = response.text[:500]
-            raise PlaneClientError(
-                f"Plane API request failed: {method} {path} "
-                f"status={response.status_code} body={body_preview!r}"
-            ) from exc
+        for attempt in range(1, max_attempts + 1):
+            response = self._client.request(method, path, **kwargs)
 
-        if not response.content:
-            return None
+            if response.status_code == 429 and attempt < max_attempts:
+                retry_after = response.headers.get("retry-after")
+                wait_seconds = float(retry_after) if retry_after else float(attempt * 3)
 
-        content_type = response.headers.get("content-type", "")
-        if "application/json" not in content_type:
-            return response.text
+                print(
+                    f"Plane API rate limit hit for {method} {path}. "
+                    f"Retrying in {wait_seconds:.1f}s..."
+                )
+                time.sleep(wait_seconds)
+                continue
 
-        return response.json()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                body_preview = response.text[:500]
+                raise PlaneClientError(
+                    f"Plane API request failed: {method} {path} "
+                    f"status={response.status_code} body={body_preview!r}"
+                ) from exc
+
+            if not response.content:
+                return None
+
+            content_type = response.headers.get("content-type", "")
+            if "application/json" not in content_type:
+                return response.text
+
+            return response.json()
+
+        raise PlaneClientError(
+            f"Plane API request failed after retries: {method} {path}"
+        )
 
     @staticmethod
     def _items(payload: Any) -> list[dict[str, Any]]:
