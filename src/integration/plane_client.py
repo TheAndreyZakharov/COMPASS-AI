@@ -175,7 +175,7 @@ class PlaneClient:
 
         payload = self._request(
             "POST",
-            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/work-items",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/work-items/",
             json=request_payload,
         )
 

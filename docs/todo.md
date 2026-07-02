@@ -2515,14 +2515,14 @@ python plane/seed/create_labels.py
 
 ## 9.3. Создать seed-скрипт для Plane задач
 
-- [ ] Создать `plane/seed/create_tasks.py`.
-- [ ] Скрипт должен читать `data/synthetic/tasks.csv`.
-- [ ] Скрипт должен создавать задачи в нужном проекте Plane.
-- [ ] Скрипт должен добавлять labels.
-- [ ] Скрипт должен добавлять priority.
-- [ ] Скрипт должен добавлять target date, если поле доступно.
-- [ ] Скрипт должен сохранить mapping `task_id → plane_issue_id`.
-- [ ] Mapping сохранить в `data/processed/task_plane_mapping.csv`.
+- [x] Создать `plane/seed/create_tasks.py`.
+- [x] Скрипт должен читать `data/synthetic/tasks.csv`.
+- [x] Скрипт должен создавать задачи в нужном проекте Plane.
+- [x] Скрипт должен добавлять labels.
+- [x] Скрипт должен добавлять priority.
+- [x] Скрипт должен добавлять target date, если поле доступно.
+- [x] Скрипт должен сохранить mapping `task_id → plane_issue_id`.
+- [x] Mapping сохранить в `data/processed/task_plane_mapping.csv`.
 
 Команда:
 
