@@ -23,27 +23,16 @@ def clamp(value: float, min_value: float = 0.0, max_value: float = 1.0) -> float
     return round(max(min_value, min(max_value, value)), 3)
 
 
-def build_role_grade_plan() -> list[tuple[str, str]]:
-    return [
-        ("backend_developer", "junior"),
-        ("backend_developer", "junior"),
-        ("backend_developer", "middle"),
-        ("backend_developer", "middle"),
-        ("backend_developer", "middle"),
-        ("backend_developer", "senior"),
-        ("backend_developer", "senior"),
-        ("frontend_developer", "junior"),
-        ("frontend_developer", "junior"),
-        ("frontend_developer", "middle"),
-        ("frontend_developer", "middle"),
-        ("frontend_developer", "senior"),
-        ("qa_engineer", "middle"),
-        ("qa_engineer", "senior"),
-        ("data_ml_engineer", "middle"),
-        ("data_ml_engineer", "senior"),
-        ("devops_engineer", "senior"),
-        ("team_lead", "lead"),
-    ]
+def build_role_grade_plan(config: dict[str, Any]) -> list[tuple[str, str]]:
+    role_grade_config = config["employee_generation"]["role_grade_plan"]
+
+    role_grade_plan: list[tuple[str, str]] = []
+
+    for role, grades in role_grade_config.items():
+        for grade, count in grades.items():
+            role_grade_plan.extend([(role, grade)] * int(count))
+
+    return role_grade_plan
 
 
 def grade_base_level(grade: str) -> int:
@@ -87,6 +76,7 @@ def generate_skill_levels(
 
         if grade == "junior":
             level = min(level, 3)
+
         if grade == "lead" and skill in primary:
             level = max(level, 4)
 
@@ -120,8 +110,28 @@ def generate_learning_goals(
     if not candidates:
         candidates = candidate_skills
 
-    goals_count = rng.choice([2, 2, 3])
+    goals_count = rng.choice([2, 2, 3, 3, 4])
     return sorted(rng.sample(candidates, k=min(goals_count, len(candidates))))
+
+
+def mentor_level_for_grade(grade: str, rng: random.Random) -> int:
+    if grade == "junior":
+        return rng.choice([0, 0, 1])
+    if grade == "middle":
+        return rng.choice([1, 2, 2, 3])
+    if grade == "senior":
+        return rng.choice([3, 4, 4, 5])
+    if grade == "lead":
+        return rng.choice([4, 5, 5])
+    return 1
+
+
+def availability_from_workload(current_workload: float) -> str:
+    if current_workload >= 0.95:
+        return "unavailable"
+    if current_workload >= 0.85:
+        return "partially_available"
+    return "available"
 
 
 def generate_employees() -> pd.DataFrame:
@@ -133,7 +143,15 @@ def generate_employees() -> pd.DataFrame:
     np.random.seed(seed)
 
     names = config["employee_generation"]["synthetic_names"]
-    role_grade_plan = build_role_grade_plan()
+    role_grade_plan = build_role_grade_plan(config)
+
+    expected_count = int(config["employees_count"])
+
+    if len(role_grade_plan) != expected_count:
+        raise ValueError(
+            f"role_grade_plan generated {len(role_grade_plan)} employees, "
+            f"but employees_count={expected_count}."
+        )
 
     if len(names) < len(role_grade_plan):
         raise ValueError("Not enough synthetic names for the role/grade plan.")
@@ -152,34 +170,35 @@ def generate_employees() -> pd.DataFrame:
             1,
         )
 
-        active_tasks_count = max(0, int(round(current_workload * rng.uniform(4, 9))))
+        active_tasks_count = max(0, int(round(current_workload * rng.uniform(4, 12))))
 
         grade_quality_bonus = {
             "junior": 0.00,
             "middle": 0.08,
             "senior": 0.15,
-            "lead": 0.12,
+            "lead": 0.13,
         }[grade]
 
-        avg_completion_speed = clamp(rng.normalvariate(0.68 + grade_quality_bonus / 2, 0.10))
-        avg_quality_score = clamp(rng.normalvariate(0.70 + grade_quality_bonus, 0.08))
-        deadline_reliability = clamp(rng.normalvariate(0.72 + grade_quality_bonus, 0.10))
+        role_bonus = {
+            "backend_developer": 0.02,
+            "frontend_developer": 0.01,
+            "qa_engineer": 0.03,
+            "data_ml_engineer": 0.02,
+            "devops_engineer": 0.02,
+            "team_lead": 0.04,
+        }.get(role, 0.0)
 
-        if grade == "junior":
-            mentor_level = rng.choice([0, 1])
-        elif grade == "middle":
-            mentor_level = rng.choice([1, 2, 3])
-        elif grade == "senior":
-            mentor_level = rng.choice([3, 4, 5])
-        else:
-            mentor_level = rng.choice([4, 5])
+        avg_completion_speed = clamp(
+            rng.normalvariate(0.66 + grade_quality_bonus / 2 + role_bonus, 0.11)
+        )
+        avg_quality_score = clamp(
+            rng.normalvariate(0.69 + grade_quality_bonus + role_bonus, 0.09)
+        )
+        deadline_reliability = clamp(
+            rng.normalvariate(0.70 + grade_quality_bonus + role_bonus, 0.11)
+        )
 
-        if current_workload >= 0.95:
-            availability = "unavailable"
-        elif current_workload >= 0.85:
-            availability = "partially_available"
-        else:
-            availability = "available"
+        mentor_level = mentor_level_for_grade(grade, rng)
 
         employees.append(
             {
@@ -201,7 +220,7 @@ def generate_employees() -> pd.DataFrame:
                     ensure_ascii=False,
                 ),
                 "mentor_level": mentor_level,
-                "availability": availability,
+                "availability": availability_from_workload(current_workload),
                 "timezone": schema["team"]["timezone"],
             }
         )
@@ -222,6 +241,12 @@ def save_employees(df: pd.DataFrame) -> None:
     print(f"Employees generated: {len(df)}")
     print(f"CSV: {csv_path}")
     print(f"JSON: {json_path}")
+    print()
+    print("Employees by role:")
+    print(df["role"].value_counts().to_string())
+    print()
+    print("Employees by grade:")
+    print(df["grade"].value_counts().to_string())
     print()
     print(df[["employee_id", "name", "role", "grade", "current_workload"]].to_string(index=False))
 
