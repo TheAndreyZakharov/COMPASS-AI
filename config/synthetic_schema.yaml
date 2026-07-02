@@ -1,0 +1,109 @@
+version: 1
+
+team:
+  employees_count: 18
+  timezone: Europe/Berlin
+
+  roles:
+    backend_developer:
+      display_name: Backend Developer
+      target_count: 7
+      allowed_grades:
+        - junior
+        - middle
+        - senior
+      primary_stack: backend_python
+
+    frontend_developer:
+      display_name: Frontend Developer
+      target_count: 5
+      allowed_grades:
+        - junior
+        - middle
+        - senior
+      primary_stack: frontend_react
+
+    qa_engineer:
+      display_name: QA Engineer
+      target_count: 2
+      allowed_grades:
+        - middle
+        - senior
+      primary_stack: qa_automation
+
+    data_ml_engineer:
+      display_name: Data/ML Engineer
+      target_count: 2
+      allowed_grades:
+        - middle
+        - senior
+      primary_stack: data_ml
+
+    devops_engineer:
+      display_name: DevOps Engineer
+      target_count: 1
+      allowed_grades:
+        - senior
+      primary_stack: devops_platform
+
+    team_lead:
+      display_name: Team Lead
+      target_count: 1
+      allowed_grades:
+        - lead
+      primary_stack: team_management
+
+  employee_fields:
+    - employee_id
+    - plane_user_id
+    - name
+    - role
+    - grade
+    - experience_years
+    - primary_stack
+    - skills
+    - current_workload
+    - active_tasks_count
+    - avg_completion_speed
+    - avg_quality_score
+    - deadline_reliability
+    - learning_goals
+    - mentor_level
+    - availability
+    - timezone
+
+  workload_ranges:
+    low:
+      min: 0.0
+      max: 0.4
+    normal:
+      min: 0.4
+      max: 0.7
+    high:
+      min: 0.7
+      max: 0.85
+    risky:
+      min: 0.85
+      max: 0.95
+    critical:
+      min: 0.95
+      max: 1.0
+
+  experience_years_ranges:
+    junior:
+      min: 0.5
+      max: 2.0
+    middle:
+      min: 2.0
+      max: 5.0
+    senior:
+      min: 5.0
+      max: 9.0
+    lead:
+      min: 7.0
+      max: 12.0
+
+  availability_values:
+    - available
+    - partially_available
+    - unavailable
