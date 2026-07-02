@@ -256,6 +256,36 @@ TECH_STACK_SKILLS = {
     "PyTorch",
 }
 
+TASK_CONTEXTS = [
+    "auth",
+    "billing",
+    "analytics",
+    "notifications",
+    "reporting",
+    "team workload",
+    "recommendation engine",
+    "Plane integration",
+    "dashboard",
+    "ML pipeline",
+    "audit logs",
+    "permissions",
+    "data export",
+    "model metrics",
+    "fairness analysis",
+]
+
+TASK_AREAS_RU = [
+    "модуля авторизации",
+    "аналитического dashboard",
+    "интеграции с Plane",
+    "пайплайна рекомендаций",
+    "системы отчётов",
+    "модуля командной загрузки",
+    "ML-пайплайна",
+    "системы уведомлений",
+    "модуля безопасности",
+    "экспорта данных",
+]
 
 def load_yaml(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as file:
@@ -298,6 +328,12 @@ def generate_tasks() -> pd.DataFrame:
 
         title, description = rng.choice(TASK_TEMPLATES[task_type])
 
+        context = rng.choice(TASK_CONTEXTS)
+        area_ru = rng.choice(TASK_AREAS_RU)
+
+        title = f"{title} — {area_ru}"
+        description = f"{description} Контекст задачи: {context}."
+        
         project_key = type_config["default_project_key"]
         if rng.random() < 0.12:
             project_key = weighted_choice(
