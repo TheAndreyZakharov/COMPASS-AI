@@ -1,13 +1,13 @@
 version: 1
 
 team:
-  employees_count: 18
+  employees_count: 36
   timezone: Europe/Berlin
 
   roles:
     backend_developer:
       display_name: Backend Developer
-      target_count: 7
+      target_count: 14
       allowed_grades:
         - junior
         - middle
@@ -16,7 +16,7 @@ team:
 
     frontend_developer:
       display_name: Frontend Developer
-      target_count: 5
+      target_count: 9
       allowed_grades:
         - junior
         - middle
@@ -25,30 +25,33 @@ team:
 
     qa_engineer:
       display_name: QA Engineer
-      target_count: 2
+      target_count: 4
       allowed_grades:
+        - junior
         - middle
         - senior
       primary_stack: qa_automation
 
     data_ml_engineer:
       display_name: Data/ML Engineer
-      target_count: 2
+      target_count: 4
       allowed_grades:
+        - junior
         - middle
         - senior
       primary_stack: data_ml
 
     devops_engineer:
       display_name: DevOps Engineer
-      target_count: 1
+      target_count: 3
       allowed_grades:
+        - middle
         - senior
       primary_stack: devops_platform
 
     team_lead:
       display_name: Team Lead
-      target_count: 1
+      target_count: 2
       allowed_grades:
         - lead
       primary_stack: team_management
@@ -423,6 +426,11 @@ assignments:
     - speed_score
     - collaboration_score
     - risk_score
+    - success_probability
+    - assignment_scenario
+    - outcome_status
+    - delay_days
+    - delivery_speed_category
     - success_label
 
   success_label:
@@ -482,3 +490,26 @@ assignments:
   label_values:
     - 0
     - 1
+
+  outcome_status_values:
+    - full_success
+    - partial_success
+    - delayed_delivery
+    - failed_delivery
+    - cancelled_or_not_finished
+
+  delivery_speed_categories:
+    - very_fast
+    - on_time
+    - slightly_delayed
+    - heavily_delayed
+    - not_finished
+
+  assignment_scenarios:
+    - ideal_match
+    - balanced_match
+    - growth_stretch
+    - overload_risk
+    - wrong_role
+    - urgent_deadline
+    - random_assignment
