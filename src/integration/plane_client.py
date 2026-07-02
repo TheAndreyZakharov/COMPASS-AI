@@ -45,6 +45,7 @@ class PlaneClient:
             headers={
                 "x-api-key": self.api_key,
                 "Accept": "application/json",
+                "Content-Type": "application/json",
             },
         )
 
@@ -131,6 +132,39 @@ class PlaneClient:
             raise PlaneClientError("Unexpected work item detail response format.")
         return payload
 
+    def create_work_item(
+        self,
+        project_id: str,
+        name: str,
+        description_html: str,
+        priority: str = "medium",
+        labels: list[str] | None = None,
+        target_date: str | None = None,
+    ) -> dict[str, Any]:
+        """Create a work item in Plane."""
+        request_payload: dict[str, Any] = {
+            "name": name,
+            "description_html": description_html,
+            "priority": priority,
+        }
+
+        if labels:
+            request_payload["labels"] = labels
+
+        if target_date:
+            request_payload["target_date"] = target_date
+
+        payload = self._request(
+            "POST",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/work-items",
+            json=request_payload,
+        )
+
+        if not isinstance(payload, dict):
+            raise PlaneClientError("Unexpected create work item response format.")
+
+        return payload
+
     def list_project_members(self, project_id: str) -> list[dict[str, Any]]:
         payload = self._request(
             "GET",
@@ -151,6 +185,29 @@ class PlaneClient:
             f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/labels/",
         )
         return self._items(payload)
+
+    def create_label(
+        self,
+        project_id: str,
+        name: str,
+        color: str | None = None,
+    ) -> dict[str, Any]:
+        """Create a project label in Plane."""
+        request_payload: dict[str, Any] = {"name": name}
+
+        if color:
+            request_payload["color"] = color
+
+        payload = self._request(
+            "POST",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/labels/",
+            json=request_payload,
+        )
+
+        if not isinstance(payload, dict):
+            raise PlaneClientError("Unexpected create label response format.")
+
+        return payload
 
     def list_work_item_comments(
         self,
@@ -206,6 +263,24 @@ class PlaneClient:
 
     def get_issue(self, project_id: str, issue_id: str) -> dict[str, Any]:
         return self.get_work_item(project_id, issue_id)
+
+    def create_issue(
+        self,
+        project_id: str,
+        name: str,
+        description_html: str,
+        priority: str = "medium",
+        labels: list[str] | None = None,
+        target_date: str | None = None,
+    ) -> dict[str, Any]:
+        return self.create_work_item(
+            project_id=project_id,
+            name=name,
+            description_html=description_html,
+            priority=priority,
+            labels=labels,
+            target_date=target_date,
+        )
 
     def create_issue_comment(
         self,
