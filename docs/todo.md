@@ -3262,15 +3262,15 @@ All checks passed!
 
 ## 10.1. Создать FastAPI-приложение
 
-- [ ] Создать `app/api.py`.
-- [ ] Создать endpoint `/health`.
-- [ ] Создать endpoint `/version`.
-- [ ] Создать endpoint `/recommendations/demo`.
-- [ ] Создать endpoint `/recommendations/issue/{issue_id}`.
-- [ ] Создать endpoint `/reports/summary`.
-- [ ] Подключить CORS, если нужен локальный dashboard.
-- [ ] Подключить чтение `.env`.
-- [ ] Добавить запуск через `uvicorn`.
+- [x] Создать `app/api.py`.
+- [x] Создать endpoint `/health`.
+- [x] Создать endpoint `/version`.
+- [x] Создать endpoint `/recommendations/demo`.
+- [x] Создать endpoint `/recommendations/issue/{issue_id}`.
+- [x] Создать endpoint `/reports/summary`.
+- [x] Подключить CORS, если нужен локальный dashboard.
+- [x] Подключить чтение `.env`.
+- [x] Добавить запуск через `uvicorn`.
 
 Файл:
 
@@ -3299,14 +3299,14 @@ curl http://localhost:8000/health
 
 ## 10.2. Создать Pydantic-схемы API
 
-- [ ] Создать `src/models/schemas.py`.
-- [ ] Описать `TaskInput`.
-- [ ] Описать `EmployeeInput`.
-- [ ] Описать `RecommendationRequest`.
-- [ ] Описать `CandidateRecommendation`.
-- [ ] Описать `RecommendationResponse`.
-- [ ] Описать `ExplanationResponse`.
-- [ ] Описать `AnalyticsSummary`.
+- [x] Создать `src/models/schemas.py`.
+- [x] Описать `TaskInput`.
+- [x] Описать `EmployeeInput`.
+- [x] Описать `RecommendationRequest`.
+- [x] Описать `CandidateRecommendation`.
+- [x] Описать `RecommendationResponse`.
+- [x] Описать `ExplanationResponse`.
+- [x] Описать `AnalyticsSummary`.
 
 Файл:
 
