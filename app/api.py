@@ -9,7 +9,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.models.schemas import AnalyticsSummary, HealthResponse, VersionResponse
+from src.models.schemas import (
+    AnalyticsSummary,
+    HealthResponse,
+    RecommendationResponse,
+    VersionResponse,
+)
+from src.recommendation.demo_ranker import get_demo_recommendation
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EMPLOYEES_CSV_PATH = PROJECT_ROOT / "data" / "synthetic" / "employees.csv"
@@ -66,6 +72,20 @@ def version() -> VersionResponse:
         environment=os.getenv("APP_ENV", "local"),
     )
 
+@app.get("/recommendations/demo", response_model=RecommendationResponse)
+def recommendations_demo(
+    mode: str = Query(default="balanced_workload"),
+    task_id: str | None = Query(default=None),
+    top_k: int = Query(default=3, ge=1, le=10),
+) -> RecommendationResponse:
+    try:
+        return get_demo_recommendation(
+            mode=mode,
+            task_id=task_id,
+            top_k=top_k,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 @app.get("/reports/summary", response_model=AnalyticsSummary)
 def reports_summary() -> AnalyticsSummary:

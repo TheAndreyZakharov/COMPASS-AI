@@ -3333,12 +3333,12 @@ RecommendationResponse
 
 ## 10.3. Добавить demo endpoint без ML
 
-- [ ] Endpoint `/recommendations/demo` должен брать тестовую задачу.
-- [ ] Endpoint должен брать список сотрудников из `employees.csv`.
-- [ ] Endpoint должен возвращать top-3 по простому rule-based правилу.
-- [ ] Пока не использовать нейросеть.
-- [ ] Вернуть JSON с кандидатом, score и причиной.
-- [ ] Проверить ответ через браузер или curl.
+- [x] Endpoint `/recommendations/demo` должен брать тестовую задачу.
+- [x] Endpoint должен брать список сотрудников из `employees.csv`.
+- [x] Endpoint должен возвращать top-3 по простому rule-based правилу.
+- [x] Пока не использовать нейросеть.
+- [x] Вернуть JSON с кандидатом, score и причиной.
+- [x] Проверить ответ через браузер или curl.
 
 Команда:
 
