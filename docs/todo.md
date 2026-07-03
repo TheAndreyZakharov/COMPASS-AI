@@ -3268,9 +3268,13 @@ All checks passed!
 - [x] Создать endpoint `/recommendations/demo`.
 - [x] Создать endpoint `/recommendations/issue/{issue_id}`.
 - [x] Создать endpoint `/reports/summary`.
-- [x] Подключить CORS, если нужен локальный dashboard.
+- [x] Подключить CORS для локального dashboard.
 - [x] Подключить чтение `.env`.
 - [x] Добавить запуск через `uvicorn`.
+- [x] Проверить запуск через `make api`.
+- [x] Проверить запуск напрямую через `uvicorn`.
+- [x] Добавить placeholder endpoint для будущей Plane/agentic интеграции.
+- [x] Добавить summary endpoint по synthetic dataset.
 
 Файл:
 
@@ -3278,19 +3282,159 @@ All checks passed!
 app/api.py
 ```
 
-Команда запуска:
+Команда запуска напрямую:
 
 ```bash
 uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Проверка:
+Команда запуска через Makefile:
+
+```bash
+make api
+```
+
+Фактически проверенный Makefile target:
+
+```text
+api:
+     uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+```
+
+Фактические endpoints:
+
+```text
+GET /health
+GET /version
+GET /reports/summary
+GET /recommendations/demo
+GET /recommendations/issue/{issue_id}
+```
+
+Проверка `/health`:
 
 ```bash
 curl http://localhost:8000/health
 ```
 
+Фактический response:
+
+```json
+{"status":"ok","service":"compass-ai"}
+```
+
+Проверка `/version`:
+
+```bash
+curl http://localhost:8000/version
+```
+
+Фактический response:
+
+```json
+{"service":"compass-ai","version":"0.1.0","environment":"local"}
+```
+
+Проверка `/reports/summary`:
+
+```bash
+curl http://localhost:8000/reports/summary
+```
+
+Фактический response содержит:
+
+```text
+employees_count
+tasks_count
+assignments_count
+average_workload
+average_skill_match
+average_risk_score
+success_rate
+failed_rate
+tasks_by_project
+tasks_by_type
+assignments_by_outcome
+assignments_by_scenario
+```
+
+Фактическая статистика synthetic dataset через API:
+
+```text
+employees_count: 36
+tasks_count: 2500
+assignments_count: 60000
+average_workload: 0.628
+average_skill_match: 0.576
+average_risk_score: 0.38
+success_rate: 0.512
+failed_rate: 0.488
+```
+
+Фактическое распределение задач по проектам через API:
+
+```text
+BACK: 1422
+DATA: 416
+FRONT: 258
+TOOLS: 404
+```
+
+Фактическое распределение assignment outcomes через API:
+
+```text
+cancelled_or_not_finished: 3661
+delayed_delivery: 9633
+failed_delivery: 12447
+full_success: 27142
+partial_success: 7117
+```
+
+Фактическое распределение assignment scenarios через API:
+
+```text
+balanced_match: 13813
+growth_stretch: 10142
+ideal_match: 14028
+overload_risk: 5383
+random_assignment: 3067
+urgent_deadline: 5392
+wrong_role: 8175
+```
+
+Важно:
+
+```text
+/recommendations/issue/{issue_id} пока является placeholder endpoint.
+Реальная интеграция с Plane и agentic pipeline будет подключена позже на этапах 15–16.
+```
+
+Фактическая проверка запуска:
+
+```text
+Uvicorn успешно запустил FastAPI backend на http://0.0.0.0:8000.
+Endpoints /health, /version и /reports/summary вернули HTTP 200 OK.
+```
+
+Проверка качества кода:
+
+```bash
+python -m py_compile app/api.py
+```
+
+```bash
+ruff check app/api.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
 **Ожидаемый результат:** локальный backend COMPASS AI работает.
+
+**Фактический результат:** FastAPI-приложение создано, health/version/reports endpoints работают, placeholder для Plane issue recommendation подготовлен.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Add COMPASS FastAPI service`
@@ -3307,6 +3451,9 @@ curl http://localhost:8000/health
 - [x] Описать `RecommendationResponse`.
 - [x] Описать `ExplanationResponse`.
 - [x] Описать `AnalyticsSummary`.
+- [x] Описать `HealthResponse`.
+- [x] Описать `VersionResponse`.
+- [x] Добавить `RecommendationMode`.
 
 Файл:
 
@@ -3317,14 +3464,62 @@ src/models/schemas.py
 Основные структуры:
 
 ```text
+HealthResponse
+VersionResponse
 TaskInput
 EmployeeInput
 RecommendationRequest
 CandidateRecommendation
 RecommendationResponse
+ExplanationResponse
+AnalyticsSummary
+```
+
+Поддерживаемые recommendation modes:
+
+```text
+fast_delivery
+balanced_workload
+growth
+risk_minimization
+```
+
+Важно:
+
+```text
+Эти схемы используются FastAPI endpoints и будут переиспользованы позже
+в agentic pipeline, inference wrapper и dashboard.
+```
+
+Важно:
+
+```text
+Pydantic-схемы заранее учитывают Plane compatibility:
+plane_work_item_id
+plane_issue_id
+plane_project_id
+project_key
+```
+
+Проверка качества кода:
+
+```bash
+python -m py_compile src/models/schemas.py
+```
+
+```bash
+ruff check src/models/schemas.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
 ```
 
 **Ожидаемый результат:** API возвращает строго структурированные данные.
+
+**Фактический результат:** Pydantic-схемы API созданы и используются FastAPI endpoints.
 
 **Примерное время:** 2–3 часа.  
 **Коммит:** `Add API data schemas`
@@ -3333,23 +3528,243 @@ RecommendationResponse
 
 ## 10.3. Добавить demo endpoint без ML
 
-- [x] Endpoint `/recommendations/demo` должен брать тестовую задачу.
-- [x] Endpoint должен брать список сотрудников из `employees.csv`.
-- [x] Endpoint должен возвращать top-3 по простому rule-based правилу.
-- [x] Пока не использовать нейросеть.
-- [x] Вернуть JSON с кандидатом, score и причиной.
-- [x] Проверить ответ через браузер или curl.
+- [x] Endpoint `/recommendations/demo` берёт тестовую задачу из `tasks.csv`.
+- [x] Endpoint берёт список сотрудников из `employees.csv`.
+- [x] Endpoint возвращает top-3 по простому rule-based правилу.
+- [x] Пока не использует нейросеть.
+- [x] Возвращает JSON с кандидатом, score, reasons и risks.
+- [x] Поддерживает query parameter `mode`.
+- [x] Поддерживает query parameter `task_id`.
+- [x] Поддерживает query parameter `top_k`.
+- [x] Проверяется через браузер или curl.
+- [x] Проверен режим `balanced_workload`.
+- [x] Проверен режим `fast_delivery`.
+- [x] Проверена рекомендация для конкретной synthetic task `TASK-0001`.
 
-Команда:
+Файл demo-ranker:
+
+```text
+src/recommendation/demo_ranker.py
+```
+
+FastAPI endpoint:
+
+```text
+GET /recommendations/demo
+```
+
+Команда проверки default demo recommendation:
 
 ```bash
 curl http://localhost:8000/recommendations/demo
 ```
 
+Фактический default response:
+
+```text
+task_id: TASK-0022
+mode: balanced_workload
+source: rule_based_demo
+top candidates: 3
+```
+
+Фактический top-3 для default demo recommendation:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 0.8186
+2. EMP-027 — Валерия Фомина — qa_engineer senior — score 0.785
+3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.7725
+```
+
+Команда проверки режима `fast_delivery`:
+
+```bash
+curl "http://localhost:8000/recommendations/demo?mode=fast_delivery"
+```
+
+Фактический top-3 для `fast_delivery`:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 0.8579
+2. EMP-027 — Валерия Фомина — qa_engineer senior — score 0.7888
+3. EMP-014 — Никита Егоров — backend_developer senior — score 0.7769
+```
+
+Команда проверки конкретной synthetic task:
+
+```bash
+curl "http://localhost:8000/recommendations/demo?task_id=TASK-0001&mode=balanced_workload"
+```
+
+Фактическая задача:
+
+```text
+TASK-0001
+Добавить endpoint для статистики команды — интеграции с Plane
+```
+
+Фактический top-3 для `TASK-0001`:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 0.8804
+2. EMP-010 — Сергей Павлов — backend_developer middle — score 0.8456
+3. EMP-014 — Никита Егоров — backend_developer senior — score 0.819
+```
+
+Фактическая логика demo scoring:
+
+```text
+skill_match
+role_affinity
+workload_score
+speed
+quality
+deadline_reliability
+growth_match
+```
+
+Фактические режимы demo scoring:
+
+```text
+fast_delivery
+balanced_workload
+growth
+risk_minimization
+```
+
+Фактический response содержит:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+title
+mode
+candidates
+rank
+employee_id
+plane_user_id
+name
+role
+grade
+score
+reasons
+risks
+factors
+source
+explanation
+```
+
+Важно:
+
+```text
+Это лёгкий demo-ranker, а не финальный rule-based baseline.
+Полный rule-based baseline будет реализован на этапе 11.
+Нейросеть будет подключена позже после feature engineering и обучения модели.
+```
+
+Важно:
+
+```text
+LLM на этом этапе не используется.
+Demo endpoint возвращает только структурированную рекомендацию и техническое объяснение.
+Русскоязычные LLM-объяснения будут добавлены позже в agentic pipeline.
+```
+
+Фактическая проверка запуска:
+
+```text
+/recommendations/demo вернул HTTP 200 OK.
+/recommendations/demo?mode=fast_delivery вернул HTTP 200 OK.
+/recommendations/demo?task_id=TASK-0001&mode=balanced_workload вернул HTTP 200 OK.
+```
+
+Проверка качества кода:
+
+```bash
+python -m py_compile app/api.py src/recommendation/demo_ranker.py
+```
+
+```bash
+ruff check app/api.py src/recommendation/demo_ranker.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
 **Ожидаемый результат:** до ML уже есть end-to-end форма ответа.
+
+**Фактический результат:** `/recommendations/demo` возвращает структурированный top-k response с score, reasons, risks и factors.
 
 **Примерное время:** 2–4 часа.  
 **Коммит:** `Add demo recommendation endpoint`
+
+---
+
+## 10.4. Финальная проверка backend API
+
+- [x] Проверить компиляцию всех файлов этапа 10.
+- [x] Проверить lint всех файлов этапа 10.
+- [x] Проверить запуск FastAPI через `uvicorn`.
+- [x] Проверить `/health`.
+- [x] Проверить `/version`.
+- [x] Проверить `/reports/summary`.
+- [x] Проверить `/recommendations/demo`.
+- [x] Проверить `/recommendations/demo?mode=fast_delivery`.
+- [x] Проверить `/recommendations/demo?task_id=TASK-0001&mode=balanced_workload`.
+
+Проверка компиляции:
+
+```bash
+python -m py_compile src/models/schemas.py src/recommendation/demo_ranker.py app/api.py
+```
+
+Проверка линтера:
+
+```bash
+ruff check src/models/schemas.py src/recommendation/demo_ranker.py app/api.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
+Фактический результат этапа:
+
+```text
+COMPASS AI backend запускается локально.
+API возвращает health/version/status.
+API читает большой synthetic dataset.
+API отдаёт summary по данным.
+API отдаёт demo top-3 рекомендацию без ML.
+API уже использует Pydantic response schemas.
+```
+
+Важно:
+
+```text
+Этап 10 не обучает модель и не использует нейросеть.
+Этап 10 нужен, чтобы заранее получить рабочую backend-обвязку,
+к которой позже подключатся rule-based baseline, feature engineering,
+TaskEmployeeMatchingNet, agents, LLM explanation и Plane write-back.
+```
+
+**Ожидаемый результат:** базовый backend готов для следующих этапов.
+
+**Фактический результат:** этап 10 завершён и проверен.
+
+**Коммиты этапа:**
+
+```text
+Add API data schemas
+Add COMPASS FastAPI service
+Add demo recommendation endpoint
+```
 
 ---
 
