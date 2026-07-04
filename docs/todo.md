@@ -3823,12 +3823,12 @@ src/recommendation/workload_scoring.py
 
 ## 11.3. Реализовать growth scoring
 
-- [ ] Создать `src/recommendation/growth_scoring.py`.
-- [ ] Сравнивать required skills задачи с learning goals сотрудника.
-- [ ] Повышать score, если задача подходит для развития.
-- [ ] Понижать score, если задача слишком сложная для текущего уровня.
-- [ ] Добавить параметр `mentor_available`.
-- [ ] Написать тесты.
+- [x] Создать `src/recommendation/growth_scoring.py`.
+- [x] Сравнивать required skills задачи с learning goals сотрудника.
+- [x] Повышать score, если задача подходит для развития.
+- [x] Понижать score, если задача слишком сложная для текущего уровня.
+- [x] Добавить параметр `mentor_available`.
+- [x] Написать тесты.
 
 Файл:
 
