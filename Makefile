@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format api notebooks train export-onnx reports generate-data build-features evaluate clean
+.PHONY: install dev test lint format api notebooks train export-onnx reports generate-data text-embeddings build-features split-data evaluate clean
 
 PYTHON := python
 PIP := pip
@@ -30,8 +30,19 @@ notebooks:
 generate-data:
 	$(PYTHON) scripts/generate_synthetic_data.py
 
+skill-vocab:
+	$(PYTHON) src/features/skill_vectorizer.py
+
+text-embeddings:
+	$(PYTHON) src/features/text_embeddings.py
+
 build-features:
+	$(PYTHON) src/features/skill_vectorizer.py
+	$(PYTHON) src/features/text_embeddings.py
 	$(PYTHON) src/features/build_features.py
+
+split-data:
+	$(PYTHON) src/data/split_dataset.py
 
 train:
 	$(PYTHON) src/models/train.py
