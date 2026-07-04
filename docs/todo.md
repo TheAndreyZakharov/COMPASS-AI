@@ -5179,14 +5179,14 @@ test.parquet: 8932 rows
 
 ## 13.1. Реализовать Dataset и DataLoader
 
-- [ ] Создать `src/models/dataset.py`.
-- [ ] Реализовать `AssignmentPairDataset`.
-- [ ] Dataset должен возвращать task features.
-- [ ] Dataset должен возвращать employee features.
-- [ ] Dataset должен возвращать pair features.
-- [ ] Dataset должен возвращать label.
-- [ ] Проверить batch shapes.
-- [ ] Написать простой тест.
+- [x] Создать `src/models/dataset.py`.
+- [x] Реализовать `AssignmentPairDataset`.
+- [x] Dataset должен возвращать task features.
+- [x] Dataset должен возвращать employee features.
+- [x] Dataset должен возвращать pair features.
+- [x] Dataset должен возвращать label.
+- [x] Проверить batch shapes.
+- [x] Написать простой тест.
 
 Файл:
 
