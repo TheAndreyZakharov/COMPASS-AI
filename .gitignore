@@ -37,6 +37,7 @@ models/*.pth
 models/*.onnx
 models/*.ckpt
 !models/.gitkeep
+models/
 
 # Reports
 reports/*.html

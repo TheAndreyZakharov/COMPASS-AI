@@ -9,6 +9,7 @@ sentence-transformers
 transformers
 accelerate
 onnx
+onnxscript
 onnxruntime
 fastapi
 uvicorn[standard]
