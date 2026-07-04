@@ -5776,109 +5776,18 @@ make model-pipeline
 
 ## 14.1. Реализовать inference wrapper
 
-- [ ] Создать `src/models/inference.py`.
-- [ ] Загружать PyTorch checkpoint.
-- [ ] Принимать одну задачу и список сотрудников.
-- [ ] Строить features.
-- [ ] Считать score для каждого сотрудника.
-- [ ] Сортировать кандидатов.
-- [ ] Возвращать top-3.
-- [ ] Добавить режимы рекомендации.
-- [ ] Вернуть структурированный JSON.
-
-Файл:
-
-```text
-src/models/inference.py
-```
-
-**Ожидаемый результат:** модель можно использовать в backend.
-
-**Примерное время:** 5–8 часов.  
-**Коммит:** `Add model inference wrapper`
-
----
-
-## 14.2. Экспортировать модель в ONNX
-
-- [ ] Создать `src/models/export_onnx.py`.
-- [ ] Загрузить checkpoint.
-- [ ] Создать dummy input нужной формы.
-- [ ] Экспортировать модель.
-- [ ] Проверить, что файл создан.
-- [ ] Сохранить в `models/task_employee_matcher.onnx`.
-
-Файл:
-
-```text
-src/models/export_onnx.py
-```
-
-Команда:
-
-```bash
-python src/models/export_onnx.py
-```
-
-Результат:
-
-```text
-models/task_employee_matcher.onnx
-```
-
-**Ожидаемый результат:** есть ONNX-файл как production-ready артефакт.
-
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Export matching model to ONNX`
-
----
-
-## 14.3. Проверить ONNX Runtime
-
-- [ ] Создать `src/models/onnx_inference.py`.
-- [ ] Загрузить `task_employee_matcher.onnx`.
-- [ ] Подать тот же dummy input.
-- [ ] Сравнить PyTorch output и ONNX output.
-- [ ] Проверить, что разница мала.
-- [ ] Сохранить результат проверки в `reports/onnx_validation.json`.
-
-Файл:
-
-```text
-src/models/onnx_inference.py
-```
-
-Команда:
-
-```bash
-python src/models/onnx_inference.py
-```
-
-Результат:
-
-```text
-reports/onnx_validation.json
-```
-
-**Ожидаемый результат:** ONNX-модель реально запускается.
-
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Validate ONNX inference`
-
----
-
-# 15. Этап 13 — agentic pipeline
-
-## 15.0. Добавить model inference wrapper для агентного пайплайна
-
 - [x] Создать `src/models/inference.py`.
 - [x] Загружать PyTorch checkpoint `models/compass_matching_model.pt`.
 - [x] Восстанавливать `TaskEmployeeMatchingNet` из `model_config`.
 - [x] Читать feature columns из checkpoint.
 - [x] Принимать dataframe с готовыми task/employee/pair features.
+- [x] Использовать precomputed rows из `data/processed/training_pairs.parquet`.
 - [x] Считать `success_probability` для пар `task + employee`.
-- [x] Добавить mode adjustment для 4 режимов рекомендации.
-- [x] Возвращать top-k кандидатов в JSON-compatible формате.
+- [x] Считать итоговый `final_score` с учётом recommendation mode.
+- [x] Сортировать кандидатов по score.
+- [x] Возвращать top-k кандидатов.
+- [x] Добавить режимы рекомендации.
+- [x] Вернуть структурированный JSON-compatible результат.
 - [x] Добавить технические факторы решения.
 - [x] Добавить risks для кандидатов.
 - [x] Проверить wrapper на `TASK-0001`.
@@ -5905,8 +5814,8 @@ build_model_from_checkpoint()
 checkpoint_feature_columns()
 predict_pairs_dataframe()
 mode_adjusted_score()
-score_task_candidates()
 load_employee_profiles()
+score_task_candidates()
 ```
 
 Как работает:
@@ -5914,12 +5823,13 @@ load_employee_profiles()
 ```text
 1. Загружает checkpoint обученной модели.
 2. Восстанавливает TaskEmployeeMatchingNet.
-3. Берёт feature columns из checkpoint.
-4. Находит все пары task_id + employee_id в training_pairs.parquet.
-5. Считает success_probability для каждого кандидата.
-6. Применяет корректировку под recommendation mode.
-7. Сортирует кандидатов по final_score.
-8. Возвращает top-k с factors, reasons, risks и source.
+3. Берёт task/employee/pair feature columns из checkpoint.
+4. Находит все строки task_id + employee_id в training_pairs.parquet.
+5. Прогоняет пары через PyTorch-модель.
+6. Получает success_probability для каждого кандидата.
+7. Применяет mode adjustment под выбранный режим рекомендации.
+8. Сортирует сотрудников по final_score.
+9. Возвращает top-k кандидатов с factors, reasons, risks и source.
 ```
 
 Поддерживаемые режимы:
@@ -5947,12 +5857,21 @@ risk_minimization:
 учитывает quality, deadline reliability и risk
 ```
 
-Фактическая проверка на `TASK-0001`, режим `balanced_workload`:
+Формат candidate:
 
 ```text
-1. EMP-014 — Никита Егоров — backend_developer senior — score 0.956596
-2. EMP-011 — Полина Васильева — backend_developer senior — score 0.956551
-3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.925464
+rank
+employee_id
+plane_user_id
+name
+role
+grade
+score
+success_probability
+factors
+reasons
+risks
+source
 ```
 
 Факторы, которые возвращаются по каждому кандидату:
@@ -5968,10 +5887,18 @@ quality
 deadline_reliability
 ```
 
+Фактическая проверка на `TASK-0001`, режим `balanced_workload`:
+
+```text
+1. EMP-014 — Никита Егоров — backend_developer senior — score 0.956596
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.956551
+3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.925464
+```
+
 Важно:
 
 ```text
-inference wrapper использует уже построенные ML features.
+Inference wrapper использует уже построенные ML features.
 На этом этапе он не пересобирает features для полностью новой задачи.
 Для задач из synthetic dataset используется task_id и precomputed rows из training_pairs.parquet.
 Для новых Plane-задач при отсутствии precomputed features Matching Agent может перейти на rule-based fallback.
@@ -5998,9 +5925,376 @@ All checks passed.
 Inference wrapper вернул top-3 кандидатов для TASK-0001.
 ```
 
+**Ожидаемый результат:** модель можно использовать в backend и agentic pipeline.
+
+**Примерное время:** 5–8 часов.  
 **Коммит:** `Add model inference wrapper`
 
 ---
+
+## 14.2. Экспортировать модель в ONNX
+
+- [x] Создать `src/models/export_onnx.py`.
+- [x] Загрузить checkpoint `models/compass_matching_model.pt`.
+- [x] Восстановить `TaskEmployeeMatchingNet`.
+- [x] Обернуть модель в `ONNXMatchingWrapper`.
+- [x] Сделать ONNX output только для `success_probability`.
+- [x] Создать dummy input нужной формы.
+- [x] Экспортировать модель через `torch.onnx.export`.
+- [x] Добавить dynamic batch axis.
+- [x] Проверить, что ONNX-файл создан.
+- [x] Сохранить модель в `models/task_employee_matcher.onnx`.
+- [x] Сохранить metadata экспорта в `reports/onnx_export.json`.
+
+Файл:
+
+```text
+src/models/export_onnx.py
+```
+
+Команда:
+
+```bash
+python src/models/export_onnx.py
+```
+
+Результат:
+
+```text
+models/task_employee_matcher.onnx
+reports/onnx_export.json
+```
+
+Что делает `ONNXMatchingWrapper`:
+
+```text
+1. Принимает task_features, employee_features и pair_features.
+2. Вызывает TaskEmployeeMatchingNet.
+3. Из dict output берёт только success_probability.
+4. Возвращает tensor success_probability как ONNX output.
+```
+
+ONNX input names:
+
+```text
+task_features
+employee_features
+pair_features
+```
+
+ONNX output name:
+
+```text
+success_probability
+```
+
+Фактические input dimensions:
+
+```text
+task_input_dim: 404
+employee_input_dim: 60
+pair_input_dim: 13
+```
+
+Фактический ONNX artifact:
+
+```text
+models/task_employee_matcher.onnx
+size: 8.7 KB
+```
+
+Что было выяснено:
+
+```text
+В текущей версии PyTorch ONNX exporter требует onnxscript.
+Без onnxscript экспорт падает с ошибкой:
+ModuleNotFoundError: No module named 'onnxscript'
+```
+
+Проверка зависимости:
+
+```bash
+python -c "import onnxscript; print('onnxscript ok')"
+```
+
+Установка, если зависимости нет:
+
+```bash
+pip install onnxscript
+```
+
+Фактически установленная дополнительная зависимость:
+
+```text
+onnxscript
+onnx_ir
+```
+
+Проверка ONNX exporter dependencies:
+
+```bash
+python -c "import onnx, onnxscript; print('onnx exporter deps ok')"
+```
+
+Фактический результат после установки:
+
+```text
+onnx exporter deps ok
+```
+
+Что было выяснено при экспорте:
+
+```text
+PyTorch предупредил, что при dynamo=True dynamic_axes не рекомендуется.
+Экспорт при этом завершился успешно.
+PyTorch также предупредил, что для новых ONNX implementations лучше использовать opset >= 18.
+Файл был успешно экспортирован и сохранён.
+```
+
+Фактический успешный вывод:
+
+```text
+ONNX model saved: models/task_employee_matcher.onnx
+ONNX export metadata saved: reports/onnx_export.json
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/models/export_onnx.py
+```
+
+```bash
+ruff check src/models/export_onnx.py
+```
+
+```bash
+python src/models/export_onnx.py
+```
+
+```bash
+test -f models/task_employee_matcher.onnx && echo "onnx export ok"
+```
+
+Фактический результат:
+
+```text
+All checks passed.
+ONNX export ok.
+models/task_employee_matcher.onnx создан.
+```
+
+Важно:
+
+```text
+models/task_employee_matcher.onnx и reports/onnx_export.json являются generated artifacts.
+Их можно держать локально для демо, но кодовая часть этапа — это src/models/export_onnx.py.
+```
+
+**Ожидаемый результат:** есть ONNX-файл как production-ready артефакт.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Export matching model to ONNX`
+
+---
+
+## 14.3. Проверить ONNX Runtime
+
+- [x] Создать `src/models/onnx_inference.py`.
+- [x] Загрузить `models/task_employee_matcher.onnx`.
+- [x] Загрузить PyTorch checkpoint.
+- [x] Создать одинаковый dummy input для PyTorch и ONNX.
+- [x] Подать dummy input в PyTorch-модель.
+- [x] Подать dummy input в ONNX Runtime.
+- [x] Сравнить PyTorch output и ONNX output.
+- [x] Проверить `max_abs_diff`.
+- [x] Проверить `mean_abs_diff`.
+- [x] Проверить `np.allclose`.
+- [x] Сохранить результат проверки в `reports/onnx_validation.json`.
+- [x] Проверить, что `is_close = true`.
+
+Файл:
+
+```text
+src/models/onnx_inference.py
+```
+
+Команда:
+
+```bash
+python src/models/onnx_inference.py
+```
+
+Результат:
+
+```text
+reports/onnx_validation.json
+```
+
+Что проверяет скрипт:
+
+```text
+1. Загружает checkpoint models/compass_matching_model.pt.
+2. Загружает ONNX-модель models/task_employee_matcher.onnx.
+3. Создаёт dummy batch размером 8.
+4. Прогоняет batch через PyTorch.
+5. Прогоняет тот же batch через ONNX Runtime.
+6. Сравнивает outputs.
+7. Сохраняет validation report.
+8. Если outputs отличаются слишком сильно, падает с ошибкой.
+```
+
+ONNX Runtime provider:
+
+```text
+CPUExecutionProvider
+```
+
+Фактический validation report:
+
+```text
+checkpoint_path: models/compass_matching_model.pt
+onnx_path: models/task_employee_matcher.onnx
+batch_size: 8
+task_input_dim: 404
+employee_input_dim: 60
+pair_input_dim: 13
+max_abs_diff: 2.384185791015625e-07
+mean_abs_diff: 6.007030606269836e-08
+pytorch_min: 0.03231645002961159
+pytorch_max: 0.8823279142379761
+onnx_min: 0.0323164165019989
+onnx_max: 0.8823279738426208
+is_close: true
+```
+
+Что означает результат:
+
+```text
+ONNX output практически совпадает с PyTorch output.
+Максимальная разница около 0.000000238.
+Это нормальная численная погрешность.
+ONNX-модель реально запускается и пригодна для inference.
+```
+
+Проверки:
+
+```bash
+python -c "import onnxruntime; print('onnxruntime ok')"
+```
+
+```bash
+python -m py_compile src/models/onnx_inference.py
+```
+
+```bash
+ruff check src/models/onnx_inference.py
+```
+
+```bash
+python src/models/onnx_inference.py
+```
+
+```bash
+test -f reports/onnx_validation.json && echo "onnx validation ok"
+```
+
+Фактический результат:
+
+```text
+onnxruntime ok
+All checks passed.
+ONNX validation ok.
+is_close: true
+```
+
+Важно:
+
+```text
+ONNX validation сравнивает именно output success_probability.
+Это достаточно для проверки production inference path,
+потому что agentic pipeline использует score/probability для ranking.
+```
+
+**Ожидаемый результат:** ONNX-модель реально запускается.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Validate ONNX inference`
+
+---
+
+## 14.4. Добавить ONNX-команды в Makefile
+
+- [x] Проверить существующие ONNX targets в `Makefile`.
+- [x] Убедиться, что есть `export-onnx`.
+- [x] Добавить `validate-onnx`.
+- [x] Обновить `.PHONY`.
+- [x] Проверить запуск ONNX export через `make`.
+- [x] Проверить запуск ONNX validation через `make`.
+
+Файл:
+
+```text
+Makefile
+```
+
+Команды:
+
+```bash
+make export-onnx
+```
+
+```bash
+make validate-onnx
+```
+
+Что делает `make export-onnx`:
+
+```text
+python src/models/export_onnx.py
+```
+
+Что делает `make validate-onnx`:
+
+```text
+python src/models/onnx_inference.py
+```
+
+Фактическое изменение:
+
+```text
+В Makefile добавлена отдельная команда validate-onnx.
+Также обновлена .PHONY-секция для ONNX targets.
+```
+
+Важно:
+
+```text
+В Makefile строки команд должны начинаться с TAB, не с пробелов.
+```
+
+Проверка:
+
+```bash
+make export-onnx
+```
+
+```bash
+make validate-onnx
+```
+
+Фактический результат:
+
+```text
+ONNX export работает через Makefile.
+ONNX validation работает через Makefile.
+```
+
+**Коммит:** `Add ONNX validation command`
+
+---
+
+# 15. Этап 13 — agentic pipeline
 
 ## 15.1. Создать общий формат состояния агентов
 
