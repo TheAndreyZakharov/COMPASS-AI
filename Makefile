@@ -1,4 +1,7 @@
-.PHONY: install dev test lint format api notebooks generate-data skill-vocab text-embeddings build-features split-data train train-smoke evaluate ranking-metrics model-pipeline export-onnx reports clean
+.PHONY: install dev test lint format api notebooks
+.PHONY: generate-data skill-vocab text-embeddings build-features split-data
+.PHONY: train train-smoke evaluate ranking-metrics model-pipeline
+.PHONY: export-onnx validate-onnx reports clean
 
 PYTHON := python
 PIP := pip
@@ -56,13 +59,18 @@ evaluate:
 ranking-metrics:
 	$(PYTHON) src/models/ranking_metrics.py
 
+export-onnx:
+	$(PYTHON) src/models/export_onnx.py
+
+validate-onnx:
+	$(PYTHON) src/models/onnx_inference.py
+
 model-pipeline:
 	$(PYTHON) src/models/train.py
 	$(PYTHON) src/models/evaluate.py
 	$(PYTHON) src/models/ranking_metrics.py
-
-export-onnx:
 	$(PYTHON) src/models/export_onnx.py
+	$(PYTHON) src/models/onnx_inference.py
 
 reports:
 	$(PYTHON) src/reports/generate_notebooks.py
