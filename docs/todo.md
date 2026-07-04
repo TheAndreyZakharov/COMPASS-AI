@@ -5203,18 +5203,18 @@ src/models/dataset.py
 
 ## 13.2. Реализовать `TaskEmployeeMatchingNet`
 
-- [ ] Создать `src/models/matching_net.py`.
-- [ ] Реализовать `TaskEncoder`.
-- [ ] Реализовать `EmployeeEncoder`.
-- [ ] Реализовать `MatchingBlock`.
-- [ ] Реализовать общий класс `TaskEmployeeMatchingNet`.
-- [ ] На вход принимать task tensor.
-- [ ] На вход принимать employee tensor.
-- [ ] На вход принимать pair tensor.
-- [ ] На выход отдавать `success_probability`.
-- [ ] Дополнительно подготовить выходы для `speed_score`, `quality_score`, `learning_score`, `overload_risk`, если делаешь multi-task вариант.
-- [ ] Для MVP сначала сделать один главный выход `success_probability`.
-- [ ] После MVP расширить до multi-output.
+- [x] Создать `src/models/matching_net.py`.
+- [x] Реализовать `TaskEncoder`.
+- [x] Реализовать `EmployeeEncoder`.
+- [x] Реализовать `MatchingBlock`.
+- [x] Реализовать общий класс `TaskEmployeeMatchingNet`.
+- [x] На вход принимать task tensor.
+- [x] На вход принимать employee tensor.
+- [x] На вход принимать pair tensor.
+- [x] На выход отдавать `success_probability`.
+- [x] Дополнительно подготовить выходы для `speed_score`, `quality_score`, `learning_score`, `overload_risk`, если делаешь multi-task вариант.
+- [x] Для MVP сначала сделать один главный выход `success_probability`.
+- [x] После MVP расширить до multi-output.
 
 Файл:
 
