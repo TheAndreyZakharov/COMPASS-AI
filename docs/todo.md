@@ -4599,13 +4599,13 @@ data/processed/skill_vocab.json
 
 ## 12.2. Реализовать text embeddings для задач
 
-- [ ] Создать `src/features/text_embeddings.py`.
-- [ ] Подключить `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
-- [ ] Загружать модель локально.
-- [ ] Превращать `title + description` в embedding.
-- [ ] Проверить размерность 384.
-- [ ] Кешировать embeddings в `data/processed/task_text_embeddings.npy`.
-- [ ] Сделать fallback, если модель не скачалась.
+- [x] Создать `src/features/text_embeddings.py`.
+- [x] Подключить `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
+- [x] Загружать модель локально.
+- [x] Превращать `title + description` в embedding.
+- [x] Проверить размерность 384.
+- [x] Кешировать embeddings в `data/processed/task_text_embeddings.npy`.
+- [x] Сделать fallback, если модель не скачалась.
 
 Файл:
 
