@@ -16,10 +16,14 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from src.models.dataset import TEST_PATH, AssignmentPairDataset, create_dataloader, load_feature_spec
+from src.models.dataset import (
+    TEST_PATH,
+    AssignmentPairDataset,
+    create_dataloader,
+    load_feature_spec,
+)
 from src.models.matching_net import MatchingNetConfig, TaskEmployeeMatchingNet
 from src.models.train import move_batch_to_device, select_device
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,7 +34,9 @@ TEST_PREDICTIONS_PATH = PROJECT_ROOT / "reports" / "test_predictions.csv"
 
 def load_checkpoint(path: Path = MODEL_PATH) -> dict[str, Any]:
     if not path.exists():
-        raise FileNotFoundError(f"Missing checkpoint: {path}. Run: python src/models/train.py")
+        raise FileNotFoundError(
+            f"Missing checkpoint: {path}. Run: python src/models/train.py"
+        )
 
     return torch.load(path, map_location="cpu")
 
@@ -83,7 +89,12 @@ def predict_test_set(
         )
 
         batch_probabilities = (
-            output["success_probability"].detach().cpu().numpy().reshape(-1).tolist()
+            output["success_probability"]
+            .detach()
+            .cpu()
+            .numpy()
+            .reshape(-1)
+            .tolist()
         )
 
         probabilities.extend(float(value) for value in batch_probabilities)
@@ -98,9 +109,25 @@ def predict_test_set(
         }
     )
 
-    predictions["prediction"] = (predictions["success_probability"] >= 0.5).astype(int)
+    predictions["prediction"] = (
+        predictions["success_probability"] >= 0.5
+    ).astype(int)
 
     return predictions
+
+
+def safe_roc_auc(labels: np.ndarray, probabilities: np.ndarray) -> float:
+    if len(set(labels.tolist())) < 2:
+        return 0.5
+
+    return float(roc_auc_score(labels, probabilities))
+
+
+def safe_pr_auc(labels: np.ndarray, probabilities: np.ndarray) -> float:
+    if len(set(labels.tolist())) < 2:
+        return 0.5
+
+    return float(average_precision_score(labels, probabilities))
 
 
 def compute_metrics(predictions: pd.DataFrame) -> dict[str, float]:
@@ -108,18 +135,15 @@ def compute_metrics(predictions: pd.DataFrame) -> dict[str, float]:
     predicted_labels = predictions["prediction"].to_numpy()
     probabilities = predictions["success_probability"].to_numpy()
 
-    unique_labels = set(labels.tolist())
-
-    roc_auc = float(roc_auc_score(labels, probabilities)) if len(unique_labels) > 1 else 0.5
-    pr_auc = float(average_precision_score(labels, probabilities)) if len(unique_labels) > 1 else 0.5
-
     return {
         "accuracy": float(accuracy_score(labels, predicted_labels)),
-        "precision": float(precision_score(labels, predicted_labels, zero_division=0)),
+        "precision": float(
+            precision_score(labels, predicted_labels, zero_division=0)
+        ),
         "recall": float(recall_score(labels, predicted_labels, zero_division=0)),
         "f1": float(f1_score(labels, predicted_labels, zero_division=0)),
-        "roc_auc": roc_auc,
-        "pr_auc": pr_auc,
+        "roc_auc": safe_roc_auc(labels, probabilities),
+        "pr_auc": safe_pr_auc(labels, probabilities),
         "positive_rate": float(np.mean(labels)),
         "predicted_positive_rate": float(np.mean(predicted_labels)),
         "rows": float(len(predictions)),
@@ -156,10 +180,15 @@ def main() -> None:
     predictions.to_csv(TEST_PREDICTIONS_PATH, index=False)
     save_metrics(metrics)
 
+    printable_metrics = {
+        key: round(value, 6)
+        for key, value in metrics.items()
+    }
+
     print(f"Device: {device}")
     print(f"Predictions saved: {TEST_PREDICTIONS_PATH}")
     print(f"Metrics saved: {MODEL_METRICS_PATH}")
-    print(json.dumps({k: round(v, 6) for k, v in metrics.items()}, ensure_ascii=False, indent=2))
+    print(json.dumps(printable_metrics, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
