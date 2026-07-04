@@ -22,7 +22,7 @@ def precision_at_k(labels: list[int], k: int) -> float:
     if not top_k:
         return 0.0
 
-    return float(sum(top_k) / k)
+    return float(sum(top_k) / len(top_k))
 
 
 def dcg_at_k(labels: list[int], k: int) -> float:
@@ -87,6 +87,7 @@ def add_random_baseline(data: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     result = data.copy()
     result["random_score"] = rng.random(len(result))
+
     return result
 
 
@@ -149,7 +150,8 @@ def load_ranking_data() -> pd.DataFrame:
 
     if len(merged) != len(test_data):
         raise ValueError(
-            f"Predictions merge changed row count: {len(test_data)} -> {len(merged)}"
+            "Predictions merge changed row count: "
+            f"{len(test_data)} -> {len(merged)}"
         )
 
     return merged
