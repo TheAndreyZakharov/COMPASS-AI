@@ -4640,17 +4640,17 @@ python src/features/text_embeddings.py
 
 ## 12.3. Реализовать numeric feature builder
 
-- [ ] Создать `src/features/build_features.py`.
-- [ ] Загружать employees, tasks, assignments.
-- [ ] Строить task numeric features.
-- [ ] Строить employee numeric features.
-- [ ] Строить pair features для каждой пары `task + employee`.
-- [ ] Добавить признаки разницы навыков.
-- [ ] Добавить признаки загрузки.
-- [ ] Добавить признаки опыта.
-- [ ] Добавить признаки дедлайна.
-- [ ] Добавить признаки бизнес-критичности.
-- [ ] Сохранять итоговый датасет в `data/processed/training_pairs.parquet`.
+- [x] Создать `src/features/build_features.py`.
+- [x] Загружать employees, tasks, assignments.
+- [x] Строить task numeric features.
+- [x] Строить employee numeric features.
+- [x] Строить pair features для каждой пары `task + employee`.
+- [x] Добавить признаки разницы навыков.
+- [x] Добавить признаки загрузки.
+- [x] Добавить признаки опыта.
+- [x] Добавить признаки дедлайна.
+- [x] Добавить признаки бизнес-критичности.
+- [x] Сохранять итоговый датасет в `data/processed/training_pairs.parquet`.
 
 Файл:
 
