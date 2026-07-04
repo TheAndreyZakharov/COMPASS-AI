@@ -4679,13 +4679,13 @@ python src/features/build_features.py
 
 ## 12.4. Разделить данные на train/validation/test
 
-- [ ] Создать `src/data/split_dataset.py`.
-- [ ] Использовать train/validation/test split.
-- [ ] Не допустить утечку данных, если одна и та же задача встречается в разных split.
-- [ ] Разделять лучше по `task_id`, а не по отдельным парам.
-- [ ] Сохранить `train.parquet`.
-- [ ] Сохранить `val.parquet`.
-- [ ] Сохранить `test.parquet`.
+- [x] Создать `src/data/split_dataset.py`.
+- [x] Использовать train/validation/test split.
+- [x] Не допустить утечку данных, если одна и та же задача встречается в разных split.
+- [x] Разделять лучше по `task_id`, а не по отдельным парам.
+- [x] Сохранить `train.parquet`.
+- [x] Сохранить `val.parquet`.
+- [x] Сохранить `test.parquet`.
 
 Файлы:
 
