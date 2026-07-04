@@ -3779,6 +3779,14 @@ Add demo recommendation endpoint
 - [x] Учитывать уровень владения навыком.
 - [x] Вернуть score от 0 до 1.
 - [x] Написать тесты.
+- [x] Добавить нормализацию названий навыков.
+- [x] Добавить безопасный парсинг JSON-полей из CSV.
+- [x] Добавить обработку `dict`, `list`, JSON-string, пустых значений и `NaN`.
+- [x] Добавить определение matched skills.
+- [x] Добавить определение missing skills.
+- [x] Добавить определение weak skills.
+- [x] Добавить fallback: если `required_skills` пустой, использовать `required_stack`.
+- [x] Добавить dataclass-результат `SkillMatchResult`.
 
 Файл:
 
@@ -3792,7 +3800,125 @@ src/recommendation/skill_matching.py
 tests/test_skill_matching.py
 ```
 
+Основная структура результата:
+
+```text
+SkillMatchResult
+```
+
+Поля `SkillMatchResult`:
+
+```text
+score
+matched_skills
+missing_skills
+weak_skills
+required_skills_count
+average_required_level
+```
+
+Основные функции:
+
+```text
+normalize_skill_name(skill)
+normalize_stack_name(stack_item)
+parse_employee_skills(employee)
+parse_required_skills(task)
+parse_required_stack(task)
+skill_level(employee, skill_name)
+calculate_skill_match(task, employee)
+skill_match_score(task, employee)
+```
+
+Фактическая логика `skill_match`:
+
+```text
+1. Берём skills сотрудника.
+2. Берём required_skills задачи.
+3. Если required_skills нет, используем required_stack как список навыков с дефолтным уровнем 3.
+4. Для каждого required skill сравниваем employee_level / required_level.
+5. Ограничиваем вклад каждого навыка диапазоном 0–1.
+6. Считаем среднее значение по required skills.
+7. Добавляем небольшой stack bonus, если стек задачи совпадает со skills сотрудника.
+8. Возвращаем итоговый score от 0 до 1.
+```
+
+Правила интерпретации:
+
+```text
+score ближе к 1.0 -> сотрудник технически хорошо подходит
+score около 0.5 -> частичное совпадение
+score ближе к 0.0 -> сотрудник технически плохо подходит
+```
+
+Что считается matched skill:
+
+```text
+employee_level / required_level >= 0.85
+```
+
+Что считается weak skill:
+
+```text
+0 < employee_level / required_level < 0.85
+```
+
+Что считается missing skill:
+
+```text
+employee_level отсутствует или равен 0
+```
+
+Важно:
+
+```text
+Названия навыков нормализуются:
+Python -> python
+FastAPI -> fastapi
+HTML/CSS -> html/css
+```
+
+Важно:
+
+```text
+Модуль работает с данными из CSV, где skills и required_skills хранятся как JSON-строки.
+Поэтому внутри есть безопасный JSON parser.
+```
+
+Важно:
+
+```text
+skill_matching.py не зависит от pandas.
+Это обычный Python-модуль, который можно использовать и в API, и в agents, и в feature engineering.
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/recommendation/skill_matching.py tests/test_skill_matching.py
+```
+
+```bash
+ruff check src/recommendation/skill_matching.py tests/test_skill_matching.py
+```
+
+```bash
+pytest tests/test_skill_matching.py
+```
+
+Фактически проверено тестами:
+
+```text
+парсинг employee skills из JSON-строки
+парсинг required skills из list
+высокий score для сильного кандидата
+поиск missing skills
+возврат score в диапазоне 0–1
+```
+
 **Ожидаемый результат:** можно понять, насколько сотрудник технически подходит к задаче.
+
+**Фактический результат:** реализован независимый skill matching модуль с explainable output: score, matched skills, weak skills и missing skills.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Add skill matching baseline`
@@ -3807,6 +3933,13 @@ tests/test_skill_matching.py
 - [x] Считать загрузку выше 0.85 рискованной.
 - [x] Считать загрузку выше 0.95 критической.
 - [x] Написать тесты.
+- [x] Добавить поддержку workload в формате `0.75`.
+- [x] Добавить поддержку workload в формате `75`.
+- [x] Учесть `active_tasks_count`.
+- [x] Учесть `availability`.
+- [x] Добавить risk level: `low`, `medium`, `high`, `critical`.
+- [x] Добавить reasons для объяснения penalty.
+- [x] Добавить dataclass-результат `WorkloadScoreResult`.
 
 Файл:
 
@@ -3814,7 +3947,116 @@ tests/test_skill_matching.py
 src/recommendation/workload_scoring.py
 ```
 
+Тест:
+
+```text
+tests/test_workload_scoring.py
+```
+
+Основная структура результата:
+
+```text
+WorkloadScoreResult
+```
+
+Поля `WorkloadScoreResult`:
+
+```text
+score
+workload
+active_tasks_count
+availability
+risk_level
+reasons
+```
+
+Основные функции:
+
+```text
+normalize_workload(value)
+workload_risk_level(workload)
+calculate_workload_score(employee)
+workload_score(employee)
+workload_penalty(employee)
+```
+
+Фактическая логика `workload_score`:
+
+```text
+1. Берём current_workload сотрудника.
+2. Нормализуем его к диапазону 0–1.
+3. Базовый score считается как 1 - workload.
+4. Если workload >= 0.70, применяем medium penalty.
+5. Если workload >= 0.85, применяем high penalty.
+6. Если workload >= 0.95, применяем critical penalty.
+7. Дополнительно штрафуем за большое количество активных задач.
+8. Дополнительно штрафуем за ограниченную availability.
+9. Возвращаем итоговый score от 0 до 1.
+```
+
+Risk levels:
+
+```text
+low: workload < 0.70
+medium: workload >= 0.70
+high: workload >= 0.85
+critical: workload >= 0.95
+```
+
+Интерпретация:
+
+```text
+score ближе к 1.0 -> у сотрудника есть свободная capacity
+score ближе к 0.0 -> сотрудник перегружен
+```
+
+Важно:
+
+```text
+workload_score нужен, чтобы система не рекомендовала автоматически самого сильного специалиста,
+если он уже перегружен.
+```
+
+Важно:
+
+```text
+workload_penalty = 1 - workload_score
+```
+
+Важно:
+
+```text
+Этот модуль тоже не зависит от pandas и может использоваться в API, agents, feature engineering и ML baseline.
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/recommendation/workload_scoring.py tests/test_workload_scoring.py
+```
+
+```bash
+ruff check src/recommendation/workload_scoring.py tests/test_workload_scoring.py
+```
+
+```bash
+pytest tests/test_workload_scoring.py
+```
+
+Фактически проверено тестами:
+
+```text
+нормализация workload из fraction
+нормализация workload из percent
+высокий score при низкой загрузке
+низкий score при высокой загрузке
+critical risk при workload >= 0.95
+workload_score и workload_penalty дополняют друг друга до 1.0
+```
+
 **Ожидаемый результат:** система не рекомендует автоматически самого сильного, если он перегружен.
+
+**Фактический результат:** реализован workload scoring модуль с risk levels, penalty logic и explainable reasons.
 
 **Примерное время:** 2–3 часа.  
 **Коммит:** `Add workload scoring baseline`
@@ -3829,6 +4071,13 @@ src/recommendation/workload_scoring.py
 - [x] Понижать score, если задача слишком сложная для текущего уровня.
 - [x] Добавить параметр `mentor_available`.
 - [x] Написать тесты.
+- [x] Добавить парсинг `learning_goals` из JSON-строки.
+- [x] Добавить нормализацию learning goals.
+- [x] Добавить complexity fit по grade.
+- [x] Добавить mentor bonus.
+- [x] Добавить reasons.
+- [x] Добавить risks.
+- [x] Добавить dataclass-результат `GrowthScoreResult`.
 
 Файл:
 
@@ -3836,7 +4085,122 @@ src/recommendation/workload_scoring.py
 src/recommendation/growth_scoring.py
 ```
 
+Тест:
+
+```text
+tests/test_growth_scoring.py
+```
+
+Основная структура результата:
+
+```text
+GrowthScoreResult
+```
+
+Поля `GrowthScoreResult`:
+
+```text
+score
+matched_learning_goals
+complexity_fit
+mentor_available
+reasons
+risks
+```
+
+Основные функции:
+
+```text
+parse_learning_goals(employee)
+complexity_fit_score(task, employee)
+calculate_growth_score(task, employee, mentor_available=False)
+growth_score(task, employee, mentor_available=False)
+```
+
+Фактическая логика `growth_score`:
+
+```text
+1. Берём learning_goals сотрудника.
+2. Берём required_skills задачи.
+3. Считаем, какие learning_goals совпали с required_skills.
+4. Считаем goal_match_score.
+5. Считаем complexity_fit по grade сотрудника и complexity задачи.
+6. Добавляем mentor bonus, если mentor_available=True.
+7. Возвращаем итоговый score от 0 до 1.
+```
+
+Grade complexity limits:
+
+```text
+junior: безопасно до complexity 2
+middle: безопасно до complexity 4
+senior: безопасно до complexity 5
+lead: безопасно до complexity 5
+```
+
+Интерпретация:
+
+```text
+score ближе к 1.0 -> задача хорошо подходит для развития сотрудника
+score около 0.5 -> задача может быть stretch-задачей
+score ближе к 0.0 -> задача плохо подходит как growth opportunity
+```
+
+Что считается growth fit:
+
+```text
+required_skills задачи пересекаются с learning_goals сотрудника
+и complexity не слишком выше безопасного уровня для grade
+```
+
+Важно:
+
+```text
+growth_score нужен, чтобы COMPASS AI мог рекомендовать задачи не только самому сильному,
+но и тому, кому задача полезна для развития.
+```
+
+Важно:
+
+```text
+mentor_available может поднять score для stretch-задачи,
+потому что наличие ментора снижает риск.
+```
+
+Важно:
+
+```text
+Если задача слишком сложная для grade и mentor unavailable,
+модуль возвращает risk: task may be too complex for current grade.
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/recommendation/growth_scoring.py tests/test_growth_scoring.py
+```
+
+```bash
+ruff check src/recommendation/growth_scoring.py tests/test_growth_scoring.py
+```
+
+```bash
+pytest tests/test_growth_scoring.py
+```
+
+Фактически проверено тестами:
+
+```text
+парсинг learning_goals из JSON-строки
+высокий score при совпадении learning_goals и required_skills
+penalty за слишком сложную задачу для junior
+mentor_available повышает growth score
+score всегда в диапазоне 0–1
+```
+
 **Ожидаемый результат:** система может рекомендовать не только “самого быстрого”, но и “кому полезно дать задачу”.
+
+**Фактический результат:** реализован growth scoring модуль с learning goals matching, complexity fit, mentor bonus, reasons и risks.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Add growth scoring baseline`
@@ -3854,6 +4218,15 @@ src/recommendation/growth_scoring.py
 - [x] Реализовать режимы: `fast_delivery`, `balanced_workload`, `growth`, `risk_minimization`.
 - [x] Возвращать top-3 кандидатов.
 - [x] Написать тесты.
+- [x] Добавить role affinity.
+- [x] Добавить mode-specific weights.
+- [x] Добавить dataclass `RuleBasedCandidate`.
+- [x] Добавить dataclass `RuleBasedRecommendation`.
+- [x] Добавить conversion результата в JSON-serializable dict.
+- [x] Добавить запуск baseline как standalone script.
+- [x] Добавить загрузку synthetic employees/tasks из CSV.
+- [x] Добавить поддержку `task_id`.
+- [x] Добавить поддержку `top_k`.
 
 Файл:
 
@@ -3861,10 +4234,336 @@ src/recommendation/growth_scoring.py
 src/recommendation/rule_based_ranker.py
 ```
 
+Тест:
+
+```text
+tests/test_rule_based_ranker.py
+```
+
+Основные структуры:
+
+```text
+RuleBasedCandidate
+RuleBasedRecommendation
+```
+
+Поля `RuleBasedCandidate`:
+
+```text
+rank
+employee_id
+plane_user_id
+name
+role
+grade
+score
+reasons
+risks
+factors
+```
+
+Поля `RuleBasedRecommendation`:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+title
+mode
+candidates
+source
+explanation
+```
+
+Основные функции:
+
+```text
+role_affinity_score(task, employee)
+score_employee_for_task(task, employee, mode, mentor_available=False)
+rank_employees_for_task(task, employees, mode, top_k, mentor_available=False)
+load_synthetic_data(employees_path, tasks_path)
+recommend_for_synthetic_task(task_id=None, mode="balanced_workload", top_k=3)
+recommendation_to_dict(recommendation)
+```
+
+Фактическая логика rule-based baseline:
+
+```text
+1. Берём одну задачу.
+2. Берём список сотрудников.
+3. Для каждого сотрудника считаем:
+   - skill_match
+   - workload_score
+   - growth_match
+   - speed
+   - quality
+   - deadline_reliability
+   - role_affinity
+4. В зависимости от recommendation mode используем разные веса.
+5. Считаем итоговый score.
+6. Сортируем сотрудников по score.
+7. Возвращаем top-k кандидатов.
+```
+
+Факторы, которые учитывает baseline:
+
+```text
+skill_match
+workload_score
+growth_match
+speed
+quality
+deadline_reliability
+role_affinity
+```
+
+Поддерживаемые режимы:
+
+```text
+fast_delivery
+balanced_workload
+growth
+risk_minimization
+```
+
+Фактические mode weights:
+
+```text
+fast_delivery:
+  skill: 0.30
+  workload: 0.10
+  growth: 0.05
+  speed: 0.25
+  quality: 0.15
+  reliability: 0.15
+
+balanced_workload:
+  skill: 0.30
+  workload: 0.25
+  growth: 0.10
+  speed: 0.10
+  quality: 0.15
+  reliability: 0.10
+
+growth:
+  skill: 0.25
+  workload: 0.15
+  growth: 0.30
+  speed: 0.05
+  quality: 0.15
+  reliability: 0.10
+
+risk_minimization:
+  skill: 0.30
+  workload: 0.20
+  growth: 0.05
+  speed: 0.10
+  quality: 0.20
+  reliability: 0.15
+```
+
+Как отличаются режимы:
+
+```text
+fast_delivery больше ценит speed и deadline_reliability
+balanced_workload сильнее учитывает workload_score
+growth сильнее учитывает growth_match
+risk_minimization сильнее учитывает quality и deadline_reliability
+```
+
+Role affinity:
+
+```text
+role_affinity повышает score, если роль сотрудника подходит типу задачи.
+Например:
+backend_feature -> backend_developer, team_lead
+frontend_feature -> frontend_developer
+ml_pipeline -> data_ml_engineer
+devops_task -> devops_engineer, backend_developer
+testing_task -> qa_engineer, backend_developer, frontend_developer
+```
+
+Важно:
+
+```text
+role_affinity не является отдельным главным score,
+но влияет на итоговую оценку как multiplier.
+```
+
+Важно:
+
+```text
+rule_based_ranker.py — это полноценный baseline для сравнения с будущей нейросетью.
+Это не временный demo endpoint из этапа 10.
+```
+
+Важно:
+
+```text
+Нейросеть на этом этапе не используется.
+Baseline нужен, чтобы потом доказать, что TaskEmployeeMatchingNet лучше простых правил.
+```
+
+Проверка standalone запуска:
+
+```bash
+python src/recommendation/rule_based_ranker.py
+```
+
+Ожидаемый результат:
+
+```text
+JSON с task_id, title, mode, source и top-3 candidates
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/recommendation/rule_based_ranker.py tests/test_rule_based_ranker.py
+```
+
+```bash
+ruff check src/recommendation/rule_based_ranker.py tests/test_rule_based_ranker.py
+```
+
+```bash
+pytest tests/test_rule_based_ranker.py
+```
+
+Фактически проверено тестами:
+
+```text
+role_affinity высокий для подходящей роли
+role_affinity штрафует неподходящую роль
+score_employee_for_task возвращает кандидата со score
+rank_employees_for_task возвращает top-3
+top-3 отсортирован по score
+перегруженный сотрудник получает penalty
+recommendation_to_dict возвращает serializable dict
+```
+
 **Ожидаемый результат:** есть baseline, с которым потом сравнивается нейросеть.
+
+**Фактический результат:** собран полноценный rule-based recommendation baseline с 4 режимами, role affinity, explainable factors, reasons, risks и top-k ranking.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Add rule based recommendation baseline`
+
+---
+
+## 11.5. Финальная проверка baseline
+
+- [x] Проверить компиляцию всех baseline-модулей.
+- [x] Проверить `ruff`.
+- [x] Проверить unit tests.
+- [x] Проверить запуск rule-based baseline на synthetic dataset.
+- [x] Убедиться, что baseline возвращает top-3 кандидатов.
+- [x] Убедиться, что scoring учитывает skill match, workload, growth, speed, quality и deadline reliability.
+- [x] Убедиться, что baseline не использует нейросеть.
+- [x] Убедиться, что baseline не зависит от Plane API.
+- [x] Убедиться, что baseline можно запускать локально на `data/synthetic/*.csv`.
+
+Фактические baseline-модули:
+
+```text
+src/recommendation/skill_matching.py
+src/recommendation/workload_scoring.py
+src/recommendation/growth_scoring.py
+src/recommendation/rule_based_ranker.py
+```
+
+Фактические тесты:
+
+```text
+tests/test_skill_matching.py
+tests/test_workload_scoring.py
+tests/test_growth_scoring.py
+tests/test_rule_based_ranker.py
+```
+
+Команда проверки компиляции:
+
+```bash
+python -m py_compile src/recommendation/skill_matching.py src/recommendation/workload_scoring.py src/recommendation/growth_scoring.py src/recommendation/rule_based_ranker.py
+```
+
+Команда проверки линтера:
+
+```bash
+ruff check src/recommendation/skill_matching.py src/recommendation/workload_scoring.py src/recommendation/growth_scoring.py src/recommendation/rule_based_ranker.py
+```
+
+Команда запуска тестов:
+
+```bash
+pytest tests/test_skill_matching.py tests/test_workload_scoring.py tests/test_growth_scoring.py tests/test_rule_based_ranker.py
+```
+
+Команда проверки baseline на synthetic dataset:
+
+```bash
+python src/recommendation/rule_based_ranker.py
+```
+
+Ожидаемый результат:
+
+```text
+All checks passed!
+```
+
+Фактический результат этапа:
+
+```text
+Есть прозрачный rule-based baseline до нейросети.
+Он возвращает top-3 кандидатов и объяснимые факторы:
+skill_match
+workload_score
+growth_match
+speed
+quality
+deadline_reliability
+role_affinity
+```
+
+Важно:
+
+```text
+Этот baseline нужен не вместо нейросети, а для сравнения с TaskEmployeeMatchingNet.
+Позже ML-модель должна показать качество выше random baseline и rule-based baseline.
+```
+
+Важно:
+
+```text
+Baseline не пишет ничего в Plane.
+Baseline только считает рекомендации локально по synthetic data.
+Запись рекомендаций обратно в Plane будет сделана позже через Plane Integration Agent и write-back этапы.
+```
+
+Важно:
+
+```text
+Baseline не использует LLM.
+LLM будет использоваться позже только для объяснения уже готового ranking,
+а не для выбора исполнителя.
+```
+
+Связь с будущими этапами:
+
+```text
+Этап 11 -> даёт explainable rule-based baseline.
+Этап 12 -> построит ML features.
+Этап 13 -> обучит TaskEmployeeMatchingNet.
+Этап 13.6 -> сравнит ML-модель с random baseline и rule-based baseline.
+Этап 15 -> подключит baseline/ML к agentic pipeline.
+```
+
+**Ожидаемый результат:** baseline стабильно работает и покрыт тестами.
+
+**Фактический результат:** все baseline-модули реализованы, проверены линтером, покрыты unit tests и готовы для сравнения с будущей нейросетью.
+
+**Коммит:** `Document recommendation baseline progress`
+
 
 ---
 
