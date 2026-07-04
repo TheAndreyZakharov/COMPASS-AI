@@ -5869,17 +5869,154 @@ reports/onnx_validation.json
 
 # 15. Этап 13 — agentic pipeline
 
+## 15.0. Добавить model inference wrapper для агентного пайплайна
+
+- [x] Создать `src/models/inference.py`.
+- [x] Загружать PyTorch checkpoint `models/compass_matching_model.pt`.
+- [x] Восстанавливать `TaskEmployeeMatchingNet` из `model_config`.
+- [x] Читать feature columns из checkpoint.
+- [x] Принимать dataframe с готовыми task/employee/pair features.
+- [x] Считать `success_probability` для пар `task + employee`.
+- [x] Добавить mode adjustment для 4 режимов рекомендации.
+- [x] Возвращать top-k кандидатов в JSON-compatible формате.
+- [x] Добавить технические факторы решения.
+- [x] Добавить risks для кандидатов.
+- [x] Проверить wrapper на `TASK-0001`.
+
+Файл:
+
+```text
+src/models/inference.py
+```
+
+Что использует wrapper:
+
+```text
+models/compass_matching_model.pt
+data/processed/training_pairs.parquet
+data/synthetic/employees.csv
+```
+
+Основные функции:
+
+```text
+load_checkpoint()
+build_model_from_checkpoint()
+checkpoint_feature_columns()
+predict_pairs_dataframe()
+mode_adjusted_score()
+score_task_candidates()
+load_employee_profiles()
+```
+
+Как работает:
+
+```text
+1. Загружает checkpoint обученной модели.
+2. Восстанавливает TaskEmployeeMatchingNet.
+3. Берёт feature columns из checkpoint.
+4. Находит все пары task_id + employee_id в training_pairs.parquet.
+5. Считает success_probability для каждого кандидата.
+6. Применяет корректировку под recommendation mode.
+7. Сортирует кандидатов по final_score.
+8. Возвращает top-k с factors, reasons, risks и source.
+```
+
+Поддерживаемые режимы:
+
+```text
+fast_delivery
+balanced_workload
+growth
+risk_minimization
+```
+
+Mode adjustment:
+
+```text
+fast_delivery:
+учитывает speed, deadline reliability и deadline pressure
+
+balanced_workload:
+учитывает workload pressure и risk
+
+growth:
+учитывает growth match и risk
+
+risk_minimization:
+учитывает quality, deadline reliability и risk
+```
+
+Фактическая проверка на `TASK-0001`, режим `balanced_workload`:
+
+```text
+1. EMP-014 — Никита Егоров — backend_developer senior — score 0.956596
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.956551
+3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.925464
+```
+
+Факторы, которые возвращаются по каждому кандидату:
+
+```text
+skill_match
+growth_match
+speed
+risk
+role_affinity
+workload_pressure
+quality
+deadline_reliability
+```
+
+Важно:
+
+```text
+inference wrapper использует уже построенные ML features.
+На этом этапе он не пересобирает features для полностью новой задачи.
+Для задач из synthetic dataset используется task_id и precomputed rows из training_pairs.parquet.
+Для новых Plane-задач при отсутствии precomputed features Matching Agent может перейти на rule-based fallback.
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/models/inference.py
+```
+
+```bash
+ruff check src/models/inference.py
+```
+
+```bash
+python src/models/inference.py
+```
+
+Фактический результат:
+
+```text
+All checks passed.
+Inference wrapper вернул top-3 кандидатов для TASK-0001.
+```
+
+**Коммит:** `Add model inference wrapper`
+
+---
+
 ## 15.1. Создать общий формат состояния агентов
 
-- [ ] Создать `src/agents/state.py`.
-- [ ] Описать `AgentState`.
-- [ ] В state хранить исходную задачу.
-- [ ] В state хранить сотрудников.
-- [ ] В state хранить features.
-- [ ] В state хранить результаты модели.
-- [ ] В state хранить объяснение.
-- [ ] В state хранить финальную рекомендацию.
-- [ ] Не хранить секреты API в state.
+- [x] Создать `src/agents/state.py`.
+- [x] Описать `AgentState`.
+- [x] В state хранить исходную задачу.
+- [x] В state хранить сотрудников.
+- [x] В state хранить features.
+- [x] В state хранить результаты модели.
+- [x] В state хранить объяснение.
+- [x] В state хранить финальную рекомендацию.
+- [x] Не хранить секреты API в state.
+- [x] Добавить `AgentError`.
+- [x] Добавить `RecommendationMode`.
+- [x] Добавить нормализацию режима рекомендации.
+- [x] Добавить методы для накопления и сериализации ошибок.
 
 Файл:
 
@@ -5887,7 +6024,7 @@ reports/onnx_validation.json
 src/agents/state.py
 ```
 
-Поля:
+Поля `AgentState`:
 
 ```text
 issue
@@ -5902,6 +6039,48 @@ final_response
 errors
 ```
 
+Дополнительные структуры:
+
+```text
+AgentError
+RecommendationMode
+```
+
+Поддерживаемые режимы:
+
+```text
+fast_delivery
+balanced_workload
+growth
+risk_minimization
+```
+
+Основные методы:
+
+```text
+add_error()
+has_errors()
+error_payload()
+normalize_mode()
+```
+
+Как работает:
+
+```text
+1. Orchestrator создаёт AgentState.
+2. Каждый агент получает один и тот же state.
+3. Агент читает нужные поля и записывает результат в state.
+4. Ошибки не выбрасываются наружу сразу, а аккумулируются в errors.
+5. Финальный response строится из AgentState.
+```
+
+Важно:
+
+```text
+AgentState не хранит PLANE_API_KEY, OLLAMA secrets или другие секреты.
+State хранит только рабочие данные pipeline.
+```
+
 **Ожидаемый результат:** агенты передают данные друг другу предсказуемо.
 
 **Примерное время:** 2–3 часа.  
@@ -5911,24 +6090,150 @@ errors
 
 ## 15.2. Реализовать Task Analyzer Agent
 
-- [ ] Создать `src/agents/task_analyzer.py`.
-- [ ] Агент принимает задачу из Plane.
-- [ ] Извлекает title.
-- [ ] Извлекает description.
-- [ ] Извлекает labels.
-- [ ] Определяет task type.
-- [ ] Определяет required skills.
-- [ ] Определяет required stack.
-- [ ] Определяет complexity.
-- [ ] Определяет urgency по deadline/priority.
-- [ ] Возвращает task features.
-- [ ] Сначала реализовать rule-based parsing.
-- [ ] Позже можно добавить LLM-assisted parsing.
+- [x] Создать `src/agents/task_analyzer.py`.
+- [x] Агент принимает задачу из Plane или manual/synthetic issue dict.
+- [x] Извлекает title.
+- [x] Извлекает description.
+- [x] Извлекает labels.
+- [x] Умеет очищать HTML description.
+- [x] Определяет task type.
+- [x] Определяет required skills.
+- [x] Определяет required stack.
+- [x] Определяет complexity.
+- [x] Определяет urgency по deadline/priority.
+- [x] Возвращает task features.
+- [x] Реализован rule-based parsing.
+- [x] Добавлена подготовка к будущему LLM-assisted parsing.
+- [x] Добавлено извлечение `COMPASS task_id` из description marker.
+- [x] Добавлен fallback для задач без labels.
 
 Файл:
 
 ```text
 src/agents/task_analyzer.py
+```
+
+Основные функции:
+
+```text
+strip_html()
+parse_json_cell()
+labels_from_issue()
+extract_compass_task_id()
+detect_task_type()
+priority_to_score()
+deadline_days_from_issue()
+estimate_complexity()
+analyze_task()
+run_task_analyzer()
+```
+
+Что принимает агент:
+
+```text
+Plane work item dict
+manual issue dict
+synthetic task converted to issue dict
+```
+
+Что возвращает в `state.task_features`:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+plane_project_id
+project_key
+title
+description
+labels
+task_type
+required_stack
+required_skills
+complexity
+priority
+priority_score
+business_criticality
+deadline_days
+estimated_hours
+dependencies_count
+is_growth_task
+source
+```
+
+Task type detection использует:
+
+```text
+labels
+title keywords
+description keywords
+fallback task type
+```
+
+Примеры label mapping:
+
+```text
+backend -> backend_feature
+frontend -> frontend_feature
+ml -> ml_pipeline
+data -> analytics_report
+devops -> devops_task
+bug -> bugfix
+security -> security_task
+testing -> testing_task
+documentation -> documentation_task
+```
+
+Примеры keyword detection:
+
+```text
+jwt, api, endpoint, backend -> backend_feature
+react, dashboard, ui -> frontend_feature
+model, embedding, pipeline -> ml_pipeline
+docker, kubernetes, deploy -> devops_task
+bug, fix, ошибка, починить -> bugfix
+```
+
+Примеры required skills:
+
+```text
+backend_feature:
+Python, FastAPI, PostgreSQL, API Design
+
+frontend_feature:
+React, TypeScript, HTML/CSS
+
+ml_pipeline:
+Python, Machine Learning, PyTorch, Data Pipelines
+
+devops_task:
+Docker, Kubernetes, CI/CD
+```
+
+Как считается complexity:
+
+```text
+1. Если issue уже содержит complexity, используется оно.
+2. Иначе берётся базовая сложность по task_type.
+3. high/urgent priority повышает complexity.
+4. длинное описание может повысить complexity.
+5. итог ограничивается диапазоном 1–5.
+```
+
+Как считается deadline:
+
+```text
+1. Если есть deadline_days, используется он.
+2. Если есть target_date, считается разница с текущей датой.
+3. Если дедлайна нет, используется fallback 14 дней.
+```
+
+Важно:
+
+```text
+Task Analyzer не вызывает LLM.
+Парсинг сделан rule-based, чтобы pipeline был стабильным и воспроизводимым.
+LLM-assisted parsing можно добавить позже как улучшение, но не как обязательную зависимость.
 ```
 
 **Ожидаемый результат:** сырая задача Plane превращается в признаки для модели.
@@ -5940,21 +6245,98 @@ src/agents/task_analyzer.py
 
 ## 15.3. Реализовать Team State Analyzer Agent
 
-- [ ] Создать `src/agents/team_analyzer.py`.
-- [ ] Агент принимает список сотрудников.
-- [ ] Загружает их профили из `employees.csv`.
-- [ ] Подтягивает текущие задачи из Plane.
-- [ ] Считает текущую загрузку.
-- [ ] Считает активные задачи.
-- [ ] Считает перегруз.
-- [ ] Считает доступность.
-- [ ] Формирует employee features.
-- [ ] Возвращает список кандидатов.
+- [x] Создать `src/agents/team_analyzer.py`.
+- [x] Агент загружает профили сотрудников из `employees.csv`.
+- [x] Парсит `skills`.
+- [x] Парсит `learning_goals`.
+- [x] Считает текущую загрузку.
+- [x] Считает активные задачи.
+- [x] Считает перегруз.
+- [x] Считает доступность.
+- [x] Формирует employee features.
+- [x] Возвращает список кандидатов.
+- [x] Добавляет `availability_score`.
+- [x] Добавляет `workload_risk`.
+- [x] Готовит state для Matching Agent.
 
 Файл:
 
 ```text
 src/agents/team_analyzer.py
+```
+
+Источник данных:
+
+```text
+data/synthetic/employees.csv
+```
+
+Основные функции:
+
+```text
+parse_json_cell()
+load_employee_profiles()
+availability_score()
+workload_risk()
+build_employee_features()
+run_team_analyzer()
+```
+
+Что записывается в `state.employees`:
+
+```text
+полные профили сотрудников из employees.csv
+```
+
+Что записывается в `state.employee_features`:
+
+```text
+employee_id
+plane_user_id
+name
+role
+grade
+skills
+learning_goals
+current_workload
+active_tasks_count
+availability
+availability_score
+workload_risk
+avg_completion_speed
+avg_quality_score
+deadline_reliability
+mentor_level
+```
+
+Workload risk levels:
+
+```text
+low: workload < 0.70
+medium: workload >= 0.70
+high: workload >= 0.85
+critical: workload >= 0.95
+```
+
+Availability score:
+
+```text
+available:
+score = 1.0 - workload
+
+partially_available:
+score = 0.6 - workload * 0.25
+
+unavailable:
+score = 0.0
+```
+
+Важно:
+
+```text
+На этом этапе Team Analyzer использует synthetic employees.csv.
+Текущие задачи из Plane пока не пересчитывают workload динамически.
+Динамический workload из Plane можно подключить позже, когда будет стабильный mapping employee_id -> plane_user_id.
 ```
 
 **Ожидаемый результат:** состояние команды считается перед каждой рекомендацией.
@@ -5966,19 +6348,108 @@ src/agents/team_analyzer.py
 
 ## 15.4. Реализовать Matching Model Agent
 
-- [ ] Создать `src/agents/matching_agent.py`.
-- [ ] Агент получает task features.
-- [ ] Агент получает employee features.
-- [ ] Агент вызывает PyTorch или ONNX inference.
-- [ ] Агент получает scores.
-- [ ] Агент сортирует сотрудников.
-- [ ] Агент возвращает top-3.
-- [ ] Агент добавляет технические причины: skill match, workload, risk, growth.
+- [x] Создать `src/agents/matching_agent.py`.
+- [x] Агент получает task features.
+- [x] Агент получает employee features.
+- [x] Агент вызывает PyTorch inference через `src/models/inference.py`.
+- [x] Агент получает scores.
+- [x] Агент сортирует сотрудников.
+- [x] Агент возвращает top-3.
+- [x] Агент добавляет технические причины: skill match, workload, risk, growth.
+- [x] Добавлен fallback на rule-based baseline.
+- [x] Добавлена поддержка synthetic task через `TASK-*`.
+- [x] Добавлена обработка ошибок ML inference.
 
 Файл:
 
 ```text
 src/agents/matching_agent.py
+```
+
+Использует:
+
+```text
+src/models/inference.py
+src/recommendation/rule_based_ranker.py
+```
+
+Основные функции:
+
+```text
+run_matching_agent()
+```
+
+Внутренние ветки:
+
+```text
+_ml_candidates_available()
+_run_ml_matching()
+_run_rule_based_fallback()
+```
+
+Как работает:
+
+```text
+1. Проверяет, что task_features не пустые.
+2. Проверяет, что employees загружены.
+3. Если task_id начинается с TASK-, вызывает ML inference wrapper.
+4. ML inference берёт precomputed rows из training_pairs.parquet.
+5. Если ML inference невозможен, включается rule-based fallback.
+6. Результат записывается в state.candidate_scores и state.top_candidates.
+```
+
+ML path:
+
+```text
+TaskEmployeeMatchingNet
++
+mode adjustment
++
+top-k sorting
+```
+
+Fallback path:
+
+```text
+rule_based_ranker
++
+recommendation_to_dict()
++
+source = rule_based_fallback
+```
+
+Формат candidate:
+
+```text
+rank
+employee_id
+plane_user_id
+name
+role
+grade
+score
+success_probability
+factors
+reasons
+risks
+source
+```
+
+Фактическая проверка `TASK-0001`, `balanced_workload`:
+
+```text
+1. EMP-014 — Никита Егоров — score 0.956596
+2. EMP-011 — Полина Васильева — score 0.956551
+3. EMP-010 — Сергей Павлов — score 0.925464
+```
+
+Важно:
+
+```text
+Matching Agent отвечает только за ranking.
+Он не пишет комментарии в Plane.
+Он не вызывает LLM.
+Он не принимает финальное управленческое решение.
 ```
 
 **Ожидаемый результат:** отдельный агент отвечает только за ML-рекомендацию.
@@ -5990,31 +6461,99 @@ src/agents/matching_agent.py
 
 ## 15.5. Установить Ollama
 
-- [ ] Скачать Ollama с `https://ollama.com`.
-- [ ] Установить Ollama на Mac.
-- [ ] Запустить Ollama.
-- [ ] Проверить, что сервер доступен.
-- [ ] Скачать `qwen2.5:1.5b-instruct`.
-- [ ] Проверить генерацию русского текста.
+- [x] Проверить, установлен ли Ollama.
+- [x] Установить Ollama на Mac через Homebrew Cask.
+- [x] Проверить версию Ollama.
+- [x] Проверить доступность сервера.
+- [x] Скачать `qwen2.5:1.5b-instruct`.
+- [x] Проверить генерацию русского текста.
+- [x] Зафиксировать, что Ollama server должен быть запущен отдельно.
 
-Команды:
+Команды проверки:
+
+```bash
+command -v ollama || true
+```
 
 ```bash
 ollama --version
 ```
 
+Фактический результат до установки:
+
+```text
+ollama: command not found
+```
+
+Команда установки:
+
+```bash
+brew install --cask ollama
+```
+
+Фактический результат установки:
+
+```text
+Ollama.app installed
+ollama binary linked to /opt/homebrew/bin/ollama
+client version 0.31.1
+```
+
+Проверка server API:
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+Если сервер не запущен:
+
+```text
+curl: Failed to connect to localhost port 11434
+```
+
+Команда запуска сервера, если приложение Ollama не запущено:
+
+```bash
+ollama serve
+```
+
+Команда загрузки модели:
+
 ```bash
 ollama pull qwen2.5:1.5b-instruct
 ```
 
-```bash
-ollama run qwen2.5:1.5b-instruct
-```
-
-Проверочный prompt:
+Фактический результат:
 
 ```text
-Кратко объясни на русском, почему задачу лучше назначить middle backend-разработчику с низкой загрузкой.
+qwen2.5:1.5b-instruct downloaded successfully
+model size около 986 MB
+```
+
+Проверка русского ответа:
+
+```bash
+ollama run qwen2.5:1.5b-instruct "Кратко объясни на русском, почему задачу лучше назначить middle backend-разработчику с низкой загрузкой."
+```
+
+Фактический результат:
+
+```text
+Ollama отвечает на русском языке.
+```
+
+Важно:
+
+```text
+Ollama CLI может скачать и запустить модель даже если server API сначала недоступен.
+Для Python-клиента нужен запущенный Ollama server на http://localhost:11434.
+```
+
+Важно:
+
+```text
+Если Ollama server не запущен, LLM client получает connection refused.
+Explanation Agent в таком случае должен использовать fallback explanation.
 ```
 
 **Ожидаемый результат:** локальная LLM отвечает на русском.
@@ -6026,15 +6565,17 @@ ollama run qwen2.5:1.5b-instruct
 
 ## 15.6. Реализовать LLM client
 
-- [ ] Создать `src/llm/ollama_client.py`.
-- [ ] Добавить базовый URL из `.env`.
-- [ ] Добавить имя модели из `.env`.
-- [ ] Реализовать метод `generate()`.
-- [ ] Добавить timeout.
-- [ ] Добавить обработку ошибок.
-- [ ] Добавить fallback-ответ, если Ollama недоступна.
-- [ ] Не использовать LLM для принятия решения.
-- [ ] Использовать LLM только для объяснения.
+- [x] Создать `src/llm/ollama_client.py`.
+- [x] Добавить базовый URL из `.env`.
+- [x] Добавить имя модели из `.env`.
+- [x] Реализовать метод `generate()`.
+- [x] Добавить timeout.
+- [x] Добавить обработку ошибок.
+- [x] Добавить проверку доступности Ollama.
+- [x] Не использовать LLM для принятия решения.
+- [x] Использовать LLM только для объяснения.
+- [x] Проверить клиент на русском prompt.
+- [x] Зафиксировать поведение при недоступном Ollama server.
 
 Файл:
 
@@ -6042,10 +6583,72 @@ ollama run qwen2.5:1.5b-instruct
 src/llm/ollama_client.py
 ```
 
-Переменная `.env.example`:
+Переменные `.env.example`:
 
 ```text
+OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:1.5b-instruct
+```
+
+Дополнительная переменная:
+
+```text
+OLLAMA_TIMEOUT_SECONDS=30
+```
+
+Основные структуры и функции:
+
+```text
+OllamaConfig
+OllamaClient
+generate()
+ollama_available()
+```
+
+Как работает:
+
+```text
+1. Читает OLLAMA_BASE_URL из .env.
+2. Читает OLLAMA_MODEL из .env.
+3. Отправляет POST /api/generate.
+4. Передаёт prompt, system prompt, temperature и num_predict.
+5. Возвращает response text.
+6. Если Ollama недоступна, выбрасывает RuntimeError.
+```
+
+Проверка:
+
+```bash
+python src/llm/ollama_client.py
+```
+
+Фактический результат:
+
+```text
+Клиент успешно получил русский текст от qwen2.5:1.5b-instruct.
+```
+
+Что было выяснено:
+
+```text
+Если Ollama server не запущен, Python-клиент получает:
+Connection refused
+
+После повторного запуска Ollama server клиент снова работает.
+```
+
+Важно:
+
+```text
+OllamaClient сам не принимает решений по исполнителю.
+Он только генерирует текст объяснения по уже готовому ranking.
+```
+
+Важно:
+
+```text
+Fallback-логика находится не в OllamaClient, а в Explanation Agent.
+Это правильно: клиент должен явно сообщать об ошибке, а агент решает, как деградировать.
 ```
 
 **Ожидаемый результат:** backend может обращаться к локальной LLM.
@@ -6057,21 +6660,33 @@ OLLAMA_MODEL=qwen2.5:1.5b-instruct
 
 ## 15.7. Реализовать Explanation Agent
 
-- [ ] Создать `src/agents/explanation_agent.py`.
-- [ ] Агент получает top-3 кандидатов.
-- [ ] Агент получает факторы решения.
-- [ ] Агент формирует prompt на русском.
-- [ ] Агент вызывает Ollama.
-- [ ] Агент возвращает краткое объяснение.
-- [ ] Агент возвращает fallback template, если LLM не отвечает.
-- [ ] Ограничить длину ответа.
-- [ ] Запретить LLM менять ranking.
-- [ ] Запретить LLM придумывать данные, которых нет в input.
+- [x] Создать `src/agents/explanation_agent.py`.
+- [x] Агент получает top-3 кандидатов.
+- [x] Агент получает факторы решения.
+- [x] Агент формирует prompt на русском.
+- [x] Агент вызывает Ollama.
+- [x] Агент возвращает краткое объяснение.
+- [x] Агент возвращает fallback template, если LLM не отвечает.
+- [x] Ограничить длину ответа через `max_tokens`.
+- [x] Запретить LLM менять ranking.
+- [x] Запретить LLM придумывать данные, которых нет в input.
+- [x] Добавить system prompt с ролью объясняющего агента.
+- [x] Добавить fallback explanation без LLM.
+- [x] Добавить режим `use_llm=False` для стабильных локальных проверок.
 
 Файл:
 
 ```text
 src/agents/explanation_agent.py
+```
+
+Основные функции:
+
+```text
+candidate_line()
+fallback_explanation()
+build_prompt()
+run_explanation_agent()
 ```
 
 Структура объяснения:
@@ -6084,6 +6699,68 @@ src/agents/explanation_agent.py
 Режим рекомендации
 ```
 
+System prompt:
+
+```text
+LLM не выбирает исполнителя.
+LLM не меняет ranking.
+LLM не придумывает факты.
+LLM только объясняет уже готовую рекомендацию.
+```
+
+Prompt содержит:
+
+```text
+task title
+task type
+priority
+complexity
+deadline_days
+required_skills
+recommendation_mode
+top_candidates
+candidate scores
+candidate factors
+candidate risks
+```
+
+Fallback explanation используется когда:
+
+```text
+use_llm=False
+Ollama server недоступен
+Ollama вернул ошибку
+Ollama вернул пустой ответ
+top_candidates пустой
+```
+
+Фактический fallback output содержит:
+
+```text
+## COMPASS AI Recommendation
+Рекомендованный исполнитель
+Режим рекомендации
+Score
+Почему подходит
+Риски
+Альтернативы
+Важно: финальное решение остаётся за тимлидом
+```
+
+Важно:
+
+```text
+Explanation Agent не влияет на score и ranking.
+Он работает только после Matching Agent.
+```
+
+Важно:
+
+```text
+Для воспроизводимых тестов можно использовать use_llm=False.
+Для демо с русским объяснением можно использовать use_llm=True при запущенной Ollama.
+```
+
 **Ожидаемый результат:** рекомендации выглядят понятно для тимлида.
 
 **Примерное время:** 5–8 часов.  
@@ -6093,20 +6770,95 @@ src/agents/explanation_agent.py
 
 ## 15.8. Реализовать Plane Integration Agent
 
-- [ ] Создать `src/agents/plane_agent.py`.
-- [ ] Агент получает issue ID.
-- [ ] Загружает задачу из Plane.
-- [ ] Загружает команду проекта.
-- [ ] Передаёт данные в agent pipeline.
-- [ ] Получает финальную рекомендацию.
-- [ ] Добавляет комментарий в Plane.
-- [ ] Опционально назначает recommended assignee.
-- [ ] Логирует результат.
+- [x] Создать `src/agents/plane_agent.py`.
+- [x] Агент умеет загрузить задачу из Plane.
+- [x] Агент умеет подготовить markdown-комментарий.
+- [x] Агент умеет добавить комментарий в Plane через `PlaneClient`.
+- [x] Агент запускает write-back только при `write_back=True`.
+- [x] Добавлен marker `Generated by COMPASS AI`.
+- [x] Добавлена защита от повторной записи комментария.
+- [x] Добавлена проверка существующего COMPASS AI comment.
+- [x] Добавлена обработка ошибок write-back.
+- [x] Опциональное auto-assign пока не включено.
 
 Файл:
 
 ```text
 src/agents/plane_agent.py
+```
+
+Использует:
+
+```text
+src/integration/plane_client.py
+```
+
+Основные функции:
+
+```text
+build_basic_plane_comment()
+load_plane_work_item()
+existing_compass_comment_exists()
+write_recommendation_comment()
+run_plane_agent()
+```
+
+Marker комментария:
+
+```text
+Generated by COMPASS AI
+```
+
+Как работает write-back:
+
+```text
+1. Оркестратор передаёт project_id и work_item_id.
+2. Plane Agent проверяет write_back.
+3. Если write_back=False, агент ничего не пишет в Plane.
+4. Если write_back=True, агент проверяет существующие комментарии.
+5. Если COMPASS AI comment уже есть, запись пропускается.
+6. Если комментария нет, создаётся markdown-комментарий.
+7. Результат записи сохраняется в final_response["plane_write_back"].
+```
+
+Формат комментария:
+
+```text
+## COMPASS AI Recommendation
+
+Recommended assignee
+Mode
+Score
+Top candidates
+Explanation
+Decision-support note
+Generated by COMPASS AI marker
+```
+
+Важно:
+
+```text
+Plane Agent не запускает весь pipeline сам.
+Он отвечает только за Plane-specific операции:
+load work item
+format basic comment
+write comment
+skip duplicate comment
+```
+
+Важно:
+
+```text
+Auto-assignment намеренно не включён на этом этапе.
+Автоматическое назначение будет отдельным безопасным шагом позже,
+с threshold и параметром auto_assign=false по умолчанию.
+```
+
+Важно:
+
+```text
+На этом этапе write-back подготовлен технически.
+Массовая запись комментариев в Plane не выполняется по умолчанию.
 ```
 
 **Ожидаемый результат:** COMPASS AI начинает реально работать с Plane.
@@ -6118,15 +6870,18 @@ src/agents/plane_agent.py
 
 ## 15.9. Собрать общий agentic orchestrator
 
-- [ ] Создать `src/agents/orchestrator.py`.
-- [ ] Оркестратор запускает Task Analyzer.
-- [ ] Оркестратор запускает Team State Analyzer.
-- [ ] Оркестратор запускает Matching Model Agent.
-- [ ] Оркестратор запускает Explanation Agent.
-- [ ] Оркестратор запускает Plane Integration Agent только при необходимости.
-- [ ] Оркестратор возвращает единый response.
-- [ ] Добавить логирование каждого шага.
-- [ ] Добавить обработку ошибок.
+- [x] Создать `src/agents/orchestrator.py`.
+- [x] Оркестратор запускает Task Analyzer.
+- [x] Оркестратор запускает Team State Analyzer.
+- [x] Оркестратор запускает Matching Model Agent.
+- [x] Оркестратор запускает Explanation Agent.
+- [x] Оркестратор запускает Plane Integration Agent только при необходимости.
+- [x] Оркестратор возвращает единый response.
+- [x] Добавлена обработка ошибок через `AgentState.errors`.
+- [x] Добавлен запуск для synthetic task.
+- [x] Добавлена функция `recommend_synthetic_task()`.
+- [x] Добавлена функция `run_agentic_recommendation()`.
+- [x] Проверены все 4 recommendation modes.
 
 Файл:
 
@@ -6137,7 +6892,176 @@ src/agents/orchestrator.py
 Pipeline:
 
 ```text
-Plane Issue → Task Analyzer → Team Analyzer → Matching Agent → Explanation Agent → Plane Comment
+Plane/manual/synthetic task
+→ Task Analyzer
+→ Team State Analyzer
+→ Matching Model Agent
+→ Explanation Agent
+→ Plane Integration Agent
+→ final response
+```
+
+Основные функции:
+
+```text
+run_agentic_recommendation()
+recommend_synthetic_task()
+load_synthetic_task()
+```
+
+Как работает `run_agentic_recommendation()`:
+
+```text
+1. Принимает issue dict или project_id + work_item_id.
+2. Если issue не передан, загружает задачу из Plane.
+3. Создаёт AgentState.
+4. Запускает Task Analyzer.
+5. Запускает Team Analyzer.
+6. Запускает Matching Agent.
+7. Запускает Explanation Agent.
+8. При write_back=True запускает Plane Agent.
+9. Возвращает единый JSON-compatible response.
+```
+
+Как работает `recommend_synthetic_task()`:
+
+```text
+1. Загружает task из data/synthetic/tasks.csv по task_id.
+2. Превращает synthetic task в issue-like dict.
+3. Запускает общий agentic pipeline.
+4. По умолчанию не использует LLM, чтобы проверка была стабильной.
+5. Возвращает top-3 и explanation.
+```
+
+Формат response:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+title
+task_type
+mode
+top_candidates
+explanation
+errors
+source
+plane_write_back
+```
+
+Фактическая проверка `TASK-0001`, `balanced_workload`:
+
+```text
+task_id: TASK-0001
+title: Добавить endpoint для статистики команды — интеграции с Plane
+task_type: backend_feature
+mode: balanced_workload
+source: agentic_pipeline
+errors: []
+```
+
+Top-3 `balanced_workload`:
+
+```text
+1. EMP-014 — Никита Егоров — backend_developer senior — score 0.956596
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.956551
+3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.925464
+```
+
+Top-3 `fast_delivery`:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 1.0
+2. EMP-014 — Никита Егоров — backend_developer senior — score 1.0
+3. EMP-007 — Ольга Волкова — backend_developer middle — score 0.962904
+```
+
+Top-3 `growth`:
+
+```text
+1. EMP-007 — Ольга Волкова — backend_developer middle — score 0.954844
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.927383
+3. EMP-014 — Никита Егоров — backend_developer senior — score 0.924308
+```
+
+Top-3 `risk_minimization`:
+
+```text
+1. EMP-010 — Сергей Павлов — backend_developer middle — score 1.0
+2. EMP-011 — Полина Васильева — backend_developer senior — score 1.0
+3. EMP-014 — Никита Егоров — backend_developer senior — score 1.0
+```
+
+Что показывают режимы:
+
+```text
+balanced_workload выбирает сильного backend-кандидата с хорошим балансом факторов.
+fast_delivery поднимает кандидата с высокой скоростью и deadline reliability.
+growth поднимает middle-кандидата с высоким growth_match.
+risk_minimization поднимает кандидата с низким риском и хорошей надёжностью.
+```
+
+Фактическое fallback explanation для `TASK-0001`:
+
+```text
+Рекомендованный исполнитель: Никита Егоров (backend_developer).
+Режим рекомендации: balanced_workload.
+Score: 0.956596.
+Почему подходит: учтены skill match, риск, загрузка, скорость и надёжность.
+Альтернативы: Полина Васильева, Сергей Павлов.
+Финальное решение остаётся за тимлидом.
+```
+
+Проверки:
+
+```bash
+python -m py_compile src/models/inference.py src/agents/state.py src/agents/task_analyzer.py src/agents/team_analyzer.py src/agents/matching_agent.py src/llm/ollama_client.py src/agents/explanation_agent.py src/agents/plane_agent.py src/agents/orchestrator.py
+```
+
+```bash
+ruff check src/models/inference.py src/agents/state.py src/agents/task_analyzer.py src/agents/team_analyzer.py src/agents/matching_agent.py src/llm/ollama_client.py src/agents/explanation_agent.py src/agents/plane_agent.py src/agents/orchestrator.py
+```
+
+Фактический результат:
+
+```text
+All checks passed.
+```
+
+Проверка inference:
+
+```bash
+python src/models/inference.py
+```
+
+Проверка orchestrator:
+
+```bash
+python src/agents/orchestrator.py
+```
+
+Проверка режима `balanced_workload`:
+
+```bash
+python -c "from src.agents.orchestrator import recommend_synthetic_task; import json; print(json.dumps(recommend_synthetic_task('TASK-0001', mode='balanced_workload', top_k=3, use_llm=False), ensure_ascii=False, indent=2))"
+```
+
+Проверка режима `fast_delivery`:
+
+```bash
+python -c "from src.agents.orchestrator import recommend_synthetic_task; import json; print(json.dumps(recommend_synthetic_task('TASK-0001', mode='fast_delivery', top_k=3, use_llm=False), ensure_ascii=False, indent=2))"
+```
+
+Проверка режима `growth`:
+
+```bash
+python -c "from src.agents.orchestrator import recommend_synthetic_task; import json; print(json.dumps(recommend_synthetic_task('TASK-0001', mode='growth', top_k=3, use_llm=False), ensure_ascii=False, indent=2))"
+```
+
+Проверка режима `risk_minimization`:
+
+```bash
+python -c "from src.agents.orchestrator import recommend_synthetic_task; import json; print(json.dumps(recommend_synthetic_task('TASK-0001', mode='risk_minimization', top_k=3, use_llm=False), ensure_ascii=False, indent=2))"
 ```
 
 **Ожидаемый результат:** есть настоящая агентная связка из нескольких компонентов.
