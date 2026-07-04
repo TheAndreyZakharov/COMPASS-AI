@@ -3845,15 +3845,15 @@ src/recommendation/growth_scoring.py
 
 ## 11.4. Собрать rule-based baseline
 
-- [ ] Создать `src/recommendation/rule_based_ranker.py`.
-- [ ] Объединить skill score.
-- [ ] Объединить workload score.
-- [ ] Объединить growth score.
-- [ ] Добавить speed score.
-- [ ] Добавить quality score.
-- [ ] Реализовать режимы: `fast_delivery`, `balanced_workload`, `growth`, `risk_minimization`.
-- [ ] Возвращать top-3 кандидатов.
-- [ ] Написать тесты.
+- [x] Создать `src/recommendation/rule_based_ranker.py`.
+- [x] Объединить skill score.
+- [x] Объединить workload score.
+- [x] Объединить growth score.
+- [x] Добавить speed score.
+- [x] Добавить quality score.
+- [x] Реализовать режимы: `fast_delivery`, `balanced_workload`, `growth`, `risk_minimization`.
+- [x] Возвращать top-3 кандидатов.
+- [x] Написать тесты.
 
 Файл:
 
