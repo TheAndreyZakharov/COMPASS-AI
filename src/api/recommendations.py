@@ -70,6 +70,7 @@ def is_open_work_item(work_item: dict[str, Any]) -> bool:
         return False
 
     archived_at = work_item.get("archived_at")
+
     return not archived_at
 
 
@@ -79,19 +80,11 @@ def resolve_plane_work_item(
     project_id: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
     if project_id:
-        try:
-            work_item = client.get_work_item(project_id=project_id, work_item_id=issue_id)
-            return project_id, work_item
-        except PlaneClientError as error:
-            work_items_payload = client.list_work_items(project_id)
-            for work_item in extract_results(work_items_payload):
-                if work_item_identifier_matches(work_item, issue_id):
-                    return project_id, work_item
-
-            raise HTTPException(
-                status_code=404,
-                detail=f"Plane work item not found: project_id={project_id}, issue_id={issue_id}",
-            ) from error
+        return _resolve_plane_work_item_in_project(
+            client=client,
+            issue_id=issue_id,
+            project_id=project_id,
+        )
 
     projects_payload = client.list_projects()
 
@@ -118,6 +111,25 @@ def resolve_plane_work_item(
     )
 
 
+def _resolve_plane_work_item_in_project(
+    client: PlaneClient,
+    issue_id: str,
+    project_id: str,
+) -> tuple[str, dict[str, Any]]:
+    try:
+        work_item = client.get_work_item(project_id=project_id, work_item_id=issue_id)
+        return project_id, work_item
+    except PlaneClientError as error:
+        work_items_payload = client.list_work_items(project_id)
+
+        for work_item in extract_results(work_items_payload):
+            if work_item_identifier_matches(work_item, issue_id):
+                return project_id, work_item
+
+        detail = f"Plane work item not found: project_id={project_id}, issue_id={issue_id}"
+        raise HTTPException(status_code=404, detail=detail) from error
+
+
 @router.get("/recommendations/issue/{issue_id}")
 def recommend_for_issue(
     issue_id: str,
@@ -125,6 +137,8 @@ def recommend_for_issue(
     mode: str = Query(default="balanced_workload"),
     top_k: int = Query(default=3, ge=1, le=10),
     write_back: bool = Query(default=False),
+    auto_assign: bool = Query(default=False),
+    threshold: float = Query(default=0.75, ge=0.0, le=1.0),
     use_llm: bool = Query(default=False),
 ) -> dict[str, Any]:
     normalized_mode = normalize_mode(mode)
@@ -134,6 +148,12 @@ def recommend_for_issue(
             raise HTTPException(
                 status_code=400,
                 detail="write_back=true is available only for real Plane work items.",
+            )
+
+        if auto_assign:
+            raise HTTPException(
+                status_code=400,
+                detail="auto_assign=true is available only for real Plane work items.",
             )
 
         return recommend_synthetic_task(
@@ -158,6 +178,8 @@ def recommend_for_issue(
             mode=normalized_mode,
             top_k=top_k,
             write_back=write_back,
+            auto_assign=auto_assign,
+            threshold=threshold,
             use_llm=use_llm,
         )
     except HTTPException:
@@ -181,38 +203,16 @@ def recommend_for_project_open_issues(
         client = PlaneClient()
         work_items_payload = client.list_work_items(project_id)
         work_items = extract_results(work_items_payload)
-        open_work_items = [work_item for work_item in work_items if is_open_work_item(work_item)][
-            :limit
-        ]
+        open_work_items = [
+            work_item for work_item in work_items if is_open_work_item(work_item)
+        ][:limit]
 
-        recommendations: list[dict[str, Any]] = []
-
-        for work_item in open_work_items:
-            try:
-                recommendation = run_agentic_recommendation(
-                    issue=work_item,
-                    project_id=project_id,
-                    work_item_id=str(work_item.get("id", "")),
-                    mode=normalized_mode,
-                    top_k=3,
-                    write_back=False,
-                    use_llm=use_llm,
-                )
-                recommendations.append(recommendation)
-            except Exception as error:
-                recommendations.append(
-                    {
-                        "task_id": str(work_item.get("id", "")),
-                        "title": str(work_item.get("name", "")),
-                        "source": "agentic_pipeline",
-                        "errors": [
-                            {
-                                "step": "batch_recommendation",
-                                "message": str(error),
-                            }
-                        ],
-                    }
-                )
+        recommendations = _recommend_for_work_items(
+            work_items=open_work_items,
+            project_id=project_id,
+            mode=normalized_mode,
+            use_llm=use_llm,
+        )
 
         return {
             "project_id": project_id,
@@ -228,6 +228,46 @@ def recommend_for_project_open_issues(
         raise HTTPException(status_code=500, detail=str(error)) from error
 
 
+def _recommend_for_work_items(
+    work_items: list[dict[str, Any]],
+    project_id: str,
+    mode: str,
+    use_llm: bool,
+) -> list[dict[str, Any]]:
+    recommendations: list[dict[str, Any]] = []
+
+    for work_item in work_items:
+        try:
+            recommendation = run_agentic_recommendation(
+                issue=work_item,
+                project_id=project_id,
+                work_item_id=str(work_item.get("id", "")),
+                mode=mode,
+                top_k=3,
+                write_back=False,
+                auto_assign=False,
+                threshold=0.75,
+                use_llm=use_llm,
+            )
+            recommendations.append(recommendation)
+        except Exception as error:
+            recommendations.append(
+                {
+                    "task_id": str(work_item.get("id", "")),
+                    "title": str(work_item.get("name", "")),
+                    "source": "agentic_pipeline",
+                    "errors": [
+                        {
+                            "step": "batch_recommendation",
+                            "message": str(error),
+                        }
+                    ],
+                }
+            )
+
+    return recommendations
+
+
 @router.post("/recommendations/manual")
 def recommend_for_manual_task(
     request: ManualRecommendationRequest,
@@ -240,6 +280,8 @@ def recommend_for_manual_task(
             mode=normalized_mode,
             top_k=request.top_k,
             write_back=False,
+            auto_assign=False,
+            threshold=0.75,
             use_llm=request.use_llm,
         )
 

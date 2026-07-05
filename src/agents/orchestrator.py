@@ -17,12 +17,13 @@ TASKS_PATH = PROJECT_ROOT / "data" / "synthetic" / "tasks.csv"
 
 
 def _state_to_response(state: AgentState) -> dict[str, Any]:
-    task = state.task_features
+    task = state.task_features or {}
 
     response = {
         "task_id": task.get("task_id"),
         "plane_work_item_id": task.get("plane_work_item_id"),
         "plane_issue_id": task.get("plane_issue_id"),
+        "plane_project_id": task.get("plane_project_id"),
         "title": task.get("title"),
         "task_type": task.get("task_type"),
         "mode": state.recommendation_mode,
@@ -32,7 +33,8 @@ def _state_to_response(state: AgentState) -> dict[str, Any]:
         "source": "agentic_pipeline",
     }
 
-    response.update(state.final_response)
+    if state.final_response:
+        response.update(state.final_response)
 
     return response
 
@@ -44,6 +46,8 @@ def run_agentic_recommendation(
     mode: str = "balanced_workload",
     top_k: int = 3,
     write_back: bool = False,
+    auto_assign: bool = False,
+    threshold: float = 0.75,
     use_llm: bool = True,
 ) -> dict[str, Any]:
     if issue is None:
@@ -71,6 +75,8 @@ def run_agentic_recommendation(
         project_id=project_id,
         work_item_id=work_item_id,
         write_back=write_back,
+        auto_assign=auto_assign,
+        threshold=threshold,
     )
 
     state.final_response = _state_to_response(state)
@@ -123,6 +129,8 @@ def recommend_synthetic_task(
         mode=mode,
         top_k=top_k,
         write_back=False,
+        auto_assign=False,
+        threshold=0.75,
         use_llm=use_llm,
     )
 
