@@ -584,11 +584,25 @@ def recommend_plane_work_item(
             "candidate_scope": "plane_project_members",
             "candidate_count": len(candidates),
             "mapped_candidates_count": sum(
-                1 for candidate in candidates if candidate.get("mapping_status") != "plane_unmapped"
+                1
+                for candidate in candidates
+                if candidate.get("mapping_status") != "plane_unmapped"
             ),
             "unmapped_candidates_count": sum(
-                1 for candidate in candidates if candidate.get("mapping_status") == "plane_unmapped"
+                1
+                for candidate in candidates
+                if candidate.get("mapping_status") == "plane_unmapped"
             ),
+            "allowed_candidates": [
+                {
+                    "employee_id": candidate.get("employee_id"),
+                    "plane_user_id": candidate.get("plane_user_id"),
+                    "name": candidate.get("name"),
+                    "email": candidate.get("email"),
+                    "mapping_status": candidate.get("mapping_status"),
+                }
+                for candidate in candidates
+            ],
         }
 
         return response
