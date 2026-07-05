@@ -423,6 +423,7 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
             [
                 "rank",
                 "employee_id",
+                "plane_user_id",
                 "name",
                 "role",
                 "grade",
@@ -518,6 +519,7 @@ def team_workload_page() -> None:
         employees,
         [
             "employee_id",
+            "plane_user_id",
             "name",
             "role",
             "grade",
@@ -531,6 +533,124 @@ def team_workload_page() -> None:
         ],
     )
     st.dataframe(employees[columns], width="stretch")
+
+
+def plane_team_page(api_url: str) -> None:
+    st.header("Plane Team")
+
+    st.info(
+        "Эта страница показывает реальных пользователей Plane. "
+        "Team Workload выше показывает synthetic/ML-профили COMPASS."
+    )
+
+    try:
+        response = api_get(api_url, "/plane/members")
+    except Exception as exc:
+        st.error(f"Не удалось загрузить Plane members: {exc}")
+        st.warning(
+            "Проверь, что FastAPI запущен, Plane запущен, "
+            "и в backend подключён endpoint GET /plane/members."
+        )
+        return
+
+    workspace_members = response.get("workspace_members") or []
+    pending_invitations = response.get("pending_invitations") or []
+    projects = response.get("projects") or []
+
+    if not isinstance(workspace_members, list):
+        workspace_members = []
+
+    if not isinstance(pending_invitations, list):
+        pending_invitations = []
+
+    if not isinstance(projects, list):
+        projects = []
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric(
+        "Workspace members",
+        response.get("workspace_members_count", len(workspace_members)),
+    )
+    col2.metric(
+        "Pending invitations",
+        response.get("pending_invitations_count", len(pending_invitations)),
+    )
+    col3.metric("Projects", len(projects))
+
+    st.subheader("Active workspace members")
+
+    if workspace_members:
+        members_df = pd.DataFrame(workspace_members)
+        visible_columns = dataframe_columns(
+            members_df,
+            [
+                "id",
+                "member",
+                "email",
+                "display_name",
+                "first_name",
+                "last_name",
+                "role",
+            ],
+        )
+        st.dataframe(members_df[visible_columns], width="stretch")
+    else:
+        st.warning("Plane API не вернул активных workspace members.")
+
+    st.subheader("Pending invitations")
+
+    if pending_invitations:
+        pending_df = pd.DataFrame(pending_invitations)
+        visible_columns = dataframe_columns(
+            pending_df,
+            [
+                "id",
+                "email",
+                "role",
+                "accepted",
+                "responded_at",
+                "created_at",
+            ],
+        )
+        st.dataframe(pending_df[visible_columns], width="stretch")
+    else:
+        st.success("Нет pending invitations.")
+
+    st.subheader("Project members")
+
+    if not projects:
+        st.warning("Plane projects не вернулись.")
+        return
+
+    for project in projects:
+        if not isinstance(project, dict):
+            continue
+
+        project_name = project.get("name") or "Unnamed project"
+        project_identifier = project.get("identifier") or "n/a"
+        members = project.get("members") or []
+
+        if not isinstance(members, list):
+            members = []
+
+        with st.expander(f"{project_name} ({project_identifier}) — members: {len(members)}"):
+            if members:
+                project_df = pd.DataFrame(members)
+                visible_columns = dataframe_columns(
+                    project_df,
+                    [
+                        "id",
+                        "member",
+                        "email",
+                        "display_name",
+                        "first_name",
+                        "last_name",
+                        "role",
+                    ],
+                )
+                st.dataframe(project_df[visible_columns], width="stretch")
+            else:
+                st.warning("В проекте нет members или Plane API их не вернул.")
 
 
 def model_metrics_page() -> None:
@@ -735,6 +855,7 @@ def main() -> None:
             "Overview",
             "Issue Recommendations",
             "Team Workload",
+            "Plane Team",
             "Model Metrics",
             "Fairness",
             "Settings",
@@ -747,6 +868,8 @@ def main() -> None:
         issue_recommendations_page(api_url)
     elif page == "Team Workload":
         team_workload_page()
+    elif page == "Plane Team":
+        plane_team_page(api_url)
     elif page == "Model Metrics":
         model_metrics_page()
     elif page == "Fairness":

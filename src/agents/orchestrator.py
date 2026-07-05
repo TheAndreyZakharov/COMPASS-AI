@@ -39,6 +39,36 @@ def _state_to_response(state: AgentState) -> dict[str, Any]:
     return response
 
 
+def _employee_features_from_override(
+    employees: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    employee_features: list[dict[str, Any]] = []
+
+    for employee in employees:
+        employee_features.append(
+            {
+                "employee_id": employee.get("employee_id"),
+                "plane_user_id": employee.get("plane_user_id"),
+                "name": employee.get("name"),
+                "role": employee.get("role"),
+                "grade": employee.get("grade"),
+                "skills": employee.get("skills", {}),
+                "learning_goals": employee.get("learning_goals", []),
+                "current_workload": employee.get("current_workload", 0.0),
+                "active_tasks_count": employee.get("active_tasks_count", 0),
+                "availability": employee.get("availability", "available"),
+                "availability_score": employee.get("availability_score", 1.0),
+                "workload_risk": employee.get("workload_risk", "low"),
+                "avg_completion_speed": employee.get("avg_completion_speed", 0.70),
+                "avg_quality_score": employee.get("avg_quality_score", 0.70),
+                "deadline_reliability": employee.get("deadline_reliability", 0.70),
+                "mentor_level": employee.get("mentor_level", 1),
+            },
+        )
+
+    return employee_features
+
+
 def run_agentic_recommendation(
     issue: dict[str, Any] | None = None,
     project_id: str | None = None,
@@ -49,6 +79,7 @@ def run_agentic_recommendation(
     auto_assign: bool = False,
     threshold: float = 0.75,
     use_llm: bool = True,
+    employees_override: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     if issue is None:
         if not project_id or not work_item_id:
@@ -65,7 +96,13 @@ def run_agentic_recommendation(
     )
 
     state = run_task_analyzer(state)
-    state = run_team_analyzer(state)
+
+    if employees_override is None:
+        state = run_team_analyzer(state)
+    else:
+        state.employees = employees_override
+        state.employee_features = _employee_features_from_override(employees_override)
+
     state = run_matching_agent(state, top_k=top_k)
     state = run_explanation_agent(state, use_llm=use_llm)
     state.final_response = _state_to_response(state)
@@ -80,6 +117,10 @@ def run_agentic_recommendation(
     )
 
     state.final_response = _state_to_response(state)
+
+    if employees_override is not None:
+        state.final_response["candidate_scope"] = "plane_project_members"
+        state.final_response["candidate_count"] = len(employees_override)
 
     return state.final_response
 
