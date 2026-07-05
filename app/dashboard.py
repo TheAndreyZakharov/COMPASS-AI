@@ -200,21 +200,21 @@ def overview_page(api_url: str) -> None:
         project_counts = tasks["project_key"].value_counts().reset_index()
         project_counts.columns = ["project_key", "tasks_count"]
         chart = px.bar(project_counts, x="project_key", y="tasks_count")
-        st.plotly_chart(chart, use_container_width=True)
+        st.plotly_chart(chart, width="stretch")
 
     if "task_type" in tasks.columns:
         st.subheader("Tasks by type")
         type_counts = tasks["task_type"].value_counts().reset_index()
         type_counts.columns = ["task_type", "tasks_count"]
         chart = px.bar(type_counts, x="task_type", y="tasks_count")
-        st.plotly_chart(chart, use_container_width=True)
+        st.plotly_chart(chart, width="stretch")
 
     if "outcome_status" in assignments.columns:
         st.subheader("Assignment outcomes")
         outcome_counts = assignments["outcome_status"].value_counts().reset_index()
         outcome_counts.columns = ["outcome_status", "count"]
         chart = px.pie(outcome_counts, names="outcome_status", values="count")
-        st.plotly_chart(chart, use_container_width=True)
+        st.plotly_chart(chart, width="stretch")
 
     with st.expander("API status"):
         show_api_status(api_url)
@@ -431,7 +431,7 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
                 "source",
             ],
         )
-        st.dataframe(candidates_df[visible_columns], use_container_width=True)
+        st.dataframe(candidates_df[visible_columns], width="stretch")
     else:
         st.warning("Кандидаты не вернулись.")
 
@@ -511,7 +511,7 @@ def team_workload_page() -> None:
         color="overload_risk",
         hover_data=hover_columns,
     )
-    st.plotly_chart(chart, use_container_width=True)
+    st.plotly_chart(chart, width="stretch")
 
     st.subheader("Team table")
     columns = dataframe_columns(
@@ -530,7 +530,7 @@ def team_workload_page() -> None:
             "deadline_reliability",
         ],
     )
-    st.dataframe(employees[columns], use_container_width=True)
+    st.dataframe(employees[columns], width="stretch")
 
 
 def model_metrics_page() -> None:
@@ -577,7 +577,7 @@ def show_ranking_metrics(ranking_metrics: dict[str, Any]) -> None:
         return
 
     ranking_df = pd.DataFrame(rows)
-    st.dataframe(ranking_df, use_container_width=True)
+    st.dataframe(ranking_df, width="stretch")
 
     metric_columns = dataframe_columns(
         ranking_df,
@@ -594,7 +594,7 @@ def show_ranking_metrics(ranking_metrics: dict[str, Any]) -> None:
         value_name="value",
     )
     chart = px.bar(long_df, x="metric", y="value", color="model", barmode="group")
-    st.plotly_chart(chart, use_container_width=True)
+    st.plotly_chart(chart, width="stretch")
 
 
 def fairness_page() -> None:
@@ -662,19 +662,19 @@ def fairness_page() -> None:
     st.subheader("Assignment distribution by grade")
     grade_counts = merged["grade"].value_counts().reset_index()
     grade_counts.columns = ["grade", "assignments"]
-    st.plotly_chart(px.bar(grade_counts, x="grade", y="assignments"), use_container_width=True)
+    st.plotly_chart(px.bar(grade_counts, x="grade", y="assignments"), width="stretch")
 
     st.subheader("Assignment distribution by role")
     role_counts = merged["role"].value_counts().reset_index()
     role_counts.columns = ["role", "assignments"]
-    st.plotly_chart(px.bar(role_counts, x="role", y="assignments"), use_container_width=True)
+    st.plotly_chart(px.bar(role_counts, x="role", y="assignments"), width="stretch")
 
     st.subheader("Top employee concentration")
     employee_counts = merged["name"].value_counts().head(15).reset_index()
     employee_counts.columns = ["employee", "assignments"]
     st.plotly_chart(
         px.bar(employee_counts, x="employee", y="assignments"),
-        use_container_width=True,
+        width="stretch",
     )
 
     st.subheader("Fairness notes")
