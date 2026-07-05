@@ -1,14 +1,88 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from src.agents.state import AgentState
 from src.llm.ollama_client import OllamaClient, ollama_available
 
+RECOMMENDED_LINE_PATTERN = re.compile(
+    r"рекомендованн(?:ый|ая|ое)\s+исполнитель\s*:\s*(.+)",
+    flags=re.IGNORECASE,
+)
+
+
+def _clean_text(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _candidate_names(state: AgentState) -> list[str]:
+    names: list[str] = []
+
+    for candidate in state.top_candidates:
+        name = _clean_text(candidate.get("name"))
+        if name:
+            names.append(name)
+
+    return names
+
+
+def _top_candidate_name(state: AgentState) -> str:
+    if not state.top_candidates:
+        return ""
+
+    return _clean_text(state.top_candidates[0].get("name"))
+
+
+def _looks_like_wrong_recommended_person(
+    explanation: str,
+    top_name: str,
+    allowed_names: list[str],
+) -> bool:
+    if not explanation.strip():
+        return True
+
+    if top_name and top_name not in explanation:
+        return True
+
+    for line in explanation.splitlines():
+        match = RECOMMENDED_LINE_PATTERN.search(line)
+        if not match:
+            continue
+
+        recommended_part = match.group(1).strip()
+        return not (top_name and top_name in recommended_part)
+
+    known_candidate_mentioned = any(name in explanation for name in allowed_names)
+    return not known_candidate_mentioned
+
+
+def _validate_llm_explanation(
+    explanation: str,
+    state: AgentState,
+) -> tuple[bool, str | None]:
+    allowed_names = _candidate_names(state)
+    top_name = _top_candidate_name(state)
+
+    if not allowed_names:
+        return False, "no allowed candidate names"
+
+    if _looks_like_wrong_recommended_person(
+        explanation=explanation,
+        top_name=top_name,
+        allowed_names=allowed_names,
+    ):
+        return False, "LLM explanation mentioned a person outside top candidates"
+
+    return True, None
+
 
 def candidate_line(candidate: dict[str, Any]) -> str:
     factors = candidate.get("factors", {})
+
+    if not isinstance(factors, dict):
+        factors = {}
 
     return (
         f"{candidate.get('rank')}. {candidate.get('name')} "
@@ -35,10 +109,14 @@ def fallback_explanation(state: AgentState) -> str:
         f"Score: {top.get('score')}.",
         "",
         "Почему подходит:",
-        "- модель оценила совпадение задачи, профиля сотрудника и pair features;",
-        "- учтены skill match, риск, загрузка, скорость и надёжность;",
-        "- итоговый ranking сформирован до LLM-объяснения.",
+        "- ranking уже рассчитан COMPASS AI до этапа LLM-объяснения;",
+        "- кандидат входит в разрешённый список candidates для этой задачи;",
+        "- учтены skill match, риск, загрузка, скорость и надёжность.",
     ]
+
+    candidate_scope = top.get("candidate_scope")
+    if candidate_scope:
+        lines.append(f"- область выбора кандидатов: {candidate_scope}.")
 
     risks = top.get("risks", [])
 
@@ -64,6 +142,8 @@ def fallback_explanation(state: AgentState) -> str:
 def build_prompt(state: AgentState) -> str:
     task = state.task_features
     candidates = state.top_candidates
+    allowed_names = _candidate_names(state)
+    top_name = _top_candidate_name(state)
 
     payload = {
         "task": {
@@ -75,15 +155,26 @@ def build_prompt(state: AgentState) -> str:
             "required_skills": task.get("required_skills"),
         },
         "recommendation_mode": state.recommendation_mode,
+        "top_candidate_name": top_name,
+        "allowed_candidate_names": allowed_names,
         "top_candidates": candidates,
     }
 
     return (
         "Сформируй краткое объяснение рекомендации на русском языке.\n"
-        "Нельзя менять ranking кандидатов.\n"
-        "Нельзя придумывать факты, которых нет во входных данных.\n"
-        "Нужно объяснить top-1, риски и альтернативы.\n"
-        "Структура: рекомендованный исполнитель, почему подходит, риски, альтернативы.\n\n"
+        "ЖЁСТКИЕ ПРАВИЛА:\n"
+        "1. Нельзя менять ranking кандидатов.\n"
+        "2. Нельзя придумывать людей, имена, роли, навыки или project members.\n"
+        "3. Рекомендованный исполнитель обязан быть top-1 из top_candidates.\n"
+        "4. В строке 'Рекомендованный исполнитель' можно написать только top-1.\n"
+        "5. Альтернативы можно брать только из allowed_candidate_names.\n"
+        "6. Если данных мало, честно скажи, что профиль неполный.\n\n"
+        "Структура ответа:\n"
+        "## COMPASS AI Recommendation\n"
+        "Рекомендованный исполнитель: <строго top-1>\n"
+        "Почему подходит:\n"
+        "Риски:\n"
+        "Альтернативы:\n\n"
         f"Данные:\n{json.dumps(payload, ensure_ascii=False, indent=2)}"
     )
 
@@ -108,17 +199,29 @@ def run_explanation_agent(
     system = (
         "Ты объясняющий агент COMPASS AI. "
         "Ты не выбираешь исполнителя, не меняешь ranking и не придумываешь данные. "
-        "Ты только кратко объясняешь уже готовую рекомендацию."
+        "Ты обязан использовать только кандидатов из top_candidates. "
+        "Если кандидат не указан во входных данных, его нельзя упоминать."
     )
 
     try:
         client = OllamaClient()
-        state.explanation = client.generate(
+        explanation = client.generate(
             prompt=build_prompt(state),
             system=system,
-            temperature=0.2,
+            temperature=0.0,
             max_tokens=450,
         )
+        is_valid, reason = _validate_llm_explanation(
+            explanation=explanation,
+            state=state,
+        )
+
+        if not is_valid:
+            state.add_error("explanation_agent", reason or "Invalid LLM explanation.")
+            state.explanation = fallback_explanation(state)
+            return state
+
+        state.explanation = explanation
     except Exception as error:
         state.add_error("explanation_agent", str(error))
         state.explanation = fallback_explanation(state)
