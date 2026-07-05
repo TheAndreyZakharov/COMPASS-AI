@@ -101,12 +101,29 @@ class PlaneClient:
     @staticmethod
     def _items(payload: Any) -> list[dict[str, Any]]:
         if isinstance(payload, list):
-            return payload
+            items: list[dict[str, Any]] = []
+
+            for item in payload:
+                if isinstance(item, dict):
+                    items.append(item)
+                elif isinstance(item, list):
+                    items.extend(nested for nested in item if isinstance(nested, dict))
+
+            return items
+
         if isinstance(payload, dict):
-            results = payload.get("results")
-            if isinstance(results, list):
-                return results
+            for key in ("results", "members", "invitations", "data"):
+                results = payload.get(key)
+                if isinstance(results, list):
+                    return [item for item in results if isinstance(item, dict)]
+
         return []
+
+    @staticmethod
+    def _dict(payload: Any, error_message: str) -> dict[str, Any]:
+        if not isinstance(payload, dict):
+            raise PlaneClientError(error_message)
+        return payload
 
     def healthcheck(self) -> bool:
         """Check that Plane API authentication and workspace access work."""
@@ -120,13 +137,6 @@ class PlaneClient:
     def api_healthcheck(self) -> dict[str, Any] | str:
         return self._request("GET", "/api/")
 
-    def list_projects(self) -> list[dict[str, Any]]:
-        payload = self._request(
-            "GET",
-            f"/api/v1/workspaces/{self.workspace_slug}/projects/",
-        )
-        return self._items(payload)
-
     def get_workspace(self) -> dict[str, Any]:
         projects = self.list_projects()
         return {
@@ -134,6 +144,65 @@ class PlaneClient:
             "projects_count": len(projects),
             "projects": projects,
         }
+
+    def list_workspace_members(self) -> list[dict[str, Any]]:
+        payload = self._request(
+            "GET",
+            f"/api/v1/workspaces/{self.workspace_slug}/members/",
+        )
+        return self._items(payload)
+
+    def list_workspace_invitations(self) -> list[dict[str, Any]]:
+        payload = self._request(
+            "GET",
+            f"/api/v1/workspaces/{self.workspace_slug}/invitations/",
+        )
+        return self._items(payload)
+
+    def create_workspace_invitation(
+        self,
+        email: str,
+        role: int = 15,
+    ) -> dict[str, Any]:
+        payload = self._request(
+            "POST",
+            f"/api/v1/workspaces/{self.workspace_slug}/invitations/",
+            json={
+                "email": email,
+                "role": role,
+            },
+        )
+        return self._dict(payload, "Unexpected create workspace invitation response format.")
+
+    def list_projects(self) -> list[dict[str, Any]]:
+        payload = self._request(
+            "GET",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/",
+        )
+        return self._items(payload)
+
+    def list_project_members(self, project_id: str) -> list[dict[str, Any]]:
+        payload = self._request(
+            "GET",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/members/",
+        )
+        return self._items(payload)
+
+    def create_project_member(
+        self,
+        project_id: str,
+        member_id: str,
+        role: int = 15,
+    ) -> dict[str, Any]:
+        payload = self._request(
+            "POST",
+            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/members/",
+            json={
+                "member": member_id,
+                "role": role,
+            },
+        )
+        return self._dict(payload, "Unexpected create project member response format.")
 
     def list_work_items(self, project_id: str) -> list[dict[str, Any]]:
         payload = self._request(
@@ -147,9 +216,7 @@ class PlaneClient:
             "GET",
             f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/work-items/{work_item_id}/",
         )
-        if not isinstance(payload, dict):
-            raise PlaneClientError("Unexpected work item detail response format.")
-        return payload
+        return self._dict(payload, "Unexpected work item detail response format.")
 
     def create_work_item(
         self,
@@ -178,18 +245,7 @@ class PlaneClient:
             f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/work-items/",
             json=request_payload,
         )
-
-        if not isinstance(payload, dict):
-            raise PlaneClientError("Unexpected create work item response format.")
-
-        return payload
-
-    def list_project_members(self, project_id: str) -> list[dict[str, Any]]:
-        payload = self._request(
-            "GET",
-            f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/members/",
-        )
-        return self._items(payload)
+        return self._dict(payload, "Unexpected create work item response format.")
 
     def list_states(self, project_id: str) -> list[dict[str, Any]]:
         payload = self._request(
@@ -222,11 +278,7 @@ class PlaneClient:
             f"/api/v1/workspaces/{self.workspace_slug}/projects/{project_id}/labels/",
             json=request_payload,
         )
-
-        if not isinstance(payload, dict):
-            raise PlaneClientError("Unexpected create label response format.")
-
-        return payload
+        return self._dict(payload, "Unexpected create label response format.")
 
     def list_work_item_comments(
         self,
@@ -254,9 +306,7 @@ class PlaneClient:
                 "external_source": "COMPASS_AI",
             },
         )
-        if not isinstance(payload, dict):
-            raise PlaneClientError("Unexpected create comment response format.")
-        return payload
+        return self._dict(payload, "Unexpected create comment response format.")
 
     def update_work_item_assignee(
         self,
@@ -271,9 +321,7 @@ class PlaneClient:
                 "assignees": [assignee_id],
             },
         )
-        if not isinstance(payload, dict):
-            raise PlaneClientError("Unexpected update assignee response format.")
-        return payload
+        return self._dict(payload, "Unexpected update assignee response format.")
 
     # Roadmap compatibility aliases.
 
