@@ -21,6 +21,20 @@ def _candidate_text(candidate: dict[str, Any], key: str) -> str:
     return str(value).strip()
 
 
+def _candidate_names(state: AgentState) -> list[str]:
+    names: list[str] = []
+
+    for candidate in state.top_candidates:
+        if not isinstance(candidate, dict):
+            continue
+
+        name = _candidate_text(candidate, "name")
+        if name:
+            names.append(name)
+
+    return names
+
+
 def _is_plane_scoped_recommendation(state: AgentState) -> bool:
     for candidate in state.top_candidates:
         if not isinstance(candidate, dict):
@@ -66,7 +80,7 @@ def fallback_explanation(state: AgentState) -> str:
         f"Режим рекомендации: {state.recommendation_mode}.",
         f"Score: {top.get('score')}.",
         "",
-        "Почему подходит:",
+        "Почему top-1 подходит:",
         "- модель оценила совпадение задачи и доступного списка кандидатов;",
         "- учтены skill match, риск, загрузка, скорость и надёжность;",
         "- итоговый ranking сформирован до LLM-объяснения.",
@@ -77,7 +91,7 @@ def fallback_explanation(state: AgentState) -> str:
             [
                 "",
                 "Ограничение Plane Live:",
-                "- кандидат выбран только из реальных Plane project members;",
+                "- кандидаты выбраны только из реальных Plane project members;",
                 "- synthetic employees не участвовали в ranking;",
                 "- LLM не выбирает исполнителя, а только объясняет готовый ranking.",
             ],
@@ -87,12 +101,12 @@ def fallback_explanation(state: AgentState) -> str:
 
     if risks:
         lines.append("")
-        lines.append("Риски:")
+        lines.append("Риски top-1:")
         lines.extend(f"- {risk}" for risk in risks)
 
     if alternatives:
         lines.append("")
-        lines.append("Альтернативы:")
+        lines.append("Альтернативные кандидаты:")
         lines.extend(f"- {candidate_line(candidate)}" for candidate in alternatives)
 
     lines.append("")
@@ -107,11 +121,7 @@ def fallback_explanation(state: AgentState) -> str:
 def build_prompt(state: AgentState) -> str:
     task = state.task_features
     candidates = state.top_candidates
-    candidate_names = [
-        candidate.get("name")
-        for candidate in candidates
-        if isinstance(candidate, dict) and candidate.get("name")
-    ]
+    candidate_names = _candidate_names(state)
 
     payload = {
         "task": {
@@ -132,11 +142,17 @@ def build_prompt(state: AgentState) -> str:
         "Сформируй краткое объяснение рекомендации на русском языке.\n"
         "Нельзя менять ranking кандидатов.\n"
         "Нельзя придумывать людей, факты, роли или навыки.\n"
-        "Рекомендованный исполнитель обязан быть top-1 из top_candidates.\n"
         "Имена можно брать только из candidate_names_allowed.\n"
+        "Рекомендованный исполнитель обязан быть top-1 из top_candidates.\n"
+        "Обязательно распиши всех кандидатов из top_candidates.\n"
+        "Если top_candidates содержит 3 человека, объясни все 3 позиции.\n"
         "Если plane_scoped=true, кандидаты уже ограничены реальными Plane members.\n"
         "Не упоминай людей, которых нет в top_candidates.\n"
-        "Структура: рекомендованный исполнитель, почему подходит, риски, альтернативы.\n\n"
+        "Структура ответа:\n"
+        "1. Рекомендованный исполнитель.\n"
+        "2. Почему top-1 подходит.\n"
+        "3. Риски top-1.\n"
+        "4. Альтернативы: отдельно top-2 и top-3, если они есть.\n\n"
         f"Данные:\n{json.dumps(payload, ensure_ascii=False, indent=2)}"
     )
 
@@ -151,19 +167,18 @@ def _llm_explanation_is_valid(
     if not _is_plane_scoped_recommendation(state):
         return True
 
-    allowed_names = {
-        _candidate_text(candidate, "name")
-        for candidate in state.top_candidates
-        if isinstance(candidate, dict)
-    }
-    allowed_names = {name for name in allowed_names if name}
+    candidate_names = _candidate_names(state)
 
-    if not allowed_names:
+    if not candidate_names:
         return False
 
-    top_name = _candidate_text(state.top_candidates[0], "name")
+    missing_names = [
+        name
+        for name in candidate_names
+        if name not in explanation
+    ]
 
-    return not (top_name and top_name not in explanation)
+    return not missing_names
 
 
 def run_explanation_agent(
@@ -188,7 +203,8 @@ def run_explanation_agent(
         "Ты не выбираешь исполнителя, не меняешь ranking и не придумываешь данные. "
         "Ты только кратко объясняешь уже готовую рекомендацию. "
         "Если список кандидатов ограничен Plane members, нельзя упоминать людей "
-        "вне этого списка."
+        "вне этого списка. "
+        "Объясняй top-1 и альтернативы top-2/top-3, если они есть."
     )
 
     try:
@@ -197,7 +213,7 @@ def run_explanation_agent(
             prompt=build_prompt(state),
             system=system,
             temperature=0.1,
-            max_tokens=450,
+            max_tokens=700,
         )
 
         if _llm_explanation_is_valid(explanation=explanation, state=state):
@@ -205,7 +221,7 @@ def run_explanation_agent(
         else:
             state.add_error(
                 "explanation_agent",
-                "LLM explanation failed Plane scoped validation.",
+                "LLM explanation did not cover all Plane scoped candidates.",
             )
             state.explanation = fallback_explanation(state)
 
