@@ -7369,24 +7369,186 @@ python -c "from src.agents.orchestrator import recommend_synthetic_task; import 
 
 ## 16.1. Подключить orchestrator к FastAPI
 
-- [ ] Endpoint `/recommendations/issue/{issue_id}` должен вызвать orchestrator.
-- [ ] Endpoint должен принять режим рекомендации.
-- [ ] Endpoint должен вернуть JSON.
-- [ ] Endpoint должен опционально добавить комментарий в Plane.
-- [ ] Добавить query parameter `write_back=true/false`.
-- [ ] Добавить query parameter `mode`.
-- [ ] Добавить обработку ошибок.
+- [x] Endpoint `/recommendations/issue/{issue_id}` вызывает agentic orchestrator.
+- [x] Endpoint принимает режим рекомендации через query parameter `mode`.
+- [x] Endpoint возвращает JSON-compatible response из agentic pipeline.
+- [x] Endpoint поддерживает synthetic task id формата `TASK-*`.
+- [x] Endpoint поддерживает реальные Plane work items.
+- [x] Endpoint умеет искать Plane work item по `issue_id`.
+- [x] Endpoint поддерживает явный `project_id`, если задачу надо искать внутри конкретного проекта.
+- [x] Endpoint опционально добавляет комментарий в Plane через `write_back=true`.
+- [x] Добавлен query parameter `write_back=true/false`.
+- [x] Добавлен query parameter `mode`.
+- [x] Добавлен query parameter `top_k`.
+- [x] Добавлен query parameter `use_llm`.
+- [x] Добавлена обработка ошибок Plane API.
+- [x] Добавлена обработка ошибки, если work item не найден.
+- [x] Добавлена защита: `write_back=true` запрещён для synthetic task `TASK-*`.
+- [x] Вынесен отдельный router `src/api/recommendations.py`.
+- [x] Router подключён в `app/api.py`.
+- [x] Старый placeholder endpoint `/recommendations/issue/{issue_id}` заменён на реальную agentic-интеграцию.
 
-Пример endpoint:
+Файлы:
 
 ```text
-GET /recommendations/issue/{issue_id}?mode=balanced_workload&write_back=true
+src/api/__init__.py
+src/api/recommendations.py
+app/api.py
+```
+
+Endpoint:
+
+```text
+GET /recommendations/issue/{issue_id}
+```
+
+Пример synthetic endpoint:
+
+```text
+GET /recommendations/issue/TASK-0001?mode=balanced_workload&write_back=false&use_llm=false
+```
+
+Пример Plane endpoint:
+
+```text
+GET /recommendations/issue/{plane_work_item_id}?project_id={project_id}&mode=balanced_workload&write_back=false&use_llm=false
+```
+
+Пример с записью комментария в Plane:
+
+```text
+GET /recommendations/issue/{plane_work_item_id}?project_id={project_id}&mode=balanced_workload&write_back=true&use_llm=false
+```
+
+Поддерживаемые query parameters:
+
+```text
+project_id: optional Plane project id
+mode: fast_delivery | balanced_workload | growth | risk_minimization
+top_k: количество кандидатов, от 1 до 10
+write_back: true/false
+use_llm: true/false
+```
+
+Как работает endpoint:
+
+```text
+1. Нормализует recommendation mode.
+2. Если issue_id начинается с TASK-, запускает synthetic path через recommend_synthetic_task().
+3. Если issue_id не TASK-*, создаёт PlaneClient.
+4. Если project_id передан, ищет work item внутри этого проекта.
+5. Если project_id не передан, ищет work item по всем проектам workspace.
+6. Передаёт найденный work item в run_agentic_recommendation().
+7. Orchestrator запускает Task Analyzer, Team Analyzer, Matching Agent, Explanation Agent.
+8. Если write_back=true, дополнительно запускается Plane Agent.
+9. Возвращает единый JSON response.
+```
+
+Основные функции в router:
+
+```text
+extract_results()
+normalize_bool()
+work_item_identifier_matches()
+is_open_work_item()
+resolve_plane_work_item()
+recommend_for_issue()
+```
+
+Response содержит:
+
+```text
+task_id
+plane_work_item_id
+plane_issue_id
+title
+task_type
+mode
+top_candidates
+explanation
+errors
+source
+plane_write_back
+```
+
+Фактическая проверка synthetic task `TASK-0001`, режим `balanced_workload`:
+
+```text
+HTTP 200 OK
+task_id: TASK-0001
+task_type: backend_feature
+mode: balanced_workload
+source: agentic_pipeline
+errors: []
+```
+
+Top-3 `TASK-0001`, `balanced_workload`:
+
+```text
+1. EMP-014 — Никита Егоров — backend_developer senior — score 0.956596
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.956551
+3. EMP-010 — Сергей Павлов — backend_developer middle — score 0.925464
+```
+
+Фактическая проверка `TASK-0001`, `fast_delivery`:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 1.0
+2. EMP-014 — Никита Егоров — backend_developer senior — score 1.0
+3. EMP-007 — Ольга Волкова — backend_developer middle — score 0.962904
+```
+
+Фактическая проверка `TASK-0001`, `growth`:
+
+```text
+1. EMP-007 — Ольга Волкова — backend_developer middle — score 0.954844
+2. EMP-011 — Полина Васильева — backend_developer senior — score 0.927383
+3. EMP-014 — Никита Егоров — backend_developer senior — score 0.924308
+```
+
+Фактическая проверка `TASK-0001`, `risk_minimization`:
+
+```text
+1. EMP-010 — Сергей Павлов — backend_developer middle — score 1.0
+2. EMP-011 — Полина Васильева — backend_developer senior — score 1.0
+3. EMP-014 — Никита Егоров — backend_developer senior — score 1.0
+```
+
+Что было выяснено:
+
+```text
+Для synthetic task TASK-* используется ML path через TaskEmployeeMatchingNet,
+потому что для таких задач есть precomputed rows в training_pairs.parquet.
+```
+
+Важно:
+
+```text
+write_back=true доступен только для реальных Plane work items.
+Для TASK-* write_back запрещён, потому что synthetic task не имеет реального Plane comment target.
+```
+
+Важно:
+
+```text
+use_llm=false используется для стабильных локальных проверок.
+Если use_llm=true и Ollama server запущен, Explanation Agent может использовать локальную LLM.
+Если Ollama недоступна, остаётся fallback explanation.
 ```
 
 Команда проверки:
 
 ```bash
-curl "http://localhost:8000/recommendations/issue/test-id?mode=balanced_workload&write_back=false"
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=balanced_workload&write_back=false&use_llm=false"
+```
+
+Фактический результат:
+
+```text
+Endpoint вернул HTTP 200 OK.
+Agentic pipeline вернул top-3 кандидатов.
+ML inference path сработал.
+Fallback explanation сработал без LLM.
 ```
 
 **Ожидаемый результат:** backend умеет рекомендовать исполнителя для конкретной задачи Plane.
@@ -7398,17 +7560,145 @@ curl "http://localhost:8000/recommendations/issue/test-id?mode=balanced_workload
 
 ## 16.2. Добавить endpoint для пакетного анализа задач
 
-- [ ] Создать endpoint `/recommendations/project/{project_id}/open-issues`.
-- [ ] Endpoint получает все открытые задачи проекта.
-- [ ] Для каждой задачи запускает recommendation pipeline.
-- [ ] Возвращает список рекомендаций.
-- [ ] Не писать комментарии в Plane по умолчанию.
-- [ ] Добавить `limit`, чтобы не обрабатывать слишком много задач.
+- [x] Создать endpoint `/recommendations/project/{project_id}/open-issues`.
+- [x] Endpoint получает work items проекта из Plane.
+- [x] Endpoint фильтрует открытые задачи.
+- [x] Для каждой задачи запускает recommendation pipeline.
+- [x] Возвращает список рекомендаций.
+- [x] Не пишет комментарии в Plane по умолчанию.
+- [x] Не поддерживает массовый write-back.
+- [x] Добавлен `limit`, чтобы не обрабатывать слишком много задач.
+- [x] Добавлен `mode`.
+- [x] Добавлен `use_llm`.
+- [x] Добавлена обработка ошибок на уровне отдельной задачи.
+- [x] Если одна задача упала, batch endpoint продолжает обработку остальных.
+- [x] Проверен batch-анализ проекта `Backend Platform`.
+
+Endpoint:
+
+```text
+GET /recommendations/project/{project_id}/open-issues
+```
 
 Пример:
 
 ```text
 GET /recommendations/project/{project_id}/open-issues?limit=10&mode=balanced_workload
+```
+
+Фактически проверенный project id:
+
+```text
+Backend Platform:
+e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+```
+
+Фактически проверенная команда:
+
+```bash
+curl "http://localhost:8000/recommendations/project/e608e7ad-f4fe-401d-b0f3-5570e82f08ee/open-issues?limit=3&mode=balanced_workload&use_llm=false"
+```
+
+Фактический response summary:
+
+```text
+project_id: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+mode: balanced_workload
+limit: 3
+processed_count: 3
+write_back: false
+recommendations: 3 items
+```
+
+Как работает endpoint:
+
+```text
+1. Создаёт PlaneClient.
+2. Загружает work items проекта.
+3. Фильтрует закрытые задачи.
+4. Берёт первые limit открытых задач.
+5. Для каждой задачи запускает run_agentic_recommendation().
+6. write_back всегда false.
+7. Возвращает массив recommendations.
+```
+
+Фильтрация открытых задач:
+
+```text
+completed_at есть -> задача закрыта
+archived_at есть -> задача исключается
+state.group completed -> задача закрыта
+state.group cancelled -> задача закрыта
+state.group backlog/unstarted/started -> задача считается открытой
+если state пришёл не dict, задача считается открытой по fallback
+```
+
+Фактически обработанные задачи в batch-проверке:
+
+```text
+1. Добавить запись комментария COMPASS AI в Plane
+2. Добавить миграцию для хранения model scores
+3. Реализовать JWT-авторизацию
+```
+
+Фактический результат для первой batch-задачи:
+
+```text
+recommended: Дарья Соловьёва
+role: frontend_developer
+grade: senior
+score: 0.7184
+source: rule_based_fallback
+```
+
+Почему batch-задачи пошли через fallback:
+
+```text
+Plane work items не являются TASK-* из synthetic training dataset.
+Для них нет precomputed ML rows в training_pairs.parquet.
+Поэтому Matching Agent корректно деградирует в rule_based_fallback.
+```
+
+Важно:
+
+```text
+Batch endpoint специально не пишет комментарии в Plane.
+Массовая запись комментариев может засорить Plane.
+Write-back должен запускаться точечно через /recommendations/issue/{issue_id}.
+```
+
+Важно:
+
+```text
+limit ограничен диапазоном 1–50.
+Это защищает backend от случайного запуска анализа слишком большого backlog.
+```
+
+Что было выяснено:
+
+```text
+Первая попытка curl к batch endpoint упала с:
+Failed to connect to localhost port 8000
+Причина была не в коде, а в том, что FastAPI server не был запущен.
+После запуска uvicorn endpoint вернул HTTP 200 OK.
+```
+
+Проверка Plane перед batch endpoint:
+
+```bash
+python scripts/check_plane_connection.py
+```
+
+Фактический результат Plane connection:
+
+```text
+Plane API healthcheck: OK
+Projects found: 4
+
+Backend Platform: 57 work items, 5 states, 25 labels
+Frontend Platform: 19 work items, 5 states, 25 labels
+Data Platform: 26 work items, 5 states, 25 labels
+Internal Tools: 19 work items, 5 states, 25 labels
 ```
 
 **Ожидаемый результат:** можно анализировать сразу backlog проекта.
@@ -7420,22 +7710,340 @@ GET /recommendations/project/{project_id}/open-issues?limit=10&mode=balanced_wor
 
 ## 16.3. Добавить endpoint для ручной задачи без Plane
 
-- [ ] Создать endpoint `/recommendations/manual`.
-- [ ] Endpoint принимает JSON с задачей.
-- [ ] Endpoint принимает список сотрудников или использует synthetic team.
-- [ ] Endpoint возвращает top-3.
-- [ ] Это нужно для тестирования без Plane.
+- [x] Создать endpoint `/recommendations/manual`.
+- [x] Endpoint принимает JSON с задачей.
+- [x] Endpoint принимает Plane-like или COMPASS-like task payload.
+- [x] Endpoint принимает `mode`.
+- [x] Endpoint принимает `top_k`.
+- [x] Endpoint принимает `use_llm`.
+- [x] Endpoint принимает optional `employees`.
+- [x] Endpoint возвращает top-3.
+- [x] Endpoint не требует запущенный Plane.
+- [x] Endpoint не пишет комментарии в Plane.
+- [x] Endpoint запускает тот же agentic orchestrator.
+- [x] Для новых manual-задач используется rule-based fallback.
+- [x] Добавлена Pydantic-схема `ManualRecommendationRequest`.
 
-Пример:
+Endpoint:
 
 ```text
 POST /recommendations/manual
+```
+
+Pydantic request model:
+
+```text
+ManualRecommendationRequest
+```
+
+Поля request:
+
+```text
+issue: dict
+employees: optional list[dict]
+mode: string
+top_k: int, от 1 до 10
+use_llm: bool
+```
+
+Пример request:
+
+```json
+{
+  "issue": {
+    "id": "manual-001",
+    "name": "Добавить endpoint для командной аналитики",
+    "description_html": "Нужно сделать FastAPI endpoint для summary по загрузке команды и рискам.",
+    "priority": "high",
+    "labels": ["backend", "fastapi", "feature"],
+    "deadline_days": 7
+  },
+  "mode": "balanced_workload",
+  "top_k": 3,
+  "use_llm": false
+}
+```
+
+Фактически проверенная команда:
+
+```bash
+curl --request POST "http://localhost:8000/recommendations/manual" --header "Content-Type: application/json" --data '{"issue":{"id":"manual-001","name":"Добавить endpoint для командной аналитики","description_html":"Нужно сделать FastAPI endpoint для summary по загрузке команды и рискам.","priority":"high","labels":["backend","fastapi","feature"],"deadline_days":7},"mode":"balanced_workload","top_k":3,"use_llm":false}'
+```
+
+Фактический response summary:
+
+```text
+plane_work_item_id: manual-001
+plane_issue_id: manual-001
+title: Добавить endpoint для командной аналитики
+task_type: backend_feature
+mode: balanced_workload
+source: agentic_pipeline
+errors: []
+```
+
+Фактический top-3 для manual-задачи:
+
+```text
+1. EMP-011 — Полина Васильева — backend_developer senior — score 0.7334
+2. EMP-010 — Сергей Павлов — backend_developer middle — score 0.703
+3. EMP-014 — Никита Егоров — backend_developer senior — score 0.6829
+```
+
+Фактический ranking source:
+
+```text
+rule_based_fallback
+```
+
+Почему manual endpoint использует fallback:
+
+```text
+Manual-задача не существует в synthetic training_pairs.parquet.
+Для неё нет готовых task/employee/pair ML features.
+Поэтому Matching Agent корректно использует rule_based_fallback.
+```
+
+Как работает endpoint:
+
+```text
+1. Принимает JSON с задачей.
+2. Нормализует recommendation mode.
+3. Передаёт issue в run_agentic_recommendation().
+4. Task Analyzer определяет task_type, skills, stack, priority, deadline и complexity.
+5. Team Analyzer загружает synthetic team из data/synthetic/employees.csv.
+6. Matching Agent использует ML path, если есть precomputed TASK-* features, иначе rule-based fallback.
+7. Explanation Agent формирует объяснение.
+8. Response возвращается как JSON.
+```
+
+Важно:
+
+```text
+Поле employees в request сейчас принято как future extension.
+Текущий orchestrator использует synthetic team из data/synthetic/employees.csv.
+Полноценный override employees лучше добавить позже отдельной доработкой Team Analyzer,
+чтобы не сломать текущий стабильный MVP pipeline.
+```
+
+Важно:
+
+```text
+Manual endpoint нужен для тестирования COMPASS AI без Plane.
+Это удобно для frontend/dashboard, демо, unit/e2e tests и ручной проверки новых задач.
 ```
 
 **Ожидаемый результат:** COMPASS AI можно тестировать независимо от Plane.
 
 **Примерное время:** 3–5 часов.  
 **Коммит:** `Add manual recommendation endpoint`
+
+---
+
+## 16.4. Проверить API endpoints этапа 16
+
+- [x] Проверить наличие старых компонентов agentic pipeline.
+- [x] Проверить наличие `app/api.py`.
+- [x] Проверить FastAPI dependencies.
+- [x] Проверить компиляцию новых API-файлов.
+- [x] Проверить `ruff`.
+- [x] Запустить FastAPI через `uvicorn`.
+- [x] Проверить `/health`.
+- [x] Проверить `/recommendations/issue/TASK-0001`.
+- [x] Проверить все 4 recommendation modes.
+- [x] Запустить Plane.
+- [x] Проверить Plane connection.
+- [x] Проверить batch endpoint для проекта.
+- [x] Проверить manual endpoint.
+- [x] Проверить, что endpoints возвращают HTTP 200 OK.
+
+Проверка наличия компонентов:
+
+```bash
+test -f src/agents/orchestrator.py && echo "orchestrator ok"
+```
+
+```bash
+test -f src/agents/plane_agent.py && echo "plane agent ok"
+```
+
+```bash
+test -f src/models/inference.py && echo "model inference ok"
+```
+
+```bash
+test -f app/api.py && echo "api file ok"
+```
+
+Проверка зависимостей:
+
+```bash
+python -c "import fastapi, pydantic, pandas, httpx; print('api deps ok')"
+```
+
+Фактический результат:
+
+```text
+orchestrator ok
+plane agent ok
+model inference ok
+api file ok
+api deps ok
+```
+
+Проверка компиляции:
+
+```bash
+python -m py_compile app/api.py src/api/__init__.py src/api/recommendations.py src/agents/orchestrator.py src/agents/task_analyzer.py src/agents/team_analyzer.py src/agents/matching_agent.py src/agents/explanation_agent.py src/agents/plane_agent.py
+```
+
+Проверка линтера:
+
+```bash
+ruff check app/api.py src/api/recommendations.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
+Запуск API:
+
+```bash
+uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+```
+
+Фактический запуск:
+
+```text
+Uvicorn running on http://0.0.0.0:8000
+Application startup complete.
+```
+
+Проверка health:
+
+```bash
+curl "http://localhost:8000/health"
+```
+
+Фактический результат:
+
+```json
+{"status":"ok","service":"compass-ai"}
+```
+
+Проверка `balanced_workload`:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=balanced_workload&write_back=false&use_llm=false"
+```
+
+Проверка `fast_delivery`:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=fast_delivery&write_back=false&use_llm=false"
+```
+
+Проверка `growth`:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=growth&write_back=false&use_llm=false"
+```
+
+Проверка `risk_minimization`:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=risk_minimization&write_back=false&use_llm=false"
+```
+
+Проверка Plane:
+
+```bash
+./scripts/start_plane.sh
+```
+
+```bash
+python scripts/check_plane_connection.py
+```
+
+Фактический результат Plane:
+
+```text
+Plane is ready.
+Plane API healthcheck: OK.
+Projects found: 4.
+Backend Platform: 57 work items, 5 states, 25 labels.
+```
+
+Проверка batch endpoint:
+
+```bash
+curl "http://localhost:8000/recommendations/project/e608e7ad-f4fe-401d-b0f3-5570e82f08ee/open-issues?limit=3&mode=balanced_workload&use_llm=false"
+```
+
+Фактический результат:
+
+```text
+HTTP 200 OK
+processed_count: 3
+write_back: false
+recommendations: 3
+```
+
+Проверка manual endpoint:
+
+```bash
+curl --request POST "http://localhost:8000/recommendations/manual" --header "Content-Type: application/json" --data '{"issue":{"id":"manual-001","name":"Добавить endpoint для командной аналитики","description_html":"Нужно сделать FastAPI endpoint для summary по загрузке команды и рискам.","priority":"high","labels":["backend","fastapi","feature"],"deadline_days":7},"mode":"balanced_workload","top_k":3,"use_llm":false}'
+```
+
+Фактический результат:
+
+```text
+HTTP 200 OK
+recommended: Полина Васильева
+score: 0.7334
+source: rule_based_fallback
+errors: []
+```
+
+Важно:
+
+```text
+Для TASK-* endpoint использует ML inference path.
+Для Plane/manual задач без precomputed ML features используется rule_based_fallback.
+Это корректное поведение текущей архитектуры.
+```
+
+Важно на будущее:
+
+```text
+Task Analyzer для некоторых Plane-задач может ошибочно определить task_type по labels/title,
+например backend-задача может уйти в frontend_feature, если labels из Plane недостаточно точные.
+Это не ломает API, но позже стоит улучшить Task Analyzer:
+- точнее парсить Plane labels;
+- подтягивать label names, если Plane отдаёт только label ids;
+- сильнее учитывать description keywords;
+- использовать COMPASS task_id marker, если он есть в description_html.
+```
+
+Важно на будущее:
+
+```text
+Manual employees override пока не реализован.
+Endpoint принимает поле employees, но orchestrator использует synthetic team.
+Если dashboard позже должен передавать свой список сотрудников,
+нужно доработать Team Analyzer и run_agentic_recommendation().
+```
+
+Важно на будущее:
+
+```text
+Batch endpoint не должен делать write-back.
+Если понадобится массовая запись комментариев,
+лучше делать отдельный безопасный endpoint с dry_run, confirmation flag и лимитами.
+```
 
 ---
 
