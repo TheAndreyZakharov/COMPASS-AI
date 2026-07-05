@@ -9126,25 +9126,48 @@ Dashboard удобно показывает и финальное объясне
 
 ## 18.4. Добавить общий запуск и остановку всей локальной системы
 
-- [x] Создать общий скрипт запуска всей системы.
-- [x] Создать общий скрипт остановки всей системы.
+- [x] Создать общий helper-скрипт запуска локальной системы.
+- [x] Создать общий скрипт остановки локальной системы.
+- [x] Добавить VS Code Tasks для запуска сервисов в отдельных встроенных терминалах VS Code.
+- [x] Добавить общий VS Code Task `COMPASS: start stack`.
+- [x] Добавить общий VS Code Task `COMPASS: stop stack`.
 - [x] Запускать Plane.
+- [x] Запускать Docker Desktop автоматически, если он выключен.
 - [x] Запускать COMPASS FastAPI.
 - [x] Запускать Streamlit dashboard.
-- [x] Запускать Ollama server, если он установлен.
-- [x] Не падать, если Ollama не установлена.
-- [x] Проверять readiness Plane/API перед выводом финальных URL.
-- [x] Сохранять PID локальных процессов.
-- [x] Останавливать dashboard и API по PID.
-- [x] Останавливать Plane через существующий `scripts/stop_plane.sh`.
+- [x] Запускать Ollama server.
+- [x] Запускать Ollama через `/Applications/Ollama.app`, если приложение доступно.
+- [x] Делать fallback на `ollama serve`, если приложение не подняло server.
+- [x] Не падать, если Ollama недоступна: API и dashboard могут работать с fallback explanation.
+- [x] Проверять readiness Docker Desktop перед запуском Plane.
+- [x] Проверять readiness Plane containers.
+- [x] Проверять readiness Plane API.
+- [x] Проверять readiness Plane workspace route.
+- [x] Открывать Plane workspace в новой вкладке браузера после старта.
+- [x] Открывать dashboard в новой вкладке браузера после старта.
+- [x] Показывать логи Plane/API/Ollama/dashboard в отдельных VS Code terminals.
+- [x] Останавливать dashboard по порту `8501`.
+- [x] Останавливать COMPASS API по порту `8000`.
+- [x] Останавливать Ollama server по порту `11434`.
+- [x] Закрывать Ollama app при остановке stack.
+- [x] Останавливать Plane через `scripts/stop_plane.sh`.
+- [x] Останавливать Plane безопасно через `docker compose stop`.
+- [x] Закрывать Docker Desktop после безопасной остановки Plane.
 - [x] Не удалять Docker volumes Plane.
+- [x] Не удалять Docker images.
+- [x] Не удалять Docker containers.
 - [x] Не удалять локальные данные, модели и отчёты.
 
 Файлы:
 
 ```text
+.vscode/tasks.json
 scripts/start_compass_stack.sh
 scripts/stop_compass_stack.sh
+scripts/start_plane.sh
+scripts/stop_plane.sh
+scripts/start_ollama.sh
+scripts/stop_ollama.sh
 ```
 
 Название общего запуска:
@@ -9153,7 +9176,13 @@ scripts/stop_compass_stack.sh
 COMPASS local stack
 ```
 
-Команда запуска всей системы:
+Основной способ запуска всей системы:
+
+```text
+VS Code → Cmd+Shift+P → Tasks: Run Task → COMPASS: start stack
+```
+
+Helper-команда для открытия проекта и выбора stack task:
 
 ```bash
 ./scripts/start_compass_stack.sh
@@ -9165,22 +9194,118 @@ COMPASS local stack
 ./scripts/stop_compass_stack.sh
 ```
 
-Что запускает `start_compass_stack.sh`:
+Или через VS Code:
 
 ```text
-1. Plane через ./scripts/start_plane.sh
-2. Ollama server, если установлен ollama
+VS Code → Cmd+Shift+P → Tasks: Run Task → COMPASS: stop stack
+```
+
+Что запускает `COMPASS: start stack`:
+
+```text
+1. Plane через scripts/start_plane.sh
+2. Ollama через scripts/start_ollama.sh или ollama serve fallback
 3. COMPASS FastAPI на http://localhost:8000
 4. Streamlit dashboard на http://localhost:8501
+```
+
+Как запускаются терминалы:
+
+```text
+Каждый сервис запускается в отдельном встроенном терминале VS Code:
+
+COMPASS: start Plane
+COMPASS: start Ollama
+COMPASS: start API
+COMPASS: start Dashboard
+```
+
+Что делает `scripts/start_compass_stack.sh`:
+
+```text
+1. Проверяет VS Code CLI command `code`.
+2. Проверяет наличие .vscode/tasks.json.
+3. Открывает проект в VS Code.
+4. Открывает VS Code task picker.
+5. Подсказывает выбрать task `COMPASS: start stack`.
+
+Важно: сам bash-скрипт не создаёт VS Code terminals напрямую.
+Терминалы создаёт VS Code через .vscode/tasks.json.
+```
+
+Что делает `scripts/start_plane.sh`:
+
+```text
+1. Проверяет Docker CLI.
+2. Если Docker Desktop выключен — запускает Docker Desktop через open -a Docker.
+3. Ждёт готовности Docker daemon.
+4. Проверяет Plane docker-compose.yml и .env файлы.
+5. Запускает Plane через docker compose up -d.
+6. Ждёт healthy status для web/admin/space.
+7. Ждёт Plane API.
+8. Ждёт main URL http://localhost.
+9. Ждёт workspace route http://localhost/compass-ai-lab/.
+10. Открывает Plane workspace в браузере.
+```
+
+Что делает `scripts/start_ollama.sh`:
+
+```text
+1. Проверяет Ollama API на http://localhost:11434/api/tags.
+2. Если Ollama уже запущена — ничего лишнего не стартует.
+3. Если есть /Applications/Ollama.app — открывает приложение Ollama.
+4. Ждёт, пока Ollama app поднимет локальный server.
+5. Если приложение не подняло server, но есть CLI `ollama` — запускает fallback `ollama serve`.
+6. Держит VS Code terminal живым, пока Ollama server отвечает.
+```
+
+Что запускает `COMPASS: start API`:
+
+```text
+source .venv/bin/activate
+uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+```
+
+Что запускает `COMPASS: start Dashboard`:
+
+```text
+source .venv/bin/activate
+streamlit run app/dashboard.py --server.headless false --server.port 8501
+```
+
+Dashboard дополнительно открывается в браузере:
+
+```text
+http://localhost:8501
 ```
 
 Что останавливает `stop_compass_stack.sh`:
 
 ```text
-1. Streamlit dashboard
-2. COMPASS FastAPI
-3. Ollama server, если он был запущен этим stack script
-4. Plane через ./scripts/stop_plane.sh
+1. Streamlit dashboard на порту 8501.
+2. FastAPI backend на порту 8000.
+3. Ollama через scripts/stop_ollama.sh.
+4. Plane через scripts/stop_plane.sh.
+5. Docker Desktop после безопасной остановки Plane.
+```
+
+Что делает `scripts/stop_ollama.sh`:
+
+```text
+1. Останавливает Ollama server на порту 11434.
+2. Закрывает приложение Ollama через osascript.
+3. Проверяет, что Ollama API больше не отвечает.
+```
+
+Что делает `scripts/stop_plane.sh`:
+
+```text
+1. Переходит в plane/docker/plane-source.
+2. Выполняет docker compose stop.
+3. Показывает состояние Plane containers.
+4. Проверяет, что http://localhost больше не отвечает.
+5. Подтверждает, что Docker volumes сохранены.
+6. Закрывает Docker Desktop.
 ```
 
 Локальные URL после запуска:
@@ -9188,6 +9313,9 @@ COMPASS local stack
 ```text
 Plane UI:
 http://localhost
+
+Plane workspace:
+http://localhost/compass-ai-lab/
 
 Plane God Mode:
 http://localhost/god-mode/general/
@@ -9202,96 +9330,166 @@ COMPASS dashboard:
 http://localhost:8501
 
 Ollama API:
-http://localhost:11434
+http://localhost:11434/api/tags
 ```
 
-PID/log файлы:
+Что было проверено:
 
 ```text
-logs/compass_api.pid
-logs/compass_dashboard.pid
-logs/ollama.pid
-logs/compass_api.log
-logs/compass_dashboard.log
-logs/ollama.log
+bash -n scripts/start_plane.sh
+bash -n scripts/stop_plane.sh
+bash -n scripts/start_compass_stack.sh
+bash -n scripts/stop_compass_stack.sh
+bash -n scripts/start_ollama.sh
+bash -n scripts/stop_ollama.sh
+python -m json.tool .vscode/tasks.json
+python -m py_compile app/dashboard.py
+ruff check app/dashboard.py
 ```
 
-Важно:
-
-```text
-Plane останавливается безопасно через docker compose stop.
-Docker volumes не удаляются.
-Данные Plane сохраняются.
-```
-
-Важно:
-
-```text
-Ollama является optional service.
-Если ollama не установлен, stack всё равно может работать:
-API и dashboard запустятся,
-а Explanation Agent будет использовать fallback explanation.
-```
-
-Важно:
-
-```text
-FastAPI и Streamlit запускаются как локальные процессы.
-Их PID сохраняется, чтобы stop script мог корректно остановить именно эти процессы.
-```
-
-Проверка после запуска stack:
+Фактическая проверка API:
 
 ```bash
 curl "http://localhost:8000/health"
 ```
 
-Ожидаемый результат:
+Фактический результат:
 
 ```text
 {"status":"ok","service":"compass-ai"}
 ```
 
-Проверка dashboard:
-
-```text
-Открыть http://localhost:8501
-```
-
-Проверка Plane:
+Фактическая проверка Plane:
 
 ```bash
 python scripts/check_plane_connection.py
 ```
 
-Ожидаемый результат:
+Фактический результат:
 
 ```text
 Plane API healthcheck: OK
 Projects found: 4
+
+Backend Platform: 57 work items, 5 states, 25 labels
+Frontend Platform: 19 work items, 5 states, 25 labels
+Data Platform: 26 work items, 5 states, 25 labels
+Internal Tools: 19 work items, 5 states, 25 labels
+```
+
+Фактическая проверка recommendation endpoint:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=balanced_workload&write_back=false&auto_assign=false&use_llm=false"
+```
+
+Фактический результат:
+
+```text
+HTTP 200 OK
+source: agentic_pipeline
+candidate source: task_employee_matching_net
+
+Top-3:
+1. Никита Егоров — score 0.956596
+2. Полина Васильева — score 0.956551
+3. Сергей Павлов — score 0.925464
+```
+
+Фактическая проверка Ollama:
+
+```text
+Ollama server started on 127.0.0.1:11434.
+Model cache loaded.
+Metal/iGPU compute detected on Apple M2.
+```
+
+Фактическая проверка stop stack:
+
+```text
+Streamlit dashboard stopped.
+FastAPI backend stopped.
+Ollama server stopped.
+Ollama app closed or was not running.
+Plane containers stopped through docker compose stop.
+Docker Desktop daemon stopped.
+Docker volumes preserved.
+Plane data not deleted.
+Generated data, models and reports preserved.
+```
+
+Важно:
+
+```text
+Для Docker используется безопасная остановка:
+
+docker compose stop
+
+Не используется:
+
+docker compose down -v
+docker volume rm
+docker system prune
+docker image rm
+docker container rm
+```
+
+Важно:
+
+```text
+Docker Desktop можно закрывать после остановки Plane.
+Это не удаляет данные.
+Данные Plane хранятся в Docker volumes и сохраняются после quit Docker Desktop.
+```
+
+Важно:
+
+```text
+Ollama нужна только для use_llm=true.
+Если Ollama недоступна, COMPASS API и dashboard всё равно работают,
+а Explanation Agent использует fallback explanation.
+```
+
+Важно:
+
+```text
+FastAPI и Streamlit работают как локальные процессы.
+Остановка выполняется по портам:
+
+8000 — FastAPI
+8501 — Streamlit dashboard
+11434 — Ollama
 ```
 
 Что позже стоит улучшить:
 
 ```text
 Добавить Makefile targets:
+
 make stack-up
 make stack-down
 ```
 
 ```text
-Добавить проверку занятых портов 8000, 8501 и 11434 перед запуском.
+Добавить preflight-проверку занятых портов 8000, 8501 и 11434 перед запуском.
 ```
 
 ```text
-Добавить режим --no-plane или --no-ollama для частичного запуска stack.
+Добавить режим частичного запуска:
+
+--no-plane
+--no-ollama
+--no-dashboard
+```
+
+```text
+Добавить task `COMPASS: check stack`, который проверяет Plane/API/Ollama/dashboard одной командой.
 ```
 
 **Ожидаемый результат:** всю локальную систему можно запустить и остановить одной командой.
 
-**Фактический результат:** добавлен общий local stack launcher и stopper для Plane, API, dashboard и Ollama.
+**Фактический результат:** локальная система запускается через VS Code task `COMPASS: start stack`, каждый сервис открывается в отдельном VS Code terminal, Plane и dashboard открываются в браузере, а `COMPASS: stop stack`/`scripts/stop_compass_stack.sh` безопасно останавливает все сервисы без удаления Docker volumes и проектных данных.
 
-**Примерное время:** 2–4 часа.  
 **Коммит:** `Add local stack launcher`
 
 ---

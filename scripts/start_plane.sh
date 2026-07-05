@@ -34,6 +34,10 @@ wait_msg() {
   echo -e "${YELLOW}…${RESET} $1"
 }
 
+warn_msg() {
+  echo -e "${YELLOW}⚠${RESET} $1"
+}
+
 error_msg() {
   echo -e "${RED}✗${RESET} $1"
 }
@@ -41,6 +45,21 @@ error_msg() {
 section() {
   echo
   echo -e "${BOLD}${BLUE}$1${RESET}"
+}
+
+wait_for_docker() {
+  for attempt in {1..80}; do
+    if docker info >/dev/null 2>&1; then
+      success "Docker Desktop is running."
+      return 0
+    fi
+
+    wait_msg "Attempt ${attempt}/80: waiting for Docker Desktop..."
+    sleep 3
+  done
+
+  error_msg "Docker Desktop did not become ready."
+  exit 1
 }
 
 section "Starting local Plane for COMPASS AI"
@@ -53,11 +72,12 @@ fi
 success "Docker CLI is available."
 
 if ! docker info >/dev/null 2>&1; then
-  error_msg "Docker Desktop is not running. Start Docker Desktop first."
-  exit 1
+  info "Docker Desktop is not running. Starting Docker Desktop..."
+  open -a Docker >/dev/null 2>&1 || true
+  wait_for_docker
+else
+  success "Docker Desktop is already running."
 fi
-
-success "Docker Desktop is running."
 
 if [ ! -d "${PLANE_DIR}" ]; then
   error_msg "Plane source directory not found: ${PLANE_DIR}"
@@ -90,19 +110,24 @@ success "Plane API .env exists."
 cd "${PLANE_DIR}"
 
 section "Validating Docker Compose"
+
 docker compose config >/dev/null
+
 success "Docker Compose configuration is valid."
 
 section "Starting containers"
+
 docker compose up -d
+
 success "Docker Compose start command completed."
 
 section "Current Plane containers"
+
 docker compose ps
 
 section "Waiting for frontend containers"
 
-for attempt in {1..60}; do
+for attempt in {1..80}; do
   WEB_HEALTH="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' web 2>/dev/null || true)"
   ADMIN_HEALTH="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' admin 2>/dev/null || true)"
   SPACE_HEALTH="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' space 2>/dev/null || true)"
@@ -114,10 +139,10 @@ for attempt in {1..60}; do
     break
   fi
 
-  wait_msg "Attempt ${attempt}/60: web=${WEB_HEALTH}, admin=${ADMIN_HEALTH}, space=${SPACE_HEALTH}"
+  wait_msg "Attempt ${attempt}/80: web=${WEB_HEALTH}, admin=${ADMIN_HEALTH}, space=${SPACE_HEALTH}"
   sleep 5
 
-  if [ "${attempt}" = "60" ]; then
+  if [ "${attempt}" = "80" ]; then
     error_msg "Plane frontend containers did not become healthy."
     docker compose ps
     echo
@@ -129,7 +154,7 @@ done
 
 section "Waiting for API"
 
-for attempt in {1..60}; do
+for attempt in {1..80}; do
   API_RESPONSE="$(docker compose exec -T proxy wget -q -O- http://api:8000 2>/dev/null || true)"
 
   if [ "${API_RESPONSE}" = '{"status": "OK"}' ]; then
@@ -137,10 +162,10 @@ for attempt in {1..60}; do
     break
   fi
 
-  wait_msg "Attempt ${attempt}/60: API is not ready yet."
+  wait_msg "Attempt ${attempt}/80: API is not ready yet."
   sleep 5
 
-  if [ "${attempt}" = "60" ]; then
+  if [ "${attempt}" = "80" ]; then
     error_msg "Plane API did not become ready."
     docker compose logs api --tail=120
     exit 1
@@ -149,16 +174,16 @@ done
 
 section "Waiting for main web URL"
 
-for attempt in {1..60}; do
+for attempt in {1..80}; do
   if curl -fsS -I "${PLANE_URL}" >/dev/null 2>&1; then
     success "Plane main URL responds: ${PLANE_URL}"
     break
   fi
 
-  wait_msg "Attempt ${attempt}/60: ${PLANE_URL} is not ready yet."
+  wait_msg "Attempt ${attempt}/80: ${PLANE_URL} is not ready yet."
   sleep 5
 
-  if [ "${attempt}" = "60" ]; then
+  if [ "${attempt}" = "80" ]; then
     error_msg "Plane main URL did not become available."
     docker compose logs web --tail=120
     exit 1
@@ -167,7 +192,7 @@ done
 
 section "Waiting for workspace route"
 
-for attempt in {1..60}; do
+for attempt in {1..40}; do
   if curl -fsS -I "${PLANE_WORKSPACE_URL}" >/dev/null 2>&1; then
     success "Plane workspace route responds: ${PLANE_WORKSPACE_URL}"
     success "Plane is ready."
@@ -175,10 +200,11 @@ for attempt in {1..60}; do
     exit 0
   fi
 
-  wait_msg "Attempt ${attempt}/60: ${PLANE_WORKSPACE_URL} is not ready yet."
-  sleep 5
+  wait_msg "Attempt ${attempt}/40: ${PLANE_WORKSPACE_URL} is not ready yet."
+  sleep 3
 done
 
-wait_msg "Workspace route did not respond directly, opening main Plane URL instead."
+warn_msg "Workspace route did not respond directly, opening main Plane URL instead."
 success "Plane is available at ${PLANE_URL}"
+
 open "${PLANE_URL}" >/dev/null 2>&1 || true

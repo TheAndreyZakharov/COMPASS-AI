@@ -60,3 +60,8 @@ logs/
 plane/docker/plane-source/
 
 secret-key-1782922070009.csv
+
+# COMPASS local stack runtime files
+.compass_stack/
+logs/*.pid
+logs/*.log
