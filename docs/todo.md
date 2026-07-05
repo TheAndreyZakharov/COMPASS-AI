@@ -8558,16 +8558,60 @@ All checks passed!
 
 ## 18.1. Принять решение по интерфейсу
 
-- [ ] Не переписывать Plane полностью.
-- [ ] Сделать отдельный лёгкий COMPASS dashboard.
-- [ ] Dashboard должен ссылаться на задачи Plane.
-- [ ] В Plane рекомендации живут в комментариях.
-- [ ] В COMPASS dashboard живут метрики, топ задач, fairness и нагрузка.
-- [ ] Если будет желание глубже интегрироваться в UI Plane, делать это только после MVP.
+- [x] Не переписывать Plane полностью.
+- [x] Сделать отдельный лёгкий COMPASS dashboard.
+- [x] Dashboard должен ссылаться на задачи Plane.
+- [x] В Plane рекомендации живут в комментариях.
+- [x] В COMPASS dashboard живут метрики, топ задач, fairness и нагрузка.
+- [x] Если будет желание глубже интегрироваться в UI Plane, делать это только после MVP.
+- [x] Оставить Plane как основную project management систему.
+- [x] Использовать dashboard как отдельный AI/analytics слой поверх Plane и COMPASS API.
+- [x] Не встраивать COMPASS AI напрямую во frontend Plane на MVP-этапе.
 
 **Причина:** менять фронтенд Plane сложнее, чем сделать внешний dashboard. Для учебного проекта внешний dashboard + комментарии в Plane достаточно выглядят как интеграция.
 
+Фактическое решение:
+
+```text
+Plane остаётся системой задач.
+COMPASS AI читает задачи из Plane через REST API.
+COMPASS AI пишет рекомендации обратно в Plane comments.
+Dashboard показывает рекомендации, аналитику команды, метрики модели и fairness.
+```
+
+Как разделены роли интерфейсов:
+
+```text
+Plane:
+- проекты;
+- work items;
+- labels;
+- states;
+- comments;
+- финальное место, где тимлид видит рекомендацию COMPASS AI.
+
+COMPASS dashboard:
+- быстрый запуск анализа задач;
+- просмотр top-3 кандидатов;
+- просмотр team workload;
+- просмотр model metrics;
+- просмотр fairness metrics;
+- ручной анализ задач без Plane;
+- write-back рекомендации в Plane по кнопке.
+```
+
+Почему выбран отдельный dashboard:
+
+```text
+Отдельный dashboard быстрее реализовать и проще поддерживать.
+Он не ломает локальный Plane.
+Он работает как внешний AI-помощник.
+Он показывает управленческую аналитику, которой нет в стандартном Plane UI.
+```
+
 **Ожидаемый результат:** понятная стратегия UI.
+
+**Фактический результат:** стратегия UI зафиксирована: отдельный Streamlit dashboard + настоящая интеграция с Plane через API и comments.
 
 **Примерное время:** 30 минут.  
 **Коммит:** коммит не нужен.
@@ -8576,16 +8620,26 @@ All checks passed!
 
 ## 18.2. Сделать dashboard на FastAPI HTML или Streamlit
 
-- [ ] Выбрать простой вариант.
-- [ ] Рекомендуемый вариант для студенческого проекта: Streamlit.
-- [ ] Создать `app/dashboard.py`.
-- [ ] Показать список открытых задач.
-- [ ] Показать top recommendation по каждой задаче.
-- [ ] Показать team workload.
-- [ ] Показать model metrics.
-- [ ] Показать fairness metrics.
-- [ ] Добавить кнопку/действие “Analyze issue”.
-- [ ] Добавить кнопку/действие “Write recommendation to Plane”.
+- [x] Выбрать простой вариант.
+- [x] Рекомендуемый вариант для студенческого проекта: Streamlit.
+- [x] Создать `app/dashboard.py`.
+- [x] Показать список открытых задач.
+- [x] Показать top recommendation по каждой задаче.
+- [x] Показать team workload.
+- [x] Показать model metrics.
+- [x] Показать fairness metrics.
+- [x] Добавить кнопку/действие “Analyze issue”.
+- [x] Добавить кнопку/действие “Write recommendation to Plane”.
+- [x] Подключить dashboard к FastAPI backend.
+- [x] Добавить анализ synthetic task `TASK-*`.
+- [x] Добавить анализ реального Plane work item.
+- [x] Добавить анализ manual task без Plane.
+- [x] Добавить поддержку `mode`, `top_k`, `use_llm`, `write_back`, `auto_assign`, `threshold`.
+- [x] Добавить чтение synthetic datasets из `data/synthetic`.
+- [x] Добавить чтение model/ranking reports из `reports`.
+- [x] Добавить обработку ошибок API прямо в dashboard.
+- [x] Добавить command target `make dashboard`.
+- [x] Исправить deprecated Streamlit параметр `use_container_width` на `width`.
 
 Файл:
 
@@ -8605,87 +8659,640 @@ streamlit
 pip install streamlit
 ```
 
-Команда запуска:
+Команда запуска напрямую:
 
 ```bash
 streamlit run app/dashboard.py
 ```
 
+Команда запуска через Makefile:
+
+```bash
+make dashboard
+```
+
+Фактический Makefile target:
+
+```text
+dashboard:
+	streamlit run app/dashboard.py
+```
+
+Фактический локальный URL dashboard:
+
+```text
+http://localhost:8501
+```
+
+Фактический запуск:
+
+```text
+make dashboard
+streamlit run app/dashboard.py
+Uvicorn server started on 0.0.0.0:8501
+Local URL: http://localhost:8501
+```
+
+Что делает dashboard:
+
+```text
+1. Подключается к COMPASS API по http://localhost:8000.
+2. Показывает synthetic/team/model/fairness analytics из локальных CSV/JSON.
+3. Для рекомендаций вызывает FastAPI endpoints.
+4. Для Plane work item может запустить write_back=true.
+5. Для auto_assign передаёт auto_assign=true и threshold, но только если пользователь явно включил это действие.
+```
+
+Основные источники данных dashboard:
+
+```text
+data/synthetic/employees.csv
+data/synthetic/tasks.csv
+data/synthetic/assignments.csv
+reports/model_metrics.json
+reports/ranking_metrics.json
+```
+
+FastAPI endpoints, которые использует dashboard:
+
+```text
+GET /health
+GET /recommendations/issue/{issue_id}
+POST /recommendations/manual
+```
+
+Dashboard поддерживает три сценария рекомендации:
+
+```text
+Synthetic TASK-*:
+использует ML path через TaskEmployeeMatchingNet, потому что для TASK-* есть precomputed features.
+
+Plane work item:
+использует реальные задачи Plane, может делать write-back comment, при отсутствии precomputed ML features использует rule_based_fallback.
+
+Manual task:
+позволяет проверить новую задачу без Plane, использует тот же agentic pipeline и rule_based_fallback.
+```
+
+Пример synthetic анализа:
+
+```text
+TASK-0001
+mode: balanced_workload
+write_back: false
+auto_assign: false
+use_llm: false
+
+Top-3:
+1. Никита Егоров — backend_developer senior — score 0.956596
+2. Полина Васильева — backend_developer senior — score 0.956551
+3. Сергей Павлов — backend_developer middle — score 0.925464
+```
+
+Пример Plane анализа:
+
+```text
+project_id: e608e7ad-f4fe-401d-b0f3-5570e82f08ee
+work_item_id: 1cad7167-a07a-4f48-85c9-a61139d0590f
+mode: balanced_workload
+top_k: 3
+write_back: false или true
+auto_assign: false
+use_llm: false или true
+```
+
+Фактически проверенный Plane request через dashboard/API:
+
+```text
+GET /recommendations/issue/1cad7167-a07a-4f48-85c9-a61139d0590f?project_id=e608e7ad-f4fe-401d-b0f3-5570e82f08ee&mode=balanced_workload&top_k=3&write_back=false&auto_assign=false&threshold=0.75&use_llm=false
+```
+
+Фактический результат:
+
+```text
+HTTP 200 OK
+recommendation returned
+source: agentic_pipeline
+candidate source: rule_based_fallback
+```
+
+Фактически проверенный LLM path через dashboard/API:
+
+```text
+use_llm=true
+HTTP 200 OK
+```
+
+Важно:
+
+```text
+use_llm=true работает, если Ollama server доступен.
+Если Ollama недоступна, Explanation Agent должен использовать fallback explanation.
+```
+
+Важно:
+
+```text
+auto_assign не включён по умолчанию.
+Это безопасное управленческое действие и запускается только явно.
+```
+
+Важно:
+
+```text
+write_back=true используется только для реальных Plane work items.
+Для TASK-* запись в Plane не выполняется.
+```
+
+Что было исправлено:
+
+```text
+Streamlit начал предупреждать про устаревший use_container_width.
+В dashboard use_container_width заменён на новый параметр width:
+width="stretch"
+width="content"
+```
+
+Фактические проверки:
+
+```bash
+python -m py_compile app/dashboard.py
+```
+
+```bash
+ruff check app/dashboard.py
+```
+
+Фактический результат:
+
+```text
+All checks passed!
+```
+
 **Ожидаемый результат:** есть отдельная “менюшка” COMPASS AI для аналитики и управления рекомендациями.
+
+**Фактический результат:** Streamlit dashboard создан, запускается через `make dashboard`, подключается к COMPASS API, показывает рекомендации, аналитику, метрики и fairness.
 
 **Примерное время:** 8–14 часов.  
 **Коммит:** `Add COMPASS analytics dashboard`
+
+Дополнительный коммит:
+
+```text
+Add dashboard run command
+```
 
 ---
 
 ## 18.3. Добавить страницы dashboard
 
-- [ ] Страница `Overview`.
-- [ ] Страница `Issue Recommendations`.
-- [ ] Страница `Team Workload`.
-- [ ] Страница `Model Metrics`.
-- [ ] Страница `Fairness`.
-- [ ] Страница `Settings`.
+- [x] Страница `Overview`.
+- [x] Страница `Issue Recommendations`.
+- [x] Страница `Team Workload`.
+- [x] Страница `Model Metrics`.
+- [x] Страница `Fairness`.
+- [x] Страница `Settings`.
+- [x] Добавить sidebar navigation.
+- [x] Добавить настройку `COMPASS API URL`.
+- [x] Добавить health check API.
+- [x] Добавить таблицы и графики через Streamlit + Plotly.
+- [x] Добавить отображение raw response для отладки.
+- [x] Добавить отображение `plane_write_back`.
+- [x] Добавить отображение `plane_auto_assign`.
 
-Что показывать на `Overview`:
+Что показывает `Overview`:
 
 ```text
-количество открытых задач
+количество задач
 количество сотрудников
 средняя загрузка команды
-количество задач с высоким риском
-средний recommendation score
+количество high risk assignment rows
+средняя success probability
+распределение задач по проектам
+распределение задач по типам
+распределение assignment outcomes
+COMPASS API health status
 ```
 
-Что показывать на `Issue Recommendations`:
+Фактические источники `Overview`:
 
 ```text
-issue title
-priority
-deadline
-recommended assignee
-score
-mode
-button: analyze
-button: write to Plane
+data/synthetic/tasks.csv
+data/synthetic/employees.csv
+data/synthetic/assignments.csv
+GET /health
 ```
 
-Что показывать на `Team Workload`:
+Что показывает `Issue Recommendations`:
+
+```text
+Synthetic TASK-* analysis
+Plane work item analysis
+Manual task analysis
+recommended assignee
+top-3 candidates
+score
+success_probability
+mode
+source
+explanation
+plane_write_back
+plane_auto_assign
+raw response
+```
+
+Действия на `Issue Recommendations`:
+
+```text
+Analyze synthetic issue
+Analyze Plane work item
+Analyze manual task
+Write recommendation comment to Plane
+Auto assign top candidate
+Use LLM explanation
+```
+
+Что показывает `Team Workload`:
 
 ```text
 employee
 role
 grade
 current workload
-active issues
+workload percent
+active tasks count
+availability
 overload risk
+avg completion speed
+avg quality score
+deadline reliability
 ```
 
-Что показывать на `Model Metrics`:
+Workload risk logic:
+
+```text
+low: workload < 0.70
+medium: workload >= 0.70
+high: workload >= 0.85
+critical: workload >= 0.95
+```
+
+Что показывает `Model Metrics`:
 
 ```text
 ROC-AUC
+PR-AUC
 F1
-Precision@3
-NDCG@3
-comparison with random baseline
-comparison with rule-based baseline
+Precision
+Recall
+classification metrics JSON
+ranking metrics table
+comparison: ML model vs rule-based baseline vs random baseline
 ```
 
-Что показывать на `Fairness`:
+Фактические model metrics из `reports/model_metrics.json`:
 
 ```text
-assignment distribution
-senior overload risk
-junior underuse risk
-workload balance
-growth task distribution
+accuracy: 0.781040
+precision: 0.775764
+recall: 0.733595
+f1: 0.754090
+roc_auc: 0.859216
+pr_auc: 0.820082
+```
+
+Фактические ranking metrics из `reports/ranking_metrics.json`:
+
+```text
+ml_model:
+precision_at_1: 0.893333
+precision_at_3: 0.853333
+ndcg_at_3: 0.862555
+mrr: 0.943778
+
+rule_based_baseline:
+precision_at_1: 0.872000
+precision_at_3: 0.859556
+ndcg_at_3: 0.861110
+mrr: 0.932667
+
+random_baseline:
+precision_at_1: 0.485333
+precision_at_3: 0.501333
+ndcg_at_3: 0.495777
+mrr: 0.667997
+```
+
+Что показывает `Fairness`:
+
+```text
+assignment distribution by grade
+assignment distribution by role
+top employee concentration
+senior assignment share
+junior assignment share
+average assigned workload
+growth match share
+```
+
+Fairness metrics:
+
+```text
+senior_assignment_share
+junior_assignment_share
+top_employee_concentration
+average_assigned_workload
+growth_match_share
+```
+
+Что показывает `Settings`:
+
+```text
+COMPASS API URL
+DEFAULT_PLANE_PROJECT_ID
+пути к data files
+пути к report files
+health check button
+список нужных локальных сервисов
+```
+
+Локальные сервисы, которые показывает `Settings`:
+
+```text
+FastAPI backend:
+uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+
+Plane:
+./scripts/start_plane.sh
+
+Optional LLM:
+ollama serve
+
+Dashboard:
+streamlit run app/dashboard.py
+```
+
+Фактическая проверка COMPASS API:
+
+```bash
+curl "http://localhost:8000/health"
+```
+
+Фактический результат:
+
+```text
+{"status":"ok","service":"compass-ai"}
+```
+
+Фактическая проверка synthetic recommendation:
+
+```bash
+curl "http://localhost:8000/recommendations/issue/TASK-0001?mode=balanced_workload&write_back=false&auto_assign=false&use_llm=false"
+```
+
+Фактический результат:
+
+```text
+HTTP 200 OK
+top_candidates returned
+source: agentic_pipeline
+candidate source: task_employee_matching_net
+```
+
+Фактическая проверка Plane connection:
+
+```bash
+python scripts/check_plane_connection.py
+```
+
+Фактический результат:
+
+```text
+Plane API healthcheck: OK
+Projects found: 4
+
+Backend Platform: 57 work items, 5 states, 25 labels
+Frontend Platform: 19 work items, 5 states, 25 labels
+Data Platform: 26 work items, 5 states, 25 labels
+Internal Tools: 19 work items, 5 states, 25 labels
+```
+
+Что было выяснено:
+
+```text
+Dashboard может вызывать FastAPI endpoints и для synthetic TASK-*,
+и для реальных Plane work items.
+FastAPI server должен быть запущен отдельно, иначе dashboard не сможет получить рекомендации.
+```
+
+```text
+Plane work items без precomputed ML features корректно уходят в rule_based_fallback.
+Это ожидаемое поведение текущей архитектуры.
+```
+
+```text
+Dashboard удобно показывает и финальное объяснение, и технический raw response.
+Это полезно для демо и отладки agentic pipeline.
+```
+
+Что позже стоит улучшить:
+
+```text
+Добавить выбор Plane work item из списка открытых задач,
+а не только ручной ввод work_item_id.
+```
+
+```text
+Добавить отдельную batch-страницу для просмотра рекомендаций по backlog проекта.
+```
+
+```text
+Добавить сохранение dashboard-selected demo cases в reports/demo_*.json.
+```
+
+```text
+Добавить более точную fairness-аналитику по recommendations,
+а не только по synthetic assignment history.
 ```
 
 **Ожидаемый результат:** интерфейс показывает не только рекомендации, но и управленческую аналитику.
 
+**Фактический результат:** dashboard содержит страницы Overview, Issue Recommendations, Team Workload, Model Metrics, Fairness и Settings, показывает данные проекта и запускает recommendation actions через FastAPI.
+
 **Примерное время:** 10–18 часов.  
 **Коммит:** `Add dashboard pages`
+
+---
+
+## 18.4. Добавить общий запуск и остановку всей локальной системы
+
+- [x] Создать общий скрипт запуска всей системы.
+- [x] Создать общий скрипт остановки всей системы.
+- [x] Запускать Plane.
+- [x] Запускать COMPASS FastAPI.
+- [x] Запускать Streamlit dashboard.
+- [x] Запускать Ollama server, если он установлен.
+- [x] Не падать, если Ollama не установлена.
+- [x] Проверять readiness Plane/API перед выводом финальных URL.
+- [x] Сохранять PID локальных процессов.
+- [x] Останавливать dashboard и API по PID.
+- [x] Останавливать Plane через существующий `scripts/stop_plane.sh`.
+- [x] Не удалять Docker volumes Plane.
+- [x] Не удалять локальные данные, модели и отчёты.
+
+Файлы:
+
+```text
+scripts/start_compass_stack.sh
+scripts/stop_compass_stack.sh
+```
+
+Название общего запуска:
+
+```text
+COMPASS local stack
+```
+
+Команда запуска всей системы:
+
+```bash
+./scripts/start_compass_stack.sh
+```
+
+Команда остановки всей системы:
+
+```bash
+./scripts/stop_compass_stack.sh
+```
+
+Что запускает `start_compass_stack.sh`:
+
+```text
+1. Plane через ./scripts/start_plane.sh
+2. Ollama server, если установлен ollama
+3. COMPASS FastAPI на http://localhost:8000
+4. Streamlit dashboard на http://localhost:8501
+```
+
+Что останавливает `stop_compass_stack.sh`:
+
+```text
+1. Streamlit dashboard
+2. COMPASS FastAPI
+3. Ollama server, если он был запущен этим stack script
+4. Plane через ./scripts/stop_plane.sh
+```
+
+Локальные URL после запуска:
+
+```text
+Plane UI:
+http://localhost
+
+Plane God Mode:
+http://localhost/god-mode/general/
+
+COMPASS API:
+http://localhost:8000
+
+COMPASS API health:
+http://localhost:8000/health
+
+COMPASS dashboard:
+http://localhost:8501
+
+Ollama API:
+http://localhost:11434
+```
+
+PID/log файлы:
+
+```text
+logs/compass_api.pid
+logs/compass_dashboard.pid
+logs/ollama.pid
+logs/compass_api.log
+logs/compass_dashboard.log
+logs/ollama.log
+```
+
+Важно:
+
+```text
+Plane останавливается безопасно через docker compose stop.
+Docker volumes не удаляются.
+Данные Plane сохраняются.
+```
+
+Важно:
+
+```text
+Ollama является optional service.
+Если ollama не установлен, stack всё равно может работать:
+API и dashboard запустятся,
+а Explanation Agent будет использовать fallback explanation.
+```
+
+Важно:
+
+```text
+FastAPI и Streamlit запускаются как локальные процессы.
+Их PID сохраняется, чтобы stop script мог корректно остановить именно эти процессы.
+```
+
+Проверка после запуска stack:
+
+```bash
+curl "http://localhost:8000/health"
+```
+
+Ожидаемый результат:
+
+```text
+{"status":"ok","service":"compass-ai"}
+```
+
+Проверка dashboard:
+
+```text
+Открыть http://localhost:8501
+```
+
+Проверка Plane:
+
+```bash
+python scripts/check_plane_connection.py
+```
+
+Ожидаемый результат:
+
+```text
+Plane API healthcheck: OK
+Projects found: 4
+```
+
+Что позже стоит улучшить:
+
+```text
+Добавить Makefile targets:
+make stack-up
+make stack-down
+```
+
+```text
+Добавить проверку занятых портов 8000, 8501 и 11434 перед запуском.
+```
+
+```text
+Добавить режим --no-plane или --no-ollama для частичного запуска stack.
+```
+
+**Ожидаемый результат:** всю локальную систему можно запустить и остановить одной командой.
+
+**Фактический результат:** добавлен общий local stack launcher и stopper для Plane, API, dashboard и Ollama.
+
+**Примерное время:** 2–4 часа.  
+**Коммит:** `Add local stack launcher`
 
 ---
 
