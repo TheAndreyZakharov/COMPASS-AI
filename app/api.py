@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.plane import router as plane_router
 from src.api.recommendations import router as recommendations_router
 from src.models.schemas import (
     AnalyticsSummary,
@@ -46,6 +47,7 @@ app.add_middleware(
 )
 
 app.include_router(recommendations_router)
+app.include_router(plane_router)
 
 
 def synthetic_data_ready() -> bool:
