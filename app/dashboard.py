@@ -189,28 +189,28 @@ def overview_page(api_url: str) -> None:
         high_risk_assignments = 0
 
     col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Tasks", len(tasks))
-    col2.metric("Employees", len(employees))
+    col1.metric("Synthetic tasks", len(tasks))
+    col2.metric("Synthetic employees", len(employees))
     col3.metric("Avg workload", f"{average_workload:.2f}")
     col4.metric("High risk rows", high_risk_assignments)
     col5.metric("Avg success probability", f"{average_success_probability:.2f}")
 
     if "project_key" in tasks.columns:
-        st.subheader("Tasks by project")
+        st.subheader("Synthetic tasks by project")
         project_counts = tasks["project_key"].value_counts().reset_index()
         project_counts.columns = ["project_key", "tasks_count"]
         chart = px.bar(project_counts, x="project_key", y="tasks_count")
         st.plotly_chart(chart, width="stretch")
 
     if "task_type" in tasks.columns:
-        st.subheader("Tasks by type")
+        st.subheader("Synthetic tasks by type")
         type_counts = tasks["task_type"].value_counts().reset_index()
         type_counts.columns = ["task_type", "tasks_count"]
         chart = px.bar(type_counts, x="task_type", y="tasks_count")
         st.plotly_chart(chart, width="stretch")
 
     if "outcome_status" in assignments.columns:
-        st.subheader("Assignment outcomes")
+        st.subheader("Synthetic assignment outcomes")
         outcome_counts = assignments["outcome_status"].value_counts().reset_index()
         outcome_counts.columns = ["outcome_status", "count"]
         chart = px.pie(outcome_counts, names="outcome_status", values="count")
@@ -228,7 +228,7 @@ def issue_recommendations_page(api_url: str) -> None:
     use_llm = st.checkbox("Use LLM explanation", value=False)
 
     tab_synthetic, tab_plane, tab_manual = st.tabs(
-        ["Synthetic TASK-*", "Plane work item", "Manual task"],
+        ["Synthetic TASK-*", "Plane work item by ID", "Manual task"],
     )
 
     with tab_synthetic:
@@ -300,7 +300,7 @@ def plane_recommendation_tab(
     top_k: int,
     use_llm: bool,
 ) -> None:
-    st.subheader("Analyze real Plane work item")
+    st.subheader("Analyze real Plane work item by ID")
 
     project_id = st.text_input("Plane project id", value=DEFAULT_PLANE_PROJECT_ID)
     work_item_id = st.text_input("Plane work item id")
@@ -313,7 +313,12 @@ def plane_recommendation_tab(
         value=0.75,
     )
 
-    if not st.button("Analyze Plane work item"):
+    st.caption(
+        "Этот старый режим анализирует Plane task по ручному ID. "
+        "Новый live-режим со списком задач находится на странице Plane Live."
+    )
+
+    if not st.button("Analyze Plane work item by ID"):
         return
 
     if not work_item_id.strip():
@@ -323,7 +328,7 @@ def plane_recommendation_tab(
     try:
         response = api_get(
             api_url,
-            f"/recommendations/issue/{work_item_id.strip()}",
+            f"/plane/recommendations/work-item/{work_item_id.strip()}",
             params={
                 "project_id": project_id.strip(),
                 "mode": mode,
@@ -398,6 +403,213 @@ def manual_recommendation_tab(
     show_recommendation_response(response)
 
 
+def plane_live_page(api_url: str) -> None:
+    st.header("Plane Live")
+
+    st.info(
+        "Эта страница показывает только реальные данные из Plane: "
+        "projects, work items и project members. "
+        "Если в Plane появилась новая задача или новый активный member, "
+        "они появятся здесь после refresh."
+    )
+
+    col_a, col_b = st.columns([1, 1])
+    with col_a:
+        if st.button("Refresh Plane data"):
+            st.cache_data.clear()
+            st.rerun()
+
+    with col_b:
+        show_api_status(api_url)
+
+    try:
+        live_data = api_get(api_url, "/plane/live")
+    except Exception as exc:
+        st.error(f"Не удалось загрузить Plane Live данные: {exc}")
+        st.warning("Проверь, что Plane и FastAPI запущены.")
+        return
+
+    projects = live_data.get("projects") or []
+    workspace_members = live_data.get("workspace_members") or []
+    pending_invitations = live_data.get("pending_invitations") or []
+
+    if not isinstance(projects, list):
+        projects = []
+
+    if not isinstance(workspace_members, list):
+        workspace_members = []
+
+    if not isinstance(pending_invitations, list):
+        pending_invitations = []
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Plane projects", live_data.get("projects_count", len(projects)))
+    col2.metric("Plane work items", live_data.get("work_items_count", 0))
+    col3.metric("Open work items", live_data.get("open_work_items_count", 0))
+    col4.metric("Workspace members", live_data.get("workspace_members_count", 0))
+
+    if pending_invitations:
+        st.warning(
+            f"Есть pending invitations: {len(pending_invitations)}. "
+            "Pending users не считаются полноценными активными исполнителями."
+        )
+
+    if not projects:
+        st.warning("Plane projects не найдены.")
+        return
+
+    project_labels = [
+        f"{project.get('name')} ({project.get('identifier')})"
+        for project in projects
+        if isinstance(project, dict)
+    ]
+
+    selected_label = st.selectbox("Plane project", project_labels, index=0)
+    selected_index = project_labels.index(selected_label)
+    selected_project = projects[selected_index]
+
+    if not isinstance(selected_project, dict):
+        st.error("Некорректный project payload.")
+        return
+
+    project_id = str(selected_project.get("project_id") or "")
+    work_items = selected_project.get("work_items") or []
+    members = selected_project.get("members") or []
+
+    if not isinstance(work_items, list):
+        work_items = []
+
+    if not isinstance(members, list):
+        members = []
+
+    project_col1, project_col2, project_col3 = st.columns(3)
+    project_col1.metric("Project members", len(members))
+    project_col2.metric("Project work items", len(work_items))
+    project_col3.metric(
+        "Project open work items",
+        int(selected_project.get("open_work_items_count") or 0),
+    )
+
+    st.subheader("Real Plane project members")
+
+    if members:
+        members_df = pd.DataFrame(members)
+        visible_columns = dataframe_columns(
+            members_df,
+            [
+                "id",
+                "member",
+                "email",
+                "display_name",
+                "first_name",
+                "last_name",
+                "role",
+            ],
+        )
+        st.dataframe(members_df[visible_columns], width="stretch")
+    else:
+        st.warning("В этом Plane project нет members или API их не вернул.")
+
+    st.subheader("Real Plane work items")
+
+    if not work_items:
+        st.warning("В этом Plane project нет work items.")
+        return
+
+    work_items_df = pd.DataFrame(work_items)
+    visible_columns = dataframe_columns(
+        work_items_df,
+        [
+            "id",
+            "identifier",
+            "name",
+            "priority",
+            "is_open",
+            "assignees_count",
+            "target_date",
+            "updated_at",
+        ],
+    )
+    st.dataframe(work_items_df[visible_columns], width="stretch")
+
+    open_only = st.checkbox("Show only open work items", value=True)
+
+    if open_only and "is_open" in work_items_df.columns:
+        selectable_df = work_items_df[work_items_df["is_open"]].copy()
+    else:
+        selectable_df = work_items_df.copy()
+
+    if selectable_df.empty:
+        st.warning("Нет задач для анализа после фильтра.")
+        return
+
+    selectable_df["select_label"] = selectable_df.apply(
+        lambda row: f"{row.get('identifier', '')} — {row.get('name', '')}",
+        axis=1,
+    )
+
+    selected_task_label = st.selectbox(
+        "Select Plane work item for AI analysis",
+        selectable_df["select_label"].tolist(),
+    )
+    selected_task_row = selectable_df[
+        selectable_df["select_label"] == selected_task_label
+    ].iloc[0]
+    work_item_id = str(selected_task_row.get("id") or "")
+
+    st.subheader("Analyze selected Plane work item")
+
+    mode = st.selectbox(
+        "Plane Live recommendation mode",
+        RECOMMENDATION_MODES,
+        index=0,
+    )
+    top_k = st.slider(
+        "Plane Live Top K",
+        min_value=1,
+        max_value=10,
+        value=3,
+    )
+    use_llm = st.checkbox("Plane Live: use LLM explanation", value=False)
+    write_back = st.checkbox("Plane Live: write comment to Plane", value=False)
+    auto_assign = st.checkbox("Plane Live: auto assign top candidate", value=False)
+    threshold = st.number_input(
+        "Plane Live: auto assign threshold",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.75,
+    )
+
+    st.caption(
+        "В этом режиме кандидаты ограничены реальными project members Plane. "
+        "Если member не связан с COMPASS employee profile, он всё равно "
+        "попадёт в список как plane_unmapped кандидат, но с нейтральными skills."
+    )
+
+    if not st.button("Analyze selected Plane work item"):
+        return
+
+    try:
+        response = api_get(
+            api_url,
+            f"/plane/recommendations/work-item/{work_item_id}",
+            params={
+                "project_id": project_id,
+                "mode": mode,
+                "top_k": top_k,
+                "write_back": normalize_bool(write_back),
+                "auto_assign": normalize_bool(auto_assign),
+                "threshold": threshold,
+                "use_llm": normalize_bool(use_llm),
+            },
+        )
+    except Exception as exc:
+        st.error(f"Ошибка Plane Live анализа: {exc}")
+        return
+
+    show_recommendation_response(response)
+
+
 def show_recommendation_response(response: dict[str, Any]) -> None:
     candidate = top_candidate(response)
 
@@ -407,11 +619,12 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
     plane_work_item_id = response.get("plane_work_item_id")
     top_score = safe_float(candidate.get("score")) if candidate else None
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Task", task_id or plane_work_item_id or "n/a")
     col2.metric("Mode", response.get("mode", "n/a"))
     col3.metric("Top score", f"{top_score:.4f}" if top_score is not None else "n/a")
     col4.metric("Source", candidate.get("source", response.get("source", "n/a")))
+    col5.metric("Candidate scope", response.get("candidate_scope", "default"))
 
     st.subheader("Top candidates")
     candidates = response.get("top_candidates") or []
@@ -439,6 +652,9 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
     st.subheader("Explanation")
     st.markdown(response.get("explanation") or "No explanation")
 
+    with st.expander("Plane live"):
+        st.json(response.get("plane_live", {}))
+
     with st.expander("Plane write-back"):
         st.json(response.get("plane_write_back", {}))
 
@@ -465,7 +681,12 @@ def workload_risk_level(workload: Any) -> str:
 
 
 def team_workload_page() -> None:
-    st.header("Team Workload")
+    st.header("Synthetic Team Workload")
+
+    st.info(
+        "Эта страница показывает synthetic/ML-профили COMPASS. "
+        "Реальные люди и задачи из Plane находятся на странице Plane Live."
+    )
 
     employees = load_employees()
     if employees.empty:
@@ -479,7 +700,11 @@ def team_workload_page() -> None:
         "grade",
         "current_workload",
     ]
-    missing_columns = [column for column in required_columns if column not in employees.columns]
+    missing_columns = [
+        column
+        for column in required_columns
+        if column not in employees.columns
+    ]
     if missing_columns:
         st.error(f"В employees.csv нет обязательных колонок: {missing_columns}")
         return
@@ -493,12 +718,12 @@ def team_workload_page() -> None:
     critical_risk_count = int((employees["overload_risk"] == "critical").sum())
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Employees", len(employees))
+    col1.metric("Synthetic employees", len(employees))
     col2.metric("Avg workload", f"{average_workload:.2f}")
     col3.metric("High risk", high_risk_count)
     col4.metric("Critical risk", critical_risk_count)
 
-    st.subheader("Workload by employee")
+    st.subheader("Workload by synthetic employee")
     workload_chart = employees.sort_values("current_workload", ascending=False)
 
     hover_columns = dataframe_columns(
@@ -514,7 +739,7 @@ def team_workload_page() -> None:
     )
     st.plotly_chart(chart, width="stretch")
 
-    st.subheader("Team table")
+    st.subheader("Synthetic team table")
     columns = dataframe_columns(
         employees,
         [
@@ -539,18 +764,14 @@ def plane_team_page(api_url: str) -> None:
     st.header("Plane Team")
 
     st.info(
-        "Эта страница показывает реальных пользователей Plane. "
-        "Team Workload выше показывает synthetic/ML-профили COMPASS."
+        "Эта страница оставлена как быстрый просмотр людей Plane. "
+        "Полный live-режим с задачами и AI-анализом находится на странице Plane Live."
     )
 
     try:
         response = api_get(api_url, "/plane/members")
     except Exception as exc:
         st.error(f"Не удалось загрузить Plane members: {exc}")
-        st.warning(
-            "Проверь, что FastAPI запущен, Plane запущен, "
-            "и в backend подключён endpoint GET /plane/members."
-        )
         return
 
     workspace_members = response.get("workspace_members") or []
@@ -633,7 +854,8 @@ def plane_team_page(api_url: str) -> None:
         if not isinstance(members, list):
             members = []
 
-        with st.expander(f"{project_name} ({project_identifier}) — members: {len(members)}"):
+        title = f"{project_name} ({project_identifier}) — members: {len(members)}"
+        with st.expander(title):
             if members:
                 project_df = pd.DataFrame(members)
                 visible_columns = dataframe_columns(
@@ -728,7 +950,13 @@ def fairness_page() -> None:
         return
 
     required_assignment_columns = ["employee_id"]
-    required_employee_columns = ["employee_id", "name", "role", "grade", "current_workload"]
+    required_employee_columns = [
+        "employee_id",
+        "name",
+        "role",
+        "grade",
+        "current_workload",
+    ]
 
     if not all(column in assignments.columns for column in required_assignment_columns):
         st.error("В assignments.csv нет обязательной колонки employee_id.")
@@ -854,7 +1082,8 @@ def main() -> None:
         [
             "Overview",
             "Issue Recommendations",
-            "Team Workload",
+            "Plane Live",
+            "Synthetic Team Workload",
             "Plane Team",
             "Model Metrics",
             "Fairness",
@@ -866,7 +1095,9 @@ def main() -> None:
         overview_page(api_url)
     elif page == "Issue Recommendations":
         issue_recommendations_page(api_url)
-    elif page == "Team Workload":
+    elif page == "Plane Live":
+        plane_live_page(api_url)
+    elif page == "Synthetic Team Workload":
         team_workload_page()
     elif page == "Plane Team":
         plane_team_page(api_url)
