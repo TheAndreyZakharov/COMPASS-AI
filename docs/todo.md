@@ -9492,6 +9492,105 @@ make stack-down
 
 **Коммит:** `Add local stack launcher`
 
+## 18.5. Довести Plane Live до реальных пользователей и безопасных рекомендаций
+
+- [x] Расширить `PlaneClient` методами для работы с workspace members, invitations и project members.
+- [x] Добавить проверочный скрипт `scripts/check_plane_members.py`.
+- [x] Проверить начальное состояние Plane users: активен только `admin`, остальные пользователи были в `pending invitations`.
+- [x] Завести реальных пользователей Plane для demo-команды и добиться состояния `Workspace invitations: 0`.
+- [x] Добавить всех активных demo users во все 4 проекта Plane через `plane/seed/add_members_to_projects.py`.
+- [x] Проверить итоговое состояние: `Workspace members: 9`, в каждом проекте `Project members: 8`.
+- [x] Добавить API endpoint для просмотра реальных Plane members и project members.
+- [x] Добавить Plane Live endpoint/dashboard-страницу для просмотра реальных Plane projects, work items, members и candidate scope.
+- [x] Проверить live-данные Plane: 4 проекта, 121 work item, 9 workspace members, 8 project members в каждом проекте.
+- [x] Ограничить Plane Live рекомендации только реальными project members выбранного проекта.
+- [x] Запретить подмешивание synthetic employees в Plane Live ranking.
+- [x] Добавить явный `candidate_scope`, чтобы было видно, из какого набора выбраны кандидаты.
+- [x] Исправить mapping `employee_id -> plane_user_id`: заменить сопоставление по индексу на сопоставление по email.
+- [x] Пересобрать `data/processed/employee_plane_mapping.csv`.
+- [x] Проверить, что реальные имена больше не “наезжают” друг на друга: Андрей Громов, Павел Волков, Дарья Соловьёва, Ольга Волкова, Сергей Павлов, Никита Егоров, Полина Васильева сопоставляются по email.
+- [x] Добавить audit-скрипт `scripts/audit_employee_plane_mapping.py`.
+- [x] Проверить mapping audit: `Employee Plane mapping audit passed`.
+- [x] Добавить защиту LLM explanation для Plane scoped рекомендаций: LLM не может упоминать людей вне `top_candidates`.
+- [x] Исправить Plane scoped matching: сначала ранжировать весь пул project members, потом брать `top_k`.
+- [x] Вернуть объяснение всех top candidates: если `top_k=3`, LLM обязана расписать top-1 и альтернативы top-2/top-3.
+- [x] Проверить качество кода через `py_compile` и `ruff`.
+- [x] Зафиксировать изменения отдельными коммитами.
+
+Фактическое состояние Plane после этапа:
+
+```text
+Plane API healthcheck: OK
+Projects found: 4
+
+Backend Platform: 57 work items, 5 states, 25 labels, 8 project members
+Frontend Platform: 19 work items, 5 states, 25 labels, 8 project members
+Data Platform: 26 work items, 5 states, 25 labels, 8 project members
+Internal Tools: 19 work items, 5 states, 25 labels, 8 project members
+
+Workspace members: 9
+Pending invitations: 0
+Total live work items: 121
+```
+
+Фактические demo users Plane:
+
+```text
+andrey.gromov@compass.local — Андрей Громов
+pavel.volkov@compass.local — Павел Волков
+darya.solovieva@compass.local — Дарья Соловьёва
+olga.volkova@compass.local — Ольга Волкова
+sergey.pavlov@compass.local — Сергей Павлов
+nikita.egorov@compass.local — Никита Егоров
+polina.vasilieva@compass.local — Полина Васильева
+admin@compass.local — Андрей Захаров
+```
+
+Что было исправлено:
+
+```text
+Раньше Plane users сопоставлялись с synthetic employees по порядку строк.
+Из-за этого реальные Plane email попадали к неправильным именам.
+Например andrey.gromov@compass.local мог оказаться у Анны Смирновой.
+
+Теперь mapping строится по email/name identity, а не по индексу.
+AI больше не объясняет рекомендации с неправильными именами.
+```
+
+Важно:
+
+```text
+Plane Live ranking использует только реальных Plane project members.
+Synthetic employees больше не подмешиваются в Plane Live рекомендации.
+Synthetic dataset остаётся нужен для ML training, reports, model metrics и fallback/demo scenarios.
+```
+
+Важно:
+
+```text
+Если в проекте меньше 3 реальных Plane members, top_k=3 физически не сможет вернуть 3 кандидатов.
+После добавления demo users во все проекты в каждом проекте доступно 8 project members.
+```
+
+Коммиты этапа:
+
+```text
+Extend Plane client member operations
+Add Plane members checker
+Add Plane project member seeding
+Expose Plane members in API
+Add Plane scoped recommendation API
+Add Plane live dashboard page
+Restrict Plane live recommendations to project members
+Expose Plane live candidate scope
+Restrict Plane live matching to project members
+Validate Plane scoped LLM explanations
+Map Plane users to employees by email
+Add Plane employee mapping audit
+Rank full Plane member pool before top-k
+Explain all Plane top candidates
+```
+
 ---
 
 # 19. Этап 17 — Jupyter notebooks и автоматические отчёты
