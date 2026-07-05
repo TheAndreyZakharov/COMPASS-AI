@@ -65,12 +65,19 @@ def _run_ml_matching(state: AgentState, top_k: int) -> list[dict[str, Any]]:
     )
 
 
+def _rule_based_pool_size(state: AgentState, top_k: int) -> int:
+    if not _has_plane_scoped_employees(state):
+        return top_k
+
+    return max(top_k, len(state.employees))
+
+
 def _run_rule_based_fallback(state: AgentState, top_k: int) -> list[dict[str, Any]]:
     recommendation = rank_employees_for_task(
         task=state.task_features,
         employees=state.employees,
         mode=state.recommendation_mode,
-        top_k=top_k,
+        top_k=_rule_based_pool_size(state, top_k),
     )
     payload = recommendation_to_dict(recommendation)
 
@@ -127,6 +134,23 @@ def _filter_plane_scoped_candidates(
     return filtered_candidates
 
 
+def _store_candidates(
+    state: AgentState,
+    candidates: list[dict[str, Any]],
+    top_k: int,
+) -> None:
+    filtered_candidates = _filter_plane_scoped_candidates(state, candidates)
+
+    state.candidate_scores = filtered_candidates
+    state.top_candidates = filtered_candidates[:top_k]
+
+    if _has_plane_scoped_employees(state) and not state.top_candidates:
+        state.add_error(
+            "matching_agent",
+            "Plane scoped matching returned no valid project members.",
+        )
+
+
 def run_matching_agent(state: AgentState, top_k: int = 3) -> AgentState:
     if not state.task_features:
         state.add_error("matching_agent", "Task features are empty.")
@@ -142,24 +166,14 @@ def run_matching_agent(state: AgentState, top_k: int = 3) -> AgentState:
         else:
             candidates = _run_rule_based_fallback(state, top_k=top_k)
 
-        candidates = _filter_plane_scoped_candidates(state, candidates)
-        state.candidate_scores = candidates
-        state.top_candidates = candidates[:top_k]
-
-        if _has_plane_scoped_employees(state) and not state.top_candidates:
-            state.add_error(
-                "matching_agent",
-                "Plane scoped matching returned no valid project members.",
-            )
+        _store_candidates(state=state, candidates=candidates, top_k=top_k)
 
     except Exception as error:
         state.add_error("matching_agent", str(error))
 
         try:
             candidates = _run_rule_based_fallback(state, top_k=top_k)
-            candidates = _filter_plane_scoped_candidates(state, candidates)
-            state.candidate_scores = candidates
-            state.top_candidates = candidates[:top_k]
+            _store_candidates(state=state, candidates=candidates, top_k=top_k)
         except Exception as fallback_error:
             state.add_error("matching_agent_fallback", str(fallback_error))
 
