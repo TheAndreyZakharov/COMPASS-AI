@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.recommendations import router as recommendations_router
 from src.models.schemas import (
     AnalyticsSummary,
     HealthResponse,
@@ -45,6 +45,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(recommendations_router)
+
 
 def synthetic_data_ready() -> bool:
     return (
@@ -72,6 +74,7 @@ def version() -> VersionResponse:
         environment=os.getenv("APP_ENV", "local"),
     )
 
+
 @app.get("/recommendations/demo", response_model=RecommendationResponse)
 def recommendations_demo(
     mode: str = Query(default="balanced_workload"),
@@ -86,6 +89,7 @@ def recommendations_demo(
         )
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
 
 @app.get("/reports/summary", response_model=AnalyticsSummary)
 def reports_summary() -> AnalyticsSummary:
@@ -113,21 +117,3 @@ def reports_summary() -> AnalyticsSummary:
         assignments_by_outcome=value_counts_as_dict(assignments["outcome_status"]),
         assignments_by_scenario=value_counts_as_dict(assignments["assignment_scenario"]),
     )
-
-
-@app.get("/recommendations/issue/{issue_id}")
-def recommendations_for_issue(
-    issue_id: str,
-    mode: str = Query(default="balanced_workload"),
-    write_back: bool = Query(default=False),
-) -> dict[str, Any]:
-    return {
-        "status": "not_implemented_yet",
-        "issue_id": issue_id,
-        "mode": mode,
-        "write_back": write_back,
-        "message": (
-            "Plane issue recommendation endpoint is reserved for the future "
-            "agentic pipeline stage."
-        ),
-    }
