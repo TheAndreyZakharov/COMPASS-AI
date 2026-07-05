@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format api notebooks
+.PHONY: install dev test lint format api dashboard notebooks
 .PHONY: generate-data skill-vocab text-embeddings build-features split-data
 .PHONY: train train-smoke evaluate ranking-metrics model-pipeline
 .PHONY: export-onnx validate-onnx reports clean
@@ -26,6 +26,9 @@ format:
 
 api:
 	uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
+
+dashboard:
+	streamlit run app/dashboard.py
 
 notebooks:
 	jupyter notebook notebooks
