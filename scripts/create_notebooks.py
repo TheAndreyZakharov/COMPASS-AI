@@ -1,11 +1,9 @@
-# ruff: noqa: E501, I001
 from __future__ import annotations
 
-from pathlib import Path
 import textwrap
+from pathlib import Path
 
 import nbformat as nbf
-
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOKS_DIR = ROOT / "notebooks"
@@ -23,68 +21,75 @@ KERNEL_METADATA = {
 }
 
 
+def cell_text(text: str) -> str:
+    return textwrap.dedent(text).strip() + "\n"
+
+
 def md(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_markdown_cell(textwrap.dedent(text).strip())
+    return nbf.v4.new_markdown_cell(cell_text(text))
 
 
 def code(text: str) -> nbf.NotebookNode:
-    return nbf.v4.new_code_cell(textwrap.dedent(text).strip())
+    return nbf.v4.new_code_cell(cell_text(text))
 
 
 def write_notebook(path: Path, cells: list[nbf.NotebookNode]) -> None:
     notebook = nbf.v4.new_notebook()
     notebook["cells"] = cells
     notebook["metadata"] = KERNEL_METADATA
-
     path.parent.mkdir(parents=True, exist_ok=True)
     nbf.write(notebook, path)
-
     print(f"created {path}")
 
 
-COMMON_SETUP = code(
-    """
-    from __future__ import annotations
+def setup_cell(import_json: bool = False) -> nbf.NotebookNode:
+    imports = [
+        "from __future__ import annotations",
+        "",
+    ]
 
-    import json
-    import sys
-    from pathlib import Path
+    if import_json:
+        imports.append("import json")
 
-    import pandas as pd
-    import plotly.express as px
+    imports.extend(
+        [
+            "import sys",
+            "from pathlib import Path",
+            "",
+            "import pandas as pd",
+            "",
+            'ROOT = Path.cwd()',
+            'if not (ROOT / "data").exists():',
+            "    ROOT = ROOT.parent",
+            "",
+            "sys.path.insert(0, str(ROOT))",
+            "",
+            'DATA_SYNTHETIC = ROOT / "data" / "synthetic"',
+            'DATA_PROCESSED = ROOT / "data" / "processed"',
+            'REPORTS = ROOT / "reports"',
+            'FIGURES = REPORTS / "figures"',
+            "FIGURES.mkdir(parents=True, exist_ok=True)",
+            "",
+            'pd.set_option("display.max_columns", 80)',
+            'pd.set_option("display.width", 160)',
+            "",
+            'print("Project root:", ROOT)',
+        ]
+    )
 
-    ROOT = Path.cwd()
-    if not (ROOT / "data").exists():
-        ROOT = ROOT.parent
-
-    sys.path.insert(0, str(ROOT))
-
-    DATA_SYNTHETIC = ROOT / "data" / "synthetic"
-    DATA_PROCESSED = ROOT / "data" / "processed"
-    REPORTS = ROOT / "reports"
-    FIGURES = REPORTS / "figures"
-    FIGURES.mkdir(parents=True, exist_ok=True)
-
-    pd.set_option("display.max_columns", 80)
-    pd.set_option("display.width", 160)
-
-    print("Project root:", ROOT)
-    print("Synthetic data:", DATA_SYNTHETIC)
-    """
-)
+    return code("\n".join(imports))
 
 
 def synthetic_data_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 01 — Synthetic Data Generation
+            # 01 - Synthetic Data Generation
 
-            Цель ноутбука: визуально проверить synthetic dataset COMPASS AI:
-            сотрудников, задачи, историю назначений, роли, сложность задач и success label.
+            Цель: визуально проверить synthetic dataset COMPASS AI.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(),
         code(
             """
             import yaml
@@ -92,13 +97,14 @@ def synthetic_data_notebook() -> list[nbf.NotebookNode]:
             config_path = ROOT / "config" / "synthetic_data.yaml"
             schema_path = ROOT / "config" / "synthetic_schema.yaml"
 
-            with open(config_path, "r", encoding="utf-8") as file:
+            with open(config_path, encoding="utf-8") as file:
                 synthetic_config = yaml.safe_load(file)
 
-            with open(schema_path, "r", encoding="utf-8") as file:
+            with open(schema_path, encoding="utf-8") as file:
                 synthetic_schema = yaml.safe_load(file)
 
             display(synthetic_config)
+            display(synthetic_schema)
             """
         ),
         code(
@@ -117,45 +123,56 @@ def synthetic_data_notebook() -> list[nbf.NotebookNode]:
         code("display(assignments.head(10))"),
         code(
             """
+            import plotly.express as px
+
             role_counts = employees["role"].value_counts().reset_index()
             role_counts.columns = ["role", "count"]
 
-            fig = px.bar(role_counts, x="role", y="count", title="Employees by role")
+            fig = px.bar(role_counts, x="role", y="count")
+            fig.update_layout(title="Employees by role")
             fig.show()
             """
         ),
         code(
             """
+            import plotly.express as px
+
             fig = px.histogram(
                 tasks,
                 x="complexity",
                 color="project_key",
                 barmode="group",
-                title="Task complexity by project",
             )
+            fig.update_layout(title="Task complexity by project")
             fig.show()
             """
         ),
         code(
             """
-            success_counts = assignments["success_label"].value_counts().sort_index().reset_index()
+            import plotly.express as px
+
+            success_counts = (
+                assignments["success_label"]
+                .value_counts()
+                .sort_index()
+                .reset_index()
+            )
             success_counts.columns = ["success_label", "count"]
 
-            fig = px.bar(
-                success_counts,
-                x="success_label",
-                y="count",
-                title="Success label distribution",
-            )
+            fig = px.bar(success_counts, x="success_label", y="count")
+            fig.update_layout(title="Success label distribution")
             fig.show()
             """
         ),
         code(
             """
+            import plotly.express as px
+
             outcome_counts = assignments["outcome_status"].value_counts().reset_index()
             outcome_counts.columns = ["outcome_status", "count"]
 
-            fig = px.bar(outcome_counts, x="outcome_status", y="count", title="Assignment outcomes")
+            fig = px.bar(outcome_counts, x="outcome_status", y="count")
+            fig.update_layout(title="Assignment outcomes")
             fig.show()
             """
         ),
@@ -166,20 +183,28 @@ def eda_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 02 — Exploratory Data Analysis
+            # 02 - Exploratory Data Analysis
 
-            Цель ноутбука: проверить пропуски, распределения, корреляции и связи между ключевыми признаками и success label.
+            Цель: проверить пропуски, распределения, корреляции и связи признаков.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(),
         code(
             """
             employees = pd.read_csv(DATA_SYNTHETIC / "employees.csv")
             tasks = pd.read_csv(DATA_SYNTHETIC / "tasks.csv")
             assignments = pd.read_csv(DATA_SYNTHETIC / "assignments.csv")
 
-            merged = assignments.merge(tasks, on="task_id", suffixes=("_assignment", "_task"))
-            merged = merged.merge(employees, on="employee_id", suffixes=("", "_employee"))
+            merged = assignments.merge(
+                tasks,
+                on="task_id",
+                suffixes=("_assignment", "_task"),
+            )
+            merged = merged.merge(
+                employees,
+                on="employee_id",
+                suffixes=("", "_employee"),
+            )
 
             print("merged:", merged.shape)
             """
@@ -194,7 +219,11 @@ def eda_notebook() -> list[nbf.NotebookNode]:
                 }
             ).fillna(0)
 
-            display(missing_report.sort_values("assignments_missing", ascending=False).head(30))
+            display(
+                missing_report
+                .sort_values("assignments_missing", ascending=False)
+                .head(30)
+            )
             """
         ),
         code(
@@ -216,29 +245,42 @@ def eda_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
-            fig = px.imshow(corr, text_auto=True, title="Correlation matrix")
+            import plotly.express as px
+
+            fig = px.imshow(corr, text_auto=True)
+            fig.update_layout(title="Correlation matrix")
             fig.show()
             fig.write_html(FIGURES / "eda_correlation_matrix.html")
             """
         ),
         code(
             """
-            success_by_skill = assignments.groupby("success_label")["skill_match_score"].mean().reset_index()
+            import plotly.express as px
+
+            success_by_skill = (
+                assignments
+                .groupby("success_label")["skill_match_score"]
+                .mean()
+                .reset_index()
+            )
 
             fig = px.bar(
                 success_by_skill,
                 x="success_label",
                 y="skill_match_score",
-                title="Average skill match by success label",
             )
+            fig.update_layout(title="Average skill match by success label")
             fig.show()
             fig.write_html(FIGURES / "eda_skill_match_by_success.html")
             """
         ),
         code(
             """
+            import plotly.express as px
+
             success_by_workload = (
-                assignments.groupby("success_label")["employee_workload_at_assignment"]
+                assignments
+                .groupby("success_label")["employee_workload_at_assignment"]
                 .mean()
                 .reset_index()
             )
@@ -247,23 +289,30 @@ def eda_notebook() -> list[nbf.NotebookNode]:
                 success_by_workload,
                 x="success_label",
                 y="employee_workload_at_assignment",
-                title="Average workload by success label",
             )
+            fig.update_layout(title="Average workload by success label")
             fig.show()
             fig.write_html(FIGURES / "eda_workload_by_success.html")
             """
         ),
         code(
             """
-            complexity_success = merged.groupby("complexity")["success_label"].mean().reset_index()
+            import plotly.express as px
+
+            complexity_success = (
+                merged
+                .groupby("complexity")["success_label"]
+                .mean()
+                .reset_index()
+            )
 
             fig = px.line(
                 complexity_success,
                 x="complexity",
                 y="success_label",
                 markers=True,
-                title="Success rate by task complexity",
             )
+            fig.update_layout(title="Success rate by task complexity")
             fig.show()
             fig.write_html(FIGURES / "eda_success_by_complexity.html")
             """
@@ -275,12 +324,12 @@ def training_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 03 — Model Training
+            # 03 - Model Training
 
-            Цель ноутбука: показать конфиг обучения, размеры train/val/test, архитектуру модели, историю loss и лучший checkpoint.
+            Цель: показать конфиг обучения, split, архитектуру и историю обучения.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(import_json=True),
         code(
             """
             split_meta_path = DATA_PROCESSED / "split_metadata.json"
@@ -288,10 +337,10 @@ def training_notebook() -> list[nbf.NotebookNode]:
             history_path = REPORTS / "training_history.csv"
             checkpoint_path = ROOT / "models" / "compass_matching_model.pt"
 
-            with open(split_meta_path, "r", encoding="utf-8") as file:
+            with open(split_meta_path, encoding="utf-8") as file:
                 split_meta = json.load(file)
 
-            with open(training_config_path, "r", encoding="utf-8") as file:
+            with open(training_config_path, encoding="utf-8") as file:
                 training_config = json.load(file)
 
             print("split metadata:")
@@ -337,16 +386,48 @@ def training_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
+            import inspect
+
+            import torch
+
+            from src.models.matching_net import MatchingNetConfig
             from src.models.matching_net import TaskEmployeeMatchingNet
 
-            model = TaskEmployeeMatchingNet(
-                task_input_dim=training_config["task_dim"],
-                employee_input_dim=training_config["employee_dim"],
-                pair_input_dim=training_config["pair_dim"],
-                hidden_dim=training_config.get("hidden_dim", 256),
-                embedding_dim=training_config.get("embedding_dim", 128),
-                dropout=training_config.get("dropout", 0.1),
+            checkpoint = torch.load(
+                checkpoint_path,
+                map_location="cpu",
+                weights_only=False,
             )
+
+            config_source = checkpoint.get("model_config", {})
+            if not config_source:
+                config_source = training_config.get("model_config", {})
+            if not config_source:
+                config_source = training_config
+
+            aliases = {
+                "task_input_dim": training_config.get("task_dim"),
+                "employee_input_dim": training_config.get("employee_dim"),
+                "pair_input_dim": training_config.get("pair_dim"),
+                "task_dim": training_config.get("task_dim"),
+                "employee_dim": training_config.get("employee_dim"),
+                "pair_dim": training_config.get("pair_dim"),
+                "hidden_dim": training_config.get("hidden_dim", 256),
+                "embedding_dim": training_config.get("embedding_dim", 128),
+                "dropout": training_config.get("dropout", 0.1),
+            }
+            aliases.update(config_source)
+
+            config_kwargs = {}
+            for name in inspect.signature(MatchingNetConfig).parameters:
+                if name in aliases and aliases[name] is not None:
+                    config_kwargs[name] = aliases[name]
+
+            print("MatchingNetConfig kwargs:")
+            display(config_kwargs)
+
+            model_config = MatchingNetConfig(**config_kwargs)
+            model = TaskEmployeeMatchingNet(model_config)
 
             model
             """
@@ -359,20 +440,25 @@ def training_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
+            import plotly.express as px
+
             fig = px.line(
                 history,
                 x="epoch",
                 y=["train_loss", "val_loss"],
-                title="Training and validation loss",
             )
+            fig.update_layout(title="Training and validation loss")
             fig.show()
             fig.write_html(FIGURES / "training_loss.html")
             """
         ),
         code(
             """
+            import plotly.express as px
+
             if "val_roc_auc" in history.columns:
-                fig = px.line(history, x="epoch", y="val_roc_auc", title="Validation ROC-AUC")
+                fig = px.line(history, x="epoch", y="val_roc_auc")
+                fig.update_layout(title="Validation ROC-AUC")
                 fig.show()
                 fig.write_html(FIGURES / "training_val_roc_auc.html")
             """
@@ -384,24 +470,27 @@ def evaluation_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 04 — Model Evaluation
+            # 04 - Model Evaluation
 
-            Цель ноутбука: показать classification metrics, confusion matrix, ROC curve, PR curve и ranking metrics.
+            Цель: показать classification metrics, confusion matrix, ROC/PR curves.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(import_json=True),
         code(
             """
-            from sklearn.metrics import auc, confusion_matrix, precision_recall_curve, roc_curve
+            from sklearn.metrics import auc
+            from sklearn.metrics import confusion_matrix
+            from sklearn.metrics import precision_recall_curve
+            from sklearn.metrics import roc_curve
 
             metrics_path = REPORTS / "model_metrics.json"
             ranking_path = REPORTS / "ranking_metrics.json"
             predictions_path = REPORTS / "test_predictions.csv"
 
-            with open(metrics_path, "r", encoding="utf-8") as file:
+            with open(metrics_path, encoding="utf-8") as file:
                 model_metrics = json.load(file)
 
-            with open(ranking_path, "r", encoding="utf-8") as file:
+            with open(ranking_path, encoding="utf-8") as file:
                 ranking_metrics = json.load(file)
 
             predictions = pd.read_csv(predictions_path)
@@ -416,42 +505,62 @@ def evaluation_notebook() -> list[nbf.NotebookNode]:
             y_score = predictions["success_probability"]
 
             cm = confusion_matrix(y_true, y_pred)
-            cm_df = pd.DataFrame(cm, index=["actual_0", "actual_1"], columns=["pred_0", "pred_1"])
+            cm_df = pd.DataFrame(
+                cm,
+                index=["actual_0", "actual_1"],
+                columns=["pred_0", "pred_1"],
+            )
 
             display(cm_df)
             """
         ),
         code(
             """
-            fig = px.imshow(cm_df, text_auto=True, title="Confusion matrix")
+            import plotly.express as px
+
+            fig = px.imshow(cm_df, text_auto=True)
+            fig.update_layout(title="Confusion matrix")
             fig.show()
             fig.write_html(FIGURES / "evaluation_confusion_matrix.html")
             """
         ),
         code(
             """
+            import plotly.express as px
+
             fpr, tpr, _ = roc_curve(y_true, y_score)
             roc_auc = auc(fpr, tpr)
             roc_df = pd.DataFrame({"fpr": fpr, "tpr": tpr})
 
-            fig = px.line(roc_df, x="fpr", y="tpr", title=f"ROC curve AUC={roc_auc:.4f}")
+            fig = px.line(roc_df, x="fpr", y="tpr")
+            fig.update_layout(title=f"ROC curve AUC={roc_auc:.4f}")
             fig.show()
             fig.write_html(FIGURES / "evaluation_roc_curve.html")
             """
         ),
         code(
             """
+            import plotly.express as px
+
             precision, recall, _ = precision_recall_curve(y_true, y_score)
             pr_df = pd.DataFrame({"precision": precision, "recall": recall})
 
-            fig = px.line(pr_df, x="recall", y="precision", title="Precision-Recall curve")
+            fig = px.line(pr_df, x="recall", y="precision")
+            fig.update_layout(title="Precision-Recall curve")
             fig.show()
             fig.write_html(FIGURES / "evaluation_pr_curve.html")
             """
         ),
         code(
             """
-            ranking_df = pd.DataFrame(ranking_metrics).T.reset_index().rename(columns={"index": "model"})
+            import plotly.express as px
+
+            ranking_df = (
+                pd.DataFrame(ranking_metrics)
+                .T
+                .reset_index()
+                .rename(columns={"index": "model"})
+            )
             display(ranking_df)
 
             fig = px.bar(
@@ -459,8 +568,8 @@ def evaluation_notebook() -> list[nbf.NotebookNode]:
                 x="model",
                 y=["precision_at_1", "precision_at_3", "ndcg_at_3", "mrr"],
                 barmode="group",
-                title="Ranking metrics comparison",
             )
+            fig.update_layout(title="Ranking metrics comparison")
             fig.show()
             fig.write_html(FIGURES / "evaluation_ranking_metrics.html")
             """
@@ -472,12 +581,12 @@ def fairness_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 05 — Fairness Analysis
+            # 05 - Fairness Analysis
 
-            Цель ноутбука: проверить senior/junior share, концентрацию рекомендаций, среднюю загрузку рекомендованных сотрудников и баланс по ролям.
+            Цель: проверить senior/junior share, концентрацию и баланс ролей.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(import_json=True),
         code(
             """
             employees = pd.read_csv(DATA_SYNTHETIC / "employees.csv")
@@ -490,19 +599,33 @@ def fairness_notebook() -> list[nbf.NotebookNode]:
         code(
             """
             top_by_task = (
-                scored.sort_values(["task_id", "success_probability"], ascending=[True, False])
+                scored
+                .sort_values(
+                    ["task_id", "success_probability"],
+                    ascending=[True, False],
+                )
                 .groupby("task_id")
                 .head(1)
             )
 
-            top_employee_share = top_by_task["employee_id"].value_counts(normalize=True)
+            top_employee_share = top_by_task["employee_id"].value_counts(
+                normalize=True
+            )
 
             fairness_summary = {
                 "recommended_tasks": int(top_by_task["task_id"].nunique()),
-                "senior_recommendation_share": float((top_by_task["grade"] == "senior").mean()),
-                "junior_recommendation_share": float((top_by_task["grade"] == "junior").mean()),
-                "top_employee_concentration": float(top_employee_share.head(1).iloc[0]),
-                "average_recommended_workload": float(top_by_task["current_workload"].mean()),
+                "senior_recommendation_share": float(
+                    (top_by_task["grade"] == "senior").mean()
+                ),
+                "junior_recommendation_share": float(
+                    (top_by_task["grade"] == "junior").mean()
+                ),
+                "top_employee_concentration": float(
+                    top_employee_share.head(1).iloc[0]
+                ),
+                "average_recommended_workload": float(
+                    top_by_task["current_workload"].mean()
+                ),
             }
 
             display(fairness_summary)
@@ -510,35 +633,48 @@ def fairness_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
+            import plotly.express as px
+
             grade_counts = top_by_task["grade"].value_counts().reset_index()
             grade_counts.columns = ["grade", "count"]
 
-            fig = px.bar(grade_counts, x="grade", y="count", title="Top recommendations by grade")
+            fig = px.bar(grade_counts, x="grade", y="count")
+            fig.update_layout(title="Top recommendations by grade")
             fig.show()
             fig.write_html(FIGURES / "fairness_recommendations_by_grade.html")
             """
         ),
         code(
             """
+            import plotly.express as px
+
             role_counts = top_by_task["role"].value_counts().reset_index()
             role_counts.columns = ["role", "count"]
 
-            fig = px.bar(role_counts, x="role", y="count", title="Top recommendations by role")
+            fig = px.bar(role_counts, x="role", y="count")
+            fig.update_layout(title="Top recommendations by role")
             fig.show()
             fig.write_html(FIGURES / "fairness_recommendations_by_role.html")
             """
         ),
         code(
             """
-            employee_concentration = top_by_task["name"].value_counts().head(10).reset_index()
+            import plotly.express as px
+
+            employee_concentration = (
+                top_by_task["name"]
+                .value_counts()
+                .head(10)
+                .reset_index()
+            )
             employee_concentration.columns = ["name", "top1_recommendations"]
 
             fig = px.bar(
                 employee_concentration,
                 x="name",
                 y="top1_recommendations",
-                title="Top employee concentration",
             )
+            fig.update_layout(title="Top employee concentration")
             fig.show()
             fig.write_html(FIGURES / "fairness_top_employee_concentration.html")
             """
@@ -560,21 +696,19 @@ def plane_demo_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 06 — Plane Integration Demo
+            # 06 - Plane Integration Demo
 
-            Цель ноутбука: показать подключение к Plane, список проектов, задачи, рекомендацию COMPASS AI и markdown-комментарий для Plane.
-
-            Запись комментария по умолчанию выключена.
+            Цель: показать подключение к Plane и пример комментария COMPASS AI.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(),
         code(
             """
             from dotenv import load_dotenv
 
-            load_dotenv(ROOT / ".env")
-
             from src.integration.plane_client import PlaneClient
+
+            load_dotenv(ROOT / ".env")
 
             try:
                 client = PlaneClient.from_env()
@@ -619,7 +753,9 @@ def plane_demo_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
-            from src.integration.plane_comment_formatter import format_plane_recommendation_comment
+            from src.integration.plane_comment_formatter import (
+                format_plane_recommendation_comment,
+            )
 
             comment = format_plane_recommendation_comment(recommendation)
             print(comment)
@@ -643,24 +779,26 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
     return [
         md(
             """
-            # 07 — Business Report
+            # 07 - Business Report
 
-            Цель ноутбука: собрать понятный отчёт для тимлида: проблема, решение, пример рекомендации, качество модели, загрузка команды и fairness.
+            Цель: собрать понятный отчёт для тимлида.
             """
         ),
-        COMMON_SETUP,
+        setup_cell(import_json=True),
         md(
             """
             ## Problem
 
-            Тимлиду сложно вручную выбирать исполнителя задачи: нужно учитывать навыки, загрузку, срочность, качество прошлых работ и развитие сотрудников.
+            Тимлиду сложно вручную выбирать исполнителя задачи: нужно учитывать
+            навыки, загрузку, срочность, качество и развитие сотрудников.
             """
         ),
         md(
             """
             ## Solution
 
-            COMPASS AI анализирует задачу и команду, ранжирует кандидатов через TaskEmployeeMatchingNet и объясняет рекомендацию на русском языке.
+            COMPASS AI анализирует задачу и команду, ранжирует кандидатов через
+            TaskEmployeeMatchingNet и объясняет рекомендацию на русском языке.
             """
         ),
         code(
@@ -682,10 +820,10 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
-            with open(REPORTS / "model_metrics.json", "r", encoding="utf-8") as file:
+            with open(REPORTS / "model_metrics.json", encoding="utf-8") as file:
                 model_metrics = json.load(file)
 
-            with open(REPORTS / "ranking_metrics.json", "r", encoding="utf-8") as file:
+            with open(REPORTS / "ranking_metrics.json", encoding="utf-8") as file:
                 ranking_metrics = json.load(file)
 
             display(pd.DataFrame([model_metrics]))
@@ -712,8 +850,18 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
         ),
         code(
             """
+            import plotly.express as px
+
             workload_df = (
-                employees[["name", "role", "grade", "current_workload", "active_tasks_count"]]
+                employees[
+                    [
+                        "name",
+                        "role",
+                        "grade",
+                        "current_workload",
+                        "active_tasks_count",
+                    ]
+                ]
                 .sort_values("current_workload", ascending=False)
                 .head(15)
             )
@@ -723,8 +871,8 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
                 x="name",
                 y="current_workload",
                 color="role",
-                title="Team workload",
             )
+            fig.update_layout(title="Team workload")
             fig.show()
             fig.write_html(FIGURES / "business_team_workload.html")
             """
@@ -734,12 +882,12 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
             fairness_path = REPORTS / "fairness_summary.json"
 
             if fairness_path.exists():
-                with open(fairness_path, "r", encoding="utf-8") as file:
+                with open(fairness_path, encoding="utf-8") as file:
                     fairness_summary = json.load(file)
 
                 display(fairness_summary)
             else:
-                print("Run 05_fairness_analysis.ipynb first to create fairness_summary.json")
+                print("Run 05_fairness_analysis.ipynb first")
             """
         ),
         md(
@@ -747,14 +895,14 @@ def business_report_notebook() -> list[nbf.NotebookNode]:
             ## Conclusion
 
             COMPASS AI показывает не только accuracy, но и управленческую зрелость:
-            учитывает риски, загрузку, развитие сотрудников и качество прошлых назначений.
+            учитывает риски, загрузку, развитие и качество прошлых назначений.
             """
         ),
     ]
 
 
-def main() -> None:
-    notebooks = {
+def notebook_specs() -> dict[str, list[nbf.NotebookNode]]:
+    return {
         "01_synthetic_data_generation.ipynb": synthetic_data_notebook(),
         "02_data_analysis.ipynb": eda_notebook(),
         "03_model_training.ipynb": training_notebook(),
@@ -764,7 +912,9 @@ def main() -> None:
         "07_business_report.ipynb": business_report_notebook(),
     }
 
-    for filename, cells in notebooks.items():
+
+def main() -> None:
+    for filename, cells in notebook_specs().items():
         write_notebook(NOTEBOOKS_DIR / filename, cells)
 
 

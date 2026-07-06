@@ -9641,6 +9641,7 @@ app/dashboard.py
 
 ```text
 data/manual/plane_employee_history.csv
+```
 
 **Ожидаемый результат:** у реальных demo-сотрудников есть история, по которой COMPASS AI может лучше объяснять рекомендации.
 
@@ -9653,13 +9654,15 @@ data/manual/plane_employee_history.csv
 
 ## 21.1. Создать notebook-шаблоны
 
-- [ ] Создать `notebooks/01_synthetic_data_generation.ipynb`.
-- [ ] Создать `notebooks/02_data_analysis.ipynb`.
-- [ ] Создать `notebooks/03_model_training.ipynb`.
-- [ ] Создать `notebooks/04_model_evaluation.ipynb`.
-- [ ] Создать `notebooks/05_fairness_analysis.ipynb`.
-- [ ] Создать `notebooks/06_plane_integration_demo.ipynb`.
-- [ ] Создать `notebooks/07_business_report.ipynb`.
+- [x] Создать `notebooks/01_synthetic_data_generation.ipynb`.
+- [x] Создать `notebooks/02_data_analysis.ipynb`.
+- [x] Создать `notebooks/03_model_training.ipynb`.
+- [x] Создать `notebooks/04_model_evaluation.ipynb`.
+- [x] Создать `notebooks/05_fairness_analysis.ipynb`.
+- [x] Создать `notebooks/06_plane_integration_demo.ipynb`.
+- [x] Создать `notebooks/07_business_report.ipynb`.
+- [x] Создать генератор notebook-файлов `scripts/create_notebooks.py`.
+- [x] Настроить notebook kernel `Python (COMPASS AI)`.
 
 Команда:
 
@@ -9667,7 +9670,15 @@ data/manual/plane_employee_history.csv
 touch notebooks/01_synthetic_data_generation.ipynb notebooks/02_data_analysis.ipynb notebooks/03_model_training.ipynb notebooks/04_model_evaluation.ipynb notebooks/05_fairness_analysis.ipynb notebooks/06_plane_integration_demo.ipynb notebooks/07_business_report.ipynb
 ```
 
+Фактическая команда генерации notebooks:
+
+```bash
+python scripts/create_notebooks.py
+```
+
 **Ожидаемый результат:** есть структура ноутбуков.
+
+**Фактический результат:** структура notebook-файлов создана, notebooks генерируются через `scripts/create_notebooks.py`.
 
 **Примерное время:** 30 минут.  
 **Коммит:** `Add notebook structure`
@@ -9676,16 +9687,19 @@ touch notebooks/01_synthetic_data_generation.ipynb notebooks/02_data_analysis.ip
 
 ## 21.2. Ноутбук генерации данных
 
-- [ ] В `01_synthetic_data_generation.ipynb` показать параметры генерации.
-- [ ] Показать таблицу сотрудников.
-- [ ] Показать таблицу задач.
-- [ ] Показать таблицу назначений.
-- [ ] Показать распределение ролей.
-- [ ] Показать распределение сложности задач.
-- [ ] Показать распределение success label.
-- [ ] Не писать финальную документацию, только рабочий notebook.
+- [x] В `01_synthetic_data_generation.ipynb` показать параметры генерации.
+- [x] Показать таблицу сотрудников.
+- [x] Показать таблицу задач.
+- [x] Показать таблицу назначений.
+- [x] Показать распределение ролей.
+- [x] Показать распределение сложности задач.
+- [x] Показать распределение success label.
+- [x] Не писать финальную документацию, только рабочий notebook.
+- [x] Исправить notebook cells так, чтобы не было Ruff warnings по `UP015`.
 
 **Ожидаемый результат:** можно визуально проверить, что synthetic data выглядит реалистично.
+
+**Фактический результат:** notebook показывает конфиг, synthetic employees/tasks/assignments и базовые графики распределений.
 
 **Примерное время:** 4–6 часов.  
 **Коммит:** `Add synthetic data notebook`
@@ -9694,15 +9708,16 @@ touch notebooks/01_synthetic_data_generation.ipynb notebooks/02_data_analysis.ip
 
 ## 21.3. Ноутбук EDA
 
-- [ ] В `02_data_analysis.ipynb` загрузить все датасеты.
-- [ ] Проверить пропуски.
-- [ ] Проверить распределения.
-- [ ] Проверить корреляции.
-- [ ] Проверить связь skill match и success.
-- [ ] Проверить связь workload и success.
-- [ ] Проверить связь complexity и success.
-- [ ] Построить графики.
-- [ ] Сохранить основные графики в `reports/figures`.
+- [x] В `02_data_analysis.ipynb` загрузить все датасеты.
+- [x] Проверить пропуски.
+- [x] Проверить распределения.
+- [x] Проверить корреляции.
+- [x] Проверить связь skill match и success.
+- [x] Проверить связь workload и success.
+- [x] Проверить связь complexity и success.
+- [x] Построить графики.
+- [x] Сохранить основные графики в `reports/figures`.
+- [x] Исправить notebook cells так, чтобы не было unused imports.
 
 Папка:
 
@@ -9718,6 +9733,8 @@ mkdir -p reports/figures
 
 **Ожидаемый результат:** понятна структура данных и зависимости.
 
+**Фактический результат:** EDA notebook строит missing report, correlation matrix и графики связи success label с key features.
+
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Add exploratory data analysis notebook`
 
@@ -9725,15 +9742,20 @@ mkdir -p reports/figures
 
 ## 21.4. Ноутбук обучения модели
 
-- [ ] В `03_model_training.ipynb` показать конфиг обучения.
-- [ ] Показать размер train/val/test.
-- [ ] Показать архитектуру модели.
-- [ ] Запустить обучение или загрузить историю обучения.
-- [ ] Показать train/val loss.
-- [ ] Показать ROC-AUC на validation.
-- [ ] Показать сохранённый checkpoint.
+- [x] В `03_model_training.ipynb` показать конфиг обучения.
+- [x] Показать размер train/val/test.
+- [x] Показать архитектуру модели.
+- [x] Запустить обучение или загрузить историю обучения.
+- [x] Показать train/val loss.
+- [x] Показать ROC-AUC на validation.
+- [x] Показать сохранённый checkpoint.
+- [x] Исправить создание модели через `MatchingNetConfig`.
+- [x] Убрать старую ошибку `TaskEmployeeMatchingNet.__init__() got an unexpected keyword argument 'task_input_dim'`.
+- [x] Очистить старые notebook outputs, чтобы VS Code не показывал устаревшие execution errors.
 
 **Ожидаемый результат:** обучение модели воспроизводимо и наглядно.
+
+**Фактический результат:** notebook читает `training_config.json`, `split_metadata.json`, `training_history.csv`, показывает split summary, архитектуру `TaskEmployeeMatchingNet` и training curves.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Add model training notebook`
@@ -9742,17 +9764,20 @@ mkdir -p reports/figures
 
 ## 21.5. Ноутбук оценки модели
 
-- [ ] В `04_model_evaluation.ipynb` загрузить test predictions.
-- [ ] Показать classification metrics.
-- [ ] Показать confusion matrix.
-- [ ] Показать ROC curve.
-- [ ] Показать PR curve.
-- [ ] Показать Precision@3.
-- [ ] Показать NDCG@3.
-- [ ] Сравнить ML model с random baseline.
-- [ ] Сравнить ML model с rule-based baseline.
+- [x] В `04_model_evaluation.ipynb` загрузить test predictions.
+- [x] Показать classification metrics.
+- [x] Показать confusion matrix.
+- [x] Показать ROC curve.
+- [x] Показать PR curve.
+- [x] Показать Precision@3.
+- [x] Показать NDCG@3.
+- [x] Сравнить ML model с random baseline.
+- [x] Сравнить ML model с rule-based baseline.
+- [x] Исправить notebook cells так, чтобы не было indentation/syntax diagnostics.
 
 **Ожидаемый результат:** качество модели подтверждено метриками.
+
+**Фактический результат:** notebook показывает `model_metrics.json`, confusion matrix, ROC/PR curves и comparison таблицу из `ranking_metrics.json`.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Add model evaluation notebook`
@@ -9761,13 +9786,15 @@ mkdir -p reports/figures
 
 ## 21.6. Ноутбук fairness analysis
 
-- [ ] В `05_fairness_analysis.ipynb` анализировать распределение рекомендаций.
-- [ ] Проверить, не выбираются ли почти всегда senior.
-- [ ] Проверить, не игнорируются ли junior.
-- [ ] Проверить среднюю загрузку рекомендованных сотрудников.
-- [ ] Проверить распределение growth-задач.
-- [ ] Проверить баланс по ролям.
-- [ ] Сформировать fairness summary.
+- [x] В `05_fairness_analysis.ipynb` анализировать распределение рекомендаций.
+- [x] Проверить, не выбираются ли почти всегда senior.
+- [x] Проверить, не игнорируются ли junior.
+- [x] Проверить среднюю загрузку рекомендованных сотрудников.
+- [x] Проверить распределение growth-задач.
+- [x] Проверить баланс по ролям.
+- [x] Сформировать fairness summary.
+- [x] Сохранить `reports/fairness_summary.json`.
+- [x] Исправить notebook cells так, чтобы не было indentation/syntax diagnostics.
 
 Метрики:
 
@@ -9781,6 +9808,8 @@ growth_task_distribution
 
 **Ожидаемый результат:** проект показывает управленческую зрелость, а не просто accuracy.
 
+**Фактический результат:** notebook считает fairness summary, распределение top-рекомендаций по grade/role и концентрацию рекомендаций по сотрудникам.
+
 **Примерное время:** 6–10 часов.  
 **Коммит:** `Add fairness analysis notebook`
 
@@ -9788,17 +9817,21 @@ growth_task_distribution
 
 ## 21.7. Ноутбук Plane integration demo
 
-- [ ] В `06_plane_integration_demo.ipynb` показать подключение к Plane.
-- [ ] Получить список проектов.
-- [ ] Получить список задач.
-- [ ] Выбрать одну задачу.
-- [ ] Получить рекомендацию COMPASS AI.
-- [ ] Показать top-3 кандидатов.
-- [ ] Показать текст объяснения.
-- [ ] Показать пример комментария для Plane.
-- [ ] Опционально записать комментарий в Plane.
+- [x] В `06_plane_integration_demo.ipynb` показать подключение к Plane.
+- [x] Получить список проектов.
+- [x] Получить список задач.
+- [x] Выбрать одну задачу.
+- [x] Получить рекомендацию COMPASS AI.
+- [x] Показать top-3 кандидатов.
+- [x] Показать текст объяснения.
+- [x] Показать пример комментария для Plane.
+- [x] Опционально записать комментарий в Plane.
+- [x] Оставить `WRITE_BACK = False` по умолчанию.
+- [x] Исправить imports так, чтобы не было `F401`, `E402` и `I001`.
 
 **Ожидаемый результат:** интеграция с Plane демонстрируется в notebook.
+
+**Фактический результат:** notebook безопасно показывает Plane connection, список проектов/work items, synthetic recommendation и markdown-комментарий COMPASS AI без автоматической записи в Plane.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Add Plane integration demo notebook`
@@ -9807,17 +9840,21 @@ growth_task_distribution
 
 ## 21.8. Ноутбук бизнес-отчёта
 
-- [ ] В `07_business_report.ipynb` собрать основные результаты.
-- [ ] Показать проблему.
-- [ ] Показать решение.
-- [ ] Показать пример рекомендации.
-- [ ] Показать метрики модели.
-- [ ] Показать аналитику загрузки.
-- [ ] Показать fairness.
-- [ ] Показать выводы для тимлида.
-- [ ] Этот notebook потом можно экспортировать в HTML/PDF.
+- [x] В `07_business_report.ipynb` собрать основные результаты.
+- [x] Показать проблему.
+- [x] Показать решение.
+- [x] Показать пример рекомендации.
+- [x] Показать метрики модели.
+- [x] Показать аналитику загрузки.
+- [x] Показать fairness.
+- [x] Показать выводы для тимлида.
+- [x] Этот notebook потом можно экспортировать в HTML/PDF.
+- [x] Исправить notebook cells так, чтобы не было indentation/syntax diagnostics.
+- [x] Очистить старые notebook outputs, чтобы VS Code не показывал устаревшие execution errors.
 
 **Ожидаемый результат:** есть отчёт, который можно показать как результат проекта.
+
+**Фактический результат:** notebook собирает executive summary: проблема, решение, основные метрики, пример рекомендации, team workload и fairness summary.
 
 **Примерное время:** 6–10 часов.  
 **Коммит:** `Add business report notebook`
@@ -9826,12 +9863,17 @@ growth_task_distribution
 
 ## 21.9. Автоматизировать запуск notebooks
 
-- [ ] Создать `src/reports/generate_notebooks.py`.
-- [ ] Использовать `papermill`.
-- [ ] Автоматически запускать notebooks по порядку.
-- [ ] Сохранять выполненные версии в `reports/notebooks`.
-- [ ] Экспортировать HTML через `nbconvert`.
-- [ ] Добавить команду `make reports`.
+- [x] Создать `src/reports/generate_notebooks.py`.
+- [x] Использовать `papermill`.
+- [x] Автоматически запускать notebooks по порядку.
+- [x] Сохранять выполненные версии в `reports/notebooks`.
+- [x] Экспортировать HTML через `nbconvert`.
+- [x] Добавить команду `make reports`.
+- [x] Добавить команду `make notebooks`, если она нужна для перегенерации `.ipynb`.
+- [x] Проверить `scripts/create_notebooks.py` через `py_compile`.
+- [x] Проверить `scripts/create_notebooks.py` через `ruff`.
+- [x] Проверить notebooks через `ruff check notebooks`.
+- [x] Очистить старые notebook outputs через `jupyter nbconvert --clear-output --inplace`.
 
 Папка:
 
@@ -9857,7 +9899,31 @@ python src/reports/generate_notebooks.py
 make reports
 ```
 
+Дополнительная команда генерации notebook-файлов:
+
+```bash
+python scripts/create_notebooks.py
+```
+
+Команда очистки старых outputs:
+
+```bash
+jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
+```
+
+Проверки:
+
+```bash
+python -m py_compile scripts/create_notebooks.py src/reports/generate_notebooks.py
+```
+
+```bash
+ruff check scripts/create_notebooks.py src/reports/generate_notebooks.py notebooks
+```
+
 **Ожидаемый результат:** отчёты генерируются автоматически.
+
+**Фактический результат:** notebooks создаются генератором, выполняются через `papermill`, HTML-версии экспортируются через `nbconvert`, старые notebook execution errors очищаются.
 
 **Примерное время:** 6–10 часов.  
 **Коммит:** `Automate notebook reports`

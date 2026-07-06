@@ -45,7 +45,6 @@ reports/*.pdf
 reports/*.csv
 reports/*.json
 reports/notebooks/
-reports/figures/
 !reports/.gitkeep
 
 # Logs
