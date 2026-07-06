@@ -9,4 +9,4 @@
 .env.*
 
 # External Plane source checkout
-plane/docker
+plane/docker/plane-source/
