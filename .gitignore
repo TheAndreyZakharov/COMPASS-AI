@@ -8,23 +8,5 @@
 .env
 .env.*
 
-# Data
-data/raw/*
-data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-
-# Synthetic data can be regenerated, but keep folder
-data/synthetic/*
-!data/synthetic/.gitkeep
-
-# Models
-models/*.pt
-models/*.pth
-models/*.onnx
-models/*.ckpt
-!models/.gitkeep
-models/*.data
-
 # External Plane source checkout
 plane/docker/plane-source/

@@ -1,0 +1,121 @@
+task_id,plane_work_item_id,plane_issue_id,plane_project_id,project_key,title,action
+TASK-0001,6af5a5f8-a94d-44ad-8258-03748235c030,6af5a5f8-a94d-44ad-8258-03748235c030,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить endpoint для статистики команды,exists
+TASK-0002,331f2a6a-9c14-458f-8796-445162d3dfd4,331f2a6a-9c14-458f-8796-445162d3dfd4,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Реализовать baseline для сравнения с нейросетью,exists
+TASK-0003,61fc5b56-6af5-44e3-9221-f541e1714dbc,61fc5b56-6af5-44e3-9221-f541e1714dbc,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Исправить падение API при пустом описании задачи,exists
+TASK-0004,611c567d-2af6-4fd0-acc7-9fc2032eb2b0,611c567d-2af6-4fd0-acc7-9fc2032eb2b0,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить карточку рекомендации исполнителя,exists
+TASK-0005,ac9f073b-6807-4414-94b1-f8797f8f115a,ac9f073b-6807-4414-94b1-f8797f8f115a,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить запись комментария COMPASS AI в Plane,exists
+TASK-0006,c8d21770-8d0c-4512-a873-0bbf59b2c86b,c8d21770-8d0c-4512-a873-0bbf59b2c86b,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Оптимизировать SQL-запросы в отчётах,created
+TASK-0007,5bc8c7fd-7246-4efd-9917-46bf916e80e8,5bc8c7fd-7246-4efd-9917-46bf916e80e8,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить тесты rule-based ranker,created
+TASK-0008,de4c5f8c-57f9-49ca-8d46-1f814f879484,de4c5f8c-57f9-49ca-8d46-1f814f879484,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0009,fc07c735-6c8b-4913-8b17-90c5b9a63de1,fc07c735-6c8b-4913-8b17-90c5b9a63de1,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты rule-based ranker,created
+TASK-0010,69078c11-d1ff-4745-bc24-589f60e11ac0,69078c11-d1ff-4745-bc24-589f60e11ac0,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить таблицу истории назначений,created
+TASK-0011,49b70a53-ac39-4710-a9ba-fef59da82661,49b70a53-ac39-4710-a9ba-fef59da82661,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить integration test PlaneClient,created
+TASK-0012,8bc4094a-352c-437d-9218-9e07754574ab,8bc4094a-352c-437d-9218-9e07754574ab,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить карточку рекомендации исполнителя,created
+TASK-0013,11fd5c04-b292-4e5c-bfe4-8a52de983b6a,11fd5c04-b292-4e5c-bfe4-8a52de983b6a,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить Docker Compose для dev-окружения,created
+TASK-0014,09466e5a-ee69-4b82-80b0-24fcb495307d,09466e5a-ee69-4b82-80b0-24fcb495307d,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить график распределения workload,created
+TASK-0015,e3e97373-98ed-418b-b58a-8056618d4c2c,e3e97373-98ed-418b-b58a-8056618d4c2c,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0016,bd84a27e-2989-45c2-84ce-a01a655e3d7f,bd84a27e-2989-45c2-84ce-a01a655e3d7f,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0017,040b2c98-798a-44ca-ad26-da20ebb510cd,040b2c98-798a-44ca-ad26-da20ebb510cd,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0018,69a9036d-829c-4efe-a979-165795deb043,69a9036d-829c-4efe-a979-165795deb043,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Реализовать baseline для сравнения с нейросетью,created
+TASK-0019,c5fa138d-3b20-44d3-afee-aaf5201515a7,c5fa138d-3b20-44d3-afee-aaf5201515a7,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Проверить отсутствие секретов в логах,created
+TASK-0020,969a785c-2b56-413b-a024-028e9c90854b,969a785c-2b56-413b-a024-028e9c90854b,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0021,9ccc304b-1992-4aa5-ab2b-9e0fe63930af,9ccc304b-1992-4aa5-ab2b-9e0fe63930af,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить таблицу истории назначений,created
+TASK-0022,55f7dff4-c816-4c8a-8985-397f6ad8b0b0,55f7dff4-c816-4c8a-8985-397f6ad8b0b0,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить страницу командной загрузки,created
+TASK-0023,7708cfa5-4f76-4f5b-9410-8a269d41f2d2,7708cfa5-4f76-4f5b-9410-8a269d41f2d2,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить text embeddings для описаний задач,created
+TASK-0024,71628e4f-844f-4369-9a36-7c7e6ef0528b,71628e4f-844f-4369-9a36-7c7e6ef0528b,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0025,a1b1173f-fc20-47ae-a4c9-5d732e447d49,a1b1173f-fc20-47ae-a4c9-5d732e447d49,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить endpoint для статистики команды,created
+TASK-0026,19139073-8f7d-4fe4-a225-71bf1f8dff00,19139073-8f7d-4fe4-a225-71bf1f8dff00,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты генерации сотрудников,created
+TASK-0027,c459c852-55bf-4b18-9f58-a1c6f3ebf86a,c459c852-55bf-4b18-9f58-a1c6f3ebf86a,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Описать локальный запуск проекта,created
+TASK-0028,5da270ef-41d8-404f-8ef8-241414d72149,5da270ef-41d8-404f-8ef8-241414d72149,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Реализовать фильтр задач на dashboard,created
+TASK-0029,a17e634c-910d-4851-b142-e081c27da1a3,a17e634c-910d-4851-b142-e081c27da1a3,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Реализовать фильтр задач на dashboard,created
+TASK-0030,968cadaa-c535-4150-91b6-3ab08b47cf14,968cadaa-c535-4150-91b6-3ab08b47cf14,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты rule-based ranker,created
+TASK-0031,7831b8d0-97ab-4368-a39f-cac4fd680cd5,7831b8d0-97ab-4368-a39f-cac4fd680cd5,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Оптимизировать SQL-запросы в отчётах,created
+TASK-0032,1760e8ec-4d56-4d14-8d16-a7da08aa0bab,1760e8ec-4d56-4d14-8d16-a7da08aa0bab,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0033,61107aac-ed45-461e-b0e7-a8d2b0687147,61107aac-ed45-461e-b0e7-a8d2b0687147,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить Docker Compose для dev-окружения,created
+TASK-0034,d7b5cf50-f8bf-4a86-845c-c83c14f16a80,d7b5cf50-f8bf-4a86-845c-c83c14f16a80,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0035,4c706e54-1570-4acf-8727-b491d3c3863f,4c706e54-1570-4acf-8727-b491d3c3863f,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить text embeddings для описаний задач,created
+TASK-0036,b0cb2e5d-a706-473d-8f53-f55075c327a2,b0cb2e5d-a706-473d-8f53-f55075c327a2,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Добавить healthcheck для COMPASS API,created
+TASK-0037,541f62db-e82e-48fe-a69d-c3f3c71111fc,541f62db-e82e-48fe-a69d-c3f3c71111fc,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Починить ошибку при смене assignee,created
+TASK-0038,6fa1fd42-2849-4d3e-ae04-f763c0148dcd,6fa1fd42-2849-4d3e-ae04-f763c0148dcd,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты rule-based ranker,created
+TASK-0039,d3927bf7-6c3a-47d3-a5b7-b38347874ed6,d3927bf7-6c3a-47d3-a5b7-b38347874ed6,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0040,98587656-5ad9-465a-be57-9496ea86aa2b,98587656-5ad9-465a-be57-9496ea86aa2b,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Оптимизировать SQL-запросы в отчётах,created
+TASK-0041,9b6e4e44-856e-459f-998e-d7582a84d1bb,9b6e4e44-856e-459f-998e-d7582a84d1bb,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Подготовить demo сценарии проекта,created
+TASK-0042,cb85665d-b271-476f-9b0f-2ad5e0bc11c2,cb85665d-b271-476f-9b0f-2ad5e0bc11c2,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить миграцию для хранения model scores,created
+TASK-0043,9b1e48bf-6b4e-495c-9d01-b0ac61cf5bbf,9b1e48bf-6b4e-495c-9d01-b0ac61cf5bbf,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0044,fcb6dd81-4c44-40ba-8532-9674fb6d6050,fcb6dd81-4c44-40ba-8532-9674fb6d6050,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить фильтрацию задач по статусу,created
+TASK-0045,c7f3fefc-caf0-4d7a-88a2-41961ebdafad,c7f3fefc-caf0-4d7a-88a2-41961ebdafad,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0046,326a1fcf-8fb3-46ad-b802-615ed1650344,326a1fcf-8fb3-46ad-b802-615ed1650344,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить CI-проверку линтера и тестов,created
+TASK-0047,a7c97900-bd29-48e9-820d-2111b5bb7950,a7c97900-bd29-48e9-820d-2111b5bb7950,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить карточку рекомендации исполнителя,created
+TASK-0048,34c95d56-f52a-4278-9dd2-6d7438a37ebe,34c95d56-f52a-4278-9dd2-6d7438a37ebe,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Описать локальный запуск проекта,created
+TASK-0049,f3be7c22-2fdf-4935-b5ec-1c1f55ec4fb0,f3be7c22-2fdf-4935-b5ec-1c1f55ec4fb0,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Проверить отсутствие секретов в логах,created
+TASK-0050,e0736d66-5fb6-469e-bea8-c67452c0e818,e0736d66-5fb6-469e-bea8-c67452c0e818,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Реализовать baseline для сравнения с нейросетью,created
+TASK-0051,a71a50e3-6bba-4dbe-9228-462332b25878,a71a50e3-6bba-4dbe-9228-462332b25878,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить проверку Plane API token,created
+TASK-0052,1648439a-e5f9-46e7-9470-0302725bf398,1648439a-e5f9-46e7-9470-0302725bf398,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить Docker Compose для dev-окружения,created
+TASK-0053,10660a3a-a13e-433d-a7ce-1c7cb1cc9d59,10660a3a-a13e-433d-a7ce-1c7cb1cc9d59,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Добавить healthcheck для COMPASS API,created
+TASK-0054,d79ab1e9-8bfb-48f7-b4a3-09e3c130bdfd,d79ab1e9-8bfb-48f7-b4a3-09e3c130bdfd,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0055,adde0768-4570-4226-bec4-2ef5b5cb52ee,adde0768-4570-4226-bec4-2ef5b5cb52ee,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Упростить слой интеграции с Plane,created
+TASK-0056,72ab9f64-d5bd-4ded-8093-413165950e8f,72ab9f64-d5bd-4ded-8093-413165950e8f,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Описать локальный запуск проекта,created
+TASK-0057,f5e76d43-45a2-4aca-92be-6834778788f1,f5e76d43-45a2-4aca-92be-6834778788f1,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0058,1502163f-9b40-4b3e-83a1-e43a2b04087b,1502163f-9b40-4b3e-83a1-e43a2b04087b,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты генерации сотрудников,created
+TASK-0059,8d907d23-0f28-4a17-8021-dc9b74d5d7fd,8d907d23-0f28-4a17-8021-dc9b74d5d7fd,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0060,3f6c5ffe-0b82-4c99-b863-760a41616bfc,3f6c5ffe-0b82-4c99-b863-760a41616bfc,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0061,d2b4ca22-e6dc-439e-96ee-a8a4cd44fe53,d2b4ca22-e6dc-439e-96ee-a8a4cd44fe53,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить страницу командной загрузки,created
+TASK-0062,8bbcdb90-b20b-4a8c-a6d9-2249d794191e,8bbcdb90-b20b-4a8c-a6d9-2249d794191e,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить карточку рекомендации исполнителя,created
+TASK-0063,e964cfd9-29e5-4c20-88f0-7d1e0ff03b65,e964cfd9-29e5-4c20-88f0-7d1e0ff03b65,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить экспорт аналитики в CSV,created
+TASK-0064,139bd68e-77e9-48dc-9603-28b8d60f1c5f,139bd68e-77e9-48dc-9603-28b8d60f1c5f,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить график распределения workload,created
+TASK-0065,8b9bc9b1-4444-4fd0-809d-6b91f766f502,8b9bc9b1-4444-4fd0-809d-6b91f766f502,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить проверку Plane API token,created
+TASK-0066,63ee2a57-26c3-44dc-bc14-cabdc5c640e9,63ee2a57-26c3-44dc-bc14-cabdc5c640e9,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать датасет пар задача-сотрудник,created
+TASK-0067,fc5c8f44-a505-47b5-9cca-a5724909fc31,fc5c8f44-a505-47b5-9cca-a5724909fc31,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0068,8d03f488-90f4-4e8e-8b0b-aeb5b5488f1c,8d03f488-90f4-4e8e-8b0b-aeb5b5488f1c,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить миграцию для хранения model scores,created
+TASK-0069,a5fbdcb2-7800-41d5-9162-251a307a3b56,a5fbdcb2-7800-41d5-9162-251a307a3b56,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить карточку рекомендации исполнителя,created
+TASK-0070,7b8e810e-70b5-42d3-ad55-ce31fdb5ea64,7b8e810e-70b5-42d3-ad55-ce31fdb5ea64,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Подключить чтение work items из Plane,created
+TASK-0071,92debffc-6216-4000-a585-ae24241248b5,92debffc-6216-4000-a585-ae24241248b5,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить запись комментария COMPASS AI в Plane,created
+TASK-0072,48788c36-d943-42f1-add0-a181679e41dc,48788c36-d943-42f1-add0-a181679e41dc,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Собрать отчёт по fairness рекомендаций,created
+TASK-0073,57e3ca0c-c5f8-40cc-bc5c-c66472278aff,57e3ca0c-c5f8-40cc-bc5c-c66472278aff,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Подключить чтение work items из Plane,created
+TASK-0074,c60def60-616b-48fa-82ea-368c863a94e4,c60def60-616b-48fa-82ea-368c863a94e4,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить фильтрацию задач по статусу,created
+TASK-0075,a1a00363-8e01-4918-ab05-3edfc37f3f0b,a1a00363-8e01-4918-ab05-3edfc37f3f0b,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0076,9e54cf58-2ad1-4ef5-8c5d-54e35fdfe13d,9e54cf58-2ad1-4ef5-8c5d-54e35fdfe13d,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить Docker Compose для dev-окружения,created
+TASK-0077,d3c15347-062b-4f6f-bdaf-4786d5427c6c,d3c15347-062b-4f6f-bdaf-4786d5427c6c,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить запись комментария COMPASS AI в Plane,created
+TASK-0078,df29a656-2b03-47c0-8ef3-62c070b03014,df29a656-2b03-47c0-8ef3-62c070b03014,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Провести ревизию auto-assignment,created
+TASK-0079,19adfa21-46af-43f0-8bad-1ef1a57fc514,19adfa21-46af-43f0-8bad-1ef1a57fc514,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0080,7ac7a9db-92c8-472e-9c3d-fd6474ce03cd,7ac7a9db-92c8-472e-9c3d-fd6474ce03cd,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Разделить генератор данных на независимые шаги,created
+TASK-0081,fd0e25d7-69c4-4501-b65b-c91bee0977af,fd0e25d7-69c4-4501-b65b-c91bee0977af,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить миграцию для хранения model scores,created
+TASK-0082,d2d3e9cd-23cf-49fa-b449-e540d8abe404,d2d3e9cd-23cf-49fa-b449-e540d8abe404,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created
+TASK-0083,70f9ec47-1c22-4dac-8442-ca2d8723891e,70f9ec47-1c22-4dac-8442-ca2d8723891e,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0084,71901f21-cbd7-4ea1-b720-1e0169c8a1b9,71901f21-cbd7-4ea1-b720-1e0169c8a1b9,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить страницу командной загрузки,created
+TASK-0085,85eb65f9-e6fe-4f30-88cd-3e8778b1fc0d,85eb65f9-e6fe-4f30-88cd-3e8778b1fc0d,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить безопасную обработку API token,created
+TASK-0086,99163c21-e043-448d-ab9b-c8209af86b7f,99163c21-e043-448d-ab9b-c8209af86b7f,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить text embeddings для описаний задач,created
+TASK-0087,ca1c0676-340c-4575-b474-7077b2de376c,ca1c0676-340c-4575-b474-7077b2de376c,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить график распределения workload,created
+TASK-0088,58019789-51bc-4446-bb07-81920345df5f,58019789-51bc-4446-bb07-81920345df5f,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить integration test PlaneClient,created
+TASK-0089,ecf2e29d-65cc-4a23-b971-128a3ac5cfb9,ecf2e29d-65cc-4a23-b971-128a3ac5cfb9,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить запись комментария COMPASS AI в Plane,created
+TASK-0090,18f98c76-a621-46dc-9d81-5ac455ec8895,18f98c76-a621-46dc-9d81-5ac455ec8895,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Реализовать baseline для сравнения с нейросетью,created
+TASK-0091,1cd0e542-f287-4a33-8212-3cd2b6558de2,1cd0e542-f287-4a33-8212-3cd2b6558de2,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Описать локальный запуск проекта,created
+TASK-0092,55798b13-5ec6-425f-837d-c2caceaeee0a,55798b13-5ec6-425f-837d-c2caceaeee0a,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Добавить карточку рекомендации исполнителя,created
+TASK-0093,c959a435-3e2e-468d-8108-8b0c93423b78,c959a435-3e2e-468d-8108-8b0c93423b78,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить проверку Plane API token,created
+TASK-0094,f6e4f39b-b439-450f-a15f-8455772d5c89,f6e4f39b-b439-450f-a15f-8455772d5c89,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Исправить падение API при пустом описании задачи,created
+TASK-0095,45a9f6a5-23b5-48b2-a606-a9b6b578bf13,45a9f6a5-23b5-48b2-a606-a9b6b578bf13,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать датасет пар задача-сотрудник,created
+TASK-0096,a88d5e7f-3d45-459d-a078-d42e8592f4a7,a88d5e7f-3d45-459d-a078-d42e8592f4a7,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить таблицу истории назначений,created
+TASK-0097,9c7e0346-abd5-4ff1-aef9-b52b9c320730,9c7e0346-abd5-4ff1-aef9-b52b9c320730,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить экспорт аналитики в CSV,created
+TASK-0098,d28720fd-c6ba-4ad0-9de0-c2b571becfec,d28720fd-c6ba-4ad0-9de0-c2b571becfec,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Разделить генератор данных на независимые шаги,created
+TASK-0099,3d88bde9-a5c5-4c4b-afc3-081b08ede566,3d88bde9-a5c5-4c4b-afc3-081b08ede566,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить экспорт аналитики в CSV,created
+TASK-0100,67854f0e-7e68-4bdd-aa0d-abb85f38f5c3,67854f0e-7e68-4bdd-aa0d-abb85f38f5c3,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Реализовать JWT-авторизацию,created
+TASK-0101,7b8129b8-cd99-424f-ae16-412268a21560,7b8129b8-cd99-424f-ae16-412268a21560,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Починить ошибку при смене assignee,created
+TASK-0102,ac90f46f-c3f7-480a-84fb-23460191ca9e,ac90f46f-c3f7-480a-84fb-23460191ca9e,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Починить ошибку при смене assignee,created
+TASK-0103,c5c7fba1-bb5c-4d09-a7bb-78b9acc57796,c5c7fba1-bb5c-4d09-a7bb-78b9acc57796,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Оптимизировать SQL-запросы в отчётах,created
+TASK-0104,7dced954-98ff-4a56-b92f-5356ece5387f,7dced954-98ff-4a56-b92f-5356ece5387f,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Провести ревизию auto-assignment,created
+TASK-0105,790c8088-9430-4a61-a063-68424f28c737,790c8088-9430-4a61-a063-68424f28c737,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить text embeddings для описаний задач,created
+TASK-0106,8f11a127-078b-47e0-9896-d201781a8325,8f11a127-078b-47e0-9896-d201781a8325,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Оптимизировать SQL-запросы в отчётах,created
+TASK-0107,20ee18cc-d497-4ce9-ba56-92ce6d4f4bf7,20ee18cc-d497-4ce9-ba56-92ce6d4f4bf7,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Добавить страницу командной загрузки,created
+TASK-0108,3fef692d-5d48-4f10-9193-b38f30aac874,3fef692d-5d48-4f10-9193-b38f30aac874,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Описать локальный запуск проекта,created
+TASK-0109,a87cdd5f-a403-4dcd-9103-8429944449f7,a87cdd5f-a403-4dcd-9103-8429944449f7,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Упростить слой интеграции с Plane,created
+TASK-0110,5ee35ad1-e0e2-42cd-a01a-a1fcf0706d99,5ee35ad1-e0e2-42cd-a01a-a1fcf0706d99,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить тесты rule-based ranker,created
+TASK-0111,39734e9b-0a9f-4e9a-80f9-041fd0ce8672,39734e9b-0a9f-4e9a-80f9-041fd0ce8672,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Добавить график распределения workload,created
+TASK-0112,a643acdc-0926-4c81-bc0c-684def097aa0,a643acdc-0926-4c81-bc0c-684def097aa0,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить запись комментария COMPASS AI в Plane,created
+TASK-0113,fc7a0ea8-03df-40b3-a06b-7ef4dcc552ea,fc7a0ea8-03df-40b3-a06b-7ef4dcc552ea,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0114,1ec3cab6-7fbc-4ca2-a355-e958ab84462c,1ec3cab6-7fbc-4ca2-a355-e958ab84462c,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Настроить Docker Compose для dev-окружения,created
+TASK-0115,7d432e96-d378-4b48-8e28-a1b9abae1734,7d432e96-d378-4b48-8e28-a1b9abae1734,33832fc6-ade4-4ac0-a937-9ba70b0859d8,FRONT,Реализовать фильтр задач на dashboard,created
+TASK-0116,e727148f-1394-4007-92f4-9204802a831c,e727148f-1394-4007-92f4-9204802a831c,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Реализовать JWT-авторизацию,created
+TASK-0117,e8bc6c7f-d159-42b1-98b8-e0cc2d651679,e8bc6c7f-d159-42b1-98b8-e0cc2d651679,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить миграцию для хранения model scores,created
+TASK-0118,1cad7167-a07a-4f48-85c9-a61139d0590f,1cad7167-a07a-4f48-85c9-a61139d0590f,e608e7ad-f4fe-401d-b0f3-5570e82f08ee,BACK,Добавить запись комментария COMPASS AI в Plane,created
+TASK-0119,c13fd5f3-161a-4fd1-9044-1b369da41ee9,c13fd5f3-161a-4fd1-9044-1b369da41ee9,50d969c6-ae4c-4afe-a8aa-33cdb478f787,TOOLS,Подготовить demo сценарии проекта,created
+TASK-0120,2f0ca2ac-00ac-4429-9cef-564a26b9833e,2f0ca2ac-00ac-4429-9cef-564a26b9833e,cdbeb78a-e8d3-4277-ad9b-13d6b8e44dab,DATA,Собрать отчёт по fairness рекомендаций,created

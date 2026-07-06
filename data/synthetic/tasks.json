@@ -1,0 +1,105 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "COMPASS: start stack",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "COMPASS: start Plane",
+        "COMPASS: start Ollama",
+        "COMPASS: start API",
+        "COMPASS: start Dashboard"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "COMPASS: start Plane",
+      "type": "shell",
+      "command": "./scripts/start_plane.sh && cd plane/docker/plane-source && docker compose logs -f --tail=100 proxy api web admin space",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start Ollama",
+      "type": "shell",
+      "command": "./scripts/start_ollama.sh",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start API",
+      "type": "shell",
+      "command": "source .venv/bin/activate && uvicorn app.api:app --reload --host 0.0.0.0 --port 8000",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start Dashboard",
+      "type": "shell",
+      "command": "source .venv/bin/activate && (sleep 8 && open http://localhost:8501) & source .venv/bin/activate && streamlit run app/dashboard.py --server.headless false --server.port 8501",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: stop stack",
+      "type": "shell",
+      "command": "./scripts/stop_compass_stack.sh",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "clear": true,
+        "close": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

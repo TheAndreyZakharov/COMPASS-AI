@@ -1,0 +1,35 @@
+{
+  "random_state": 42,
+  "split_strategy": "group_split_by_task_id",
+  "train_size_target": 0.7,
+  "val_size_target": 0.15,
+  "test_size_target": 0.15,
+  "splits": [
+    {
+      "split": "train",
+      "rows": 42052,
+      "tasks": 1750,
+      "employees": 36,
+      "success_rate": 0.450775
+    },
+    {
+      "split": "val",
+      "rows": 9024,
+      "tasks": 375,
+      "employees": 36,
+      "success_rate": 0.44293
+    },
+    {
+      "split": "test",
+      "rows": 8924,
+      "tasks": 375,
+      "employees": 36,
+      "success_rate": 0.457642
+    }
+  ],
+  "leakage_check": {
+    "task_id_overlap_train_val": 0,
+    "task_id_overlap_train_test": 0,
+    "task_id_overlap_val_test": 0
+  }
+}
