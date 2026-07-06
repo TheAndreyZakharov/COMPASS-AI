@@ -1,0 +1,26 @@
+{
+  "ml_model": {
+    "precision_at_1": 0.893333,
+    "precision_at_3": 0.853333,
+    "ndcg_at_3": 0.862555,
+    "mrr": 0.943778,
+    "tasks_evaluated": 375.0,
+    "rows_evaluated": 8924.0
+  },
+  "rule_based_baseline": {
+    "precision_at_1": 0.872,
+    "precision_at_3": 0.859556,
+    "ndcg_at_3": 0.86111,
+    "mrr": 0.932667,
+    "tasks_evaluated": 375.0,
+    "rows_evaluated": 8924.0
+  },
+  "random_baseline": {
+    "precision_at_1": 0.485333,
+    "precision_at_3": 0.501333,
+    "ndcg_at_3": 0.495777,
+    "mrr": 0.667997,
+    "tasks_evaluated": 375.0,
+    "rows_evaluated": 8924.0
+  }
+}

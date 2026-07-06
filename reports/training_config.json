@@ -1,0 +1,16 @@
+{
+  "device": "mps",
+  "epochs": 40,
+  "batch_size": 512,
+  "learning_rate": 0.0007,
+  "weight_decay": 0.0001,
+  "hidden_dim": 256,
+  "embedding_dim": 128,
+  "dropout": 0.1,
+  "patience": 8,
+  "train_rows": 42052,
+  "val_rows": 9024,
+  "task_dim": 404,
+  "employee_dim": 60,
+  "pair_dim": 13
+}

@@ -1,0 +1,13 @@
+{
+  "onnx_path": "models/task_employee_matcher.onnx",
+  "opset_version": 17,
+  "task_input_dim": 404,
+  "employee_input_dim": 60,
+  "pair_input_dim": 13,
+  "task_embedding_dim": 128,
+  "employee_embedding_dim": 128,
+  "hidden_dim": 256,
+  "dropout": 0.1,
+  "output": "success_probability",
+  "dynamic_batch": true
+}

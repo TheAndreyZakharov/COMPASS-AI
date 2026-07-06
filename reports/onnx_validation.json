@@ -1,0 +1,17 @@
+{
+  "checkpoint_path": "models/compass_matching_model.pt",
+  "onnx_path": "models/task_employee_matcher.onnx",
+  "batch_size": 8,
+  "task_input_dim": 404,
+  "employee_input_dim": 60,
+  "pair_input_dim": 13,
+  "validation": {
+    "max_abs_diff": 2.384185791015625e-07,
+    "mean_abs_diff": 6.007030606269836e-08,
+    "pytorch_min": 0.03231645002961159,
+    "pytorch_max": 0.8823279142379761,
+    "onnx_min": 0.0323164165019989,
+    "onnx_max": 0.8823279738426208,
+    "is_close": true
+  }
+}

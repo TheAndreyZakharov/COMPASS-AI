@@ -1,0 +1,79 @@
+
+Starting local Plane for COMPASS AI
+✓ Docker CLI is available.
+✓ Docker Desktop is running.
+✓ Plane source directory exists.
+✓ Plane docker-compose.yml exists.
+✓ Plane root .env exists.
+✓ Plane API .env exists.
+
+Validating Docker Compose
+✓ Docker Compose configuration is valid.
+
+Starting containers
+ Container plane-db Starting 
+ Container plane-live Starting 
+ Container plane-minio Starting 
+ Container plane-mq Starting 
+ Container plane-redis Starting 
+ Container plane-redis Started 
+ Container plane-live Started 
+ Container plane-minio Started 
+ Container plane-mq Started 
+ Container plane-db Started 
+ Container api Starting 
+ Container plane-migrator Starting 
+ Container api Started 
+ Container bgworker Starting 
+ Container beatworker Starting 
+ Container web Starting 
+ Container plane-migrator Started 
+ Container bgworker Started 
+ Container web Started 
+ Container space Starting 
+ Container admin Starting 
+ Container beatworker Started 
+ Container admin Started 
+ Container space Started 
+ Container proxy Starting 
+ Container proxy Started 
+✓ Docker Compose start command completed.
+
+Current Plane containers
+NAME             IMAGE                               COMMAND                  SERVICE       CREATED      STATUS                           PORTS
+admin            plane-source-admin                  "/docker-entrypoint.…"   admin         3 days ago   Up 1 second (health: starting)   80/tcp, 3000/tcp
+api              plane-source-api                    "./bin/docker-entryp…"   api           3 days ago   Up 2 seconds                     8000/tcp
+beatworker       plane-source-beat-worker            "./bin/docker-entryp…"   beat-worker   3 days ago   Up 1 second                      8000/tcp
+bgworker         plane-source-worker                 "./bin/docker-entryp…"   worker        3 days ago   Up 1 second                      8000/tcp
+plane-db         postgres:15.7-alpine                "docker-entrypoint.s…"   plane-db      4 days ago   Up 2 seconds                     5432/tcp
+plane-live       plane-source-live                   "docker-entrypoint.s…"   live          3 days ago   Up 2 seconds                     3000/tcp
+plane-migrator   plane-source-migrator               "./bin/docker-entryp…"   migrator      3 days ago   Up 2 seconds                     8000/tcp
+plane-minio      minio/minio                         "/usr/bin/docker-ent…"   plane-minio   4 days ago   Up 2 seconds                     9000/tcp
+plane-mq         rabbitmq:3.13.6-management-alpine   "docker-entrypoint.s…"   plane-mq      4 days ago   Up 2 seconds                     4369/tcp, 5671-5672/tcp, 15671-15672/tcp, 15691-15692/tcp, 25672/tcp
+plane-redis      valkey/valkey:7.2.11-alpine         "docker-entrypoint.s…"   plane-redis   4 days ago   Up 2 seconds                     6379/tcp
+proxy            plane-source-proxy                  "caddy run --config …"   proxy         3 days ago   Up Less than a second            0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
+space            plane-source-space                  "docker-entrypoint.s…"   space         3 days ago   Up 1 second (health: starting)   3000/tcp
+web              plane-source-web                    "/docker-entrypoint.…"   web           3 days ago   Up 1 second (health: starting)   80/tcp, 3000/tcp
+
+Waiting for frontend containers
+… Attempt 1/60: web=starting, admin=starting, space=starting
+… Attempt 2/60: web=healthy, admin=healthy, space=starting
+… Attempt 3/60: web=healthy, admin=healthy, space=starting
+✓ web container is healthy.
+✓ admin container is healthy.
+✓ space container is healthy.
+
+Waiting for API
+… Attempt 1/60: API is not ready yet.
+… Attempt 2/60: API is not ready yet.
+… Attempt 3/60: API is not ready yet.
+… Attempt 4/60: API is not ready yet.
+… Attempt 5/60: API is not ready yet.
+✓ Plane API returned {"status": "OK"}.
+
+Waiting for main web URL
+✓ Plane main URL responds: http://localhost
+
+Waiting for workspace route
+✓ Plane workspace route responds: http://localhost/compass-ai-lab/
+✓ Plane is ready.

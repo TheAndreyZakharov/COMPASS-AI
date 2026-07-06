@@ -1,0 +1,105 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "COMPASS: start stack",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "COMPASS: start Plane",
+        "COMPASS: start Ollama",
+        "COMPASS: start API",
+        "COMPASS: start Dashboard"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "COMPASS: start Plane",
+      "type": "shell",
+      "command": "./scripts/start_plane.sh",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start Ollama",
+      "type": "shell",
+      "command": "if command -v ollama >/dev/null 2>&1; then if curl -fsS http://localhost:11434/api/tags >/dev/null 2>&1; then echo 'Ollama already running.'; while curl -fsS http://localhost:11434/api/tags >/dev/null 2>&1; do sleep 5; done; else echo 'Starting Ollama server...'; ollama serve; fi; else echo 'Ollama is not installed. Fallback explanations will work without LLM.'; while true; do sleep 3600; done; fi",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start API",
+      "type": "shell",
+      "command": "source .venv/bin/activate && uvicorn app.api:app --reload --host 0.0.0.0 --port 8000",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: start Dashboard",
+      "type": "shell",
+      "command": "source .venv/bin/activate && (sleep 6 && open http://localhost:8501) & streamlit run app/dashboard.py --server.headless false --server.port 8501",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "close": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "COMPASS: stop stack",
+      "type": "shell",
+      "command": "./scripts/stop_compass_stack.sh",
+      "options": {
+        "cwd": "/Users/andrey/Documents/projects/COMPASS-AI"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "clear": true,
+        "close": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
