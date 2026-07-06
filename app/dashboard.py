@@ -27,12 +27,373 @@ RECOMMENDATION_MODES = [
     "risk_minimization",
 ]
 
+MODE_LABELS = {
+    "balanced_workload": "Balanced workload",
+    "fast_delivery": "Fast delivery",
+    "growth": "Growth",
+    "risk_minimization": "Risk minimization",
+}
+
+PAGE_DESCRIPTIONS = {
+    "Overview": (
+        "Общая картина synthetic-данных, качества назначений "
+        "и базового состояния системы."
+    ),
+    "Issue Recommendations": (
+        "AI-рекомендации исполнителей для synthetic, Plane и ручных задач."
+    ),
+    "Plane Live": (
+        "Живые проекты, задачи и участники из Plane с запуском AI-анализа."
+    ),
+    "Synthetic Team Workload": (
+        "Нагрузка synthetic-команды и риски перегруза по ML-профилям."
+    ),
+    "Plane Team": (
+        "Быстрый просмотр активных пользователей, приглашений "
+        "и проектных участников Plane."
+    ),
+    "Model Metrics": "Метрики ML-модели и ranking-качества.",
+    "Fairness": "Проверка распределения назначений, концентрации и fairness-рисков.",
+    "Settings": "Настройки dashboard, API и локальных сервисов.",
+}
 
 st.set_page_config(
     page_title="COMPASS AI Dashboard",
     page_icon="🧭",
     layout="wide",
 )
+
+
+def apply_dashboard_theme() -> None:
+    st.markdown(
+        """
+<style>
+:root {
+    --compass-bg: #f5f7fb;
+    --compass-panel: rgba(255, 255, 255, 0.86);
+    --compass-panel-solid: #ffffff;
+    --compass-border: rgba(15, 23, 42, 0.08);
+    --compass-text: #111827;
+    --compass-muted: #667085;
+    --compass-soft: #eef2ff;
+    --compass-blue: #2563eb;
+    --compass-blue-dark: #1d4ed8;
+    --compass-green: #16a34a;
+    --compass-amber: #d97706;
+    --compass-red: #dc2626;
+    --compass-shadow: 0 18px 55px rgba(15, 23, 42, 0.08);
+}
+
+html,
+body,
+[class*="css"] {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "Inter",
+        "Segoe UI",
+        sans-serif;
+}
+
+.stApp {
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(37, 99, 235, 0.10),
+            transparent 30rem
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(14, 165, 233, 0.10),
+            transparent 28rem
+        ),
+        linear-gradient(180deg, #fbfcff 0%, var(--compass-bg) 100%);
+    color: var(--compass-text);
+}
+
+[data-testid="stHeader"] {
+    background: rgba(251, 252, 255, 0.72);
+    backdrop-filter: blur(18px);
+}
+
+[data-testid="stSidebar"] {
+    background: rgba(255, 255, 255, 0.78);
+    border-right: 1px solid var(--compass-border);
+    backdrop-filter: blur(24px);
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    color: var(--compass-text);
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 1440px;
+}
+
+.compass-hero {
+    padding: 2rem 2.1rem;
+    margin-bottom: 1.35rem;
+    border: 1px solid var(--compass-border);
+    border-radius: 28px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(255, 255, 255, 0.72)
+        ),
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(37, 99, 235, 0.12),
+            transparent 22rem
+        );
+    box-shadow: var(--compass-shadow);
+}
+
+.compass-kicker {
+    width: fit-content;
+    padding: 0.35rem 0.7rem;
+    margin-bottom: 0.9rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--compass-blue-dark);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.compass-hero h1 {
+    margin: 0;
+    color: var(--compass-text);
+    font-size: clamp(2rem, 4vw, 3.35rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+}
+
+.compass-hero p {
+    max-width: 760px;
+    margin: 0.9rem 0 0;
+    color: var(--compass-muted);
+    font-size: 1.08rem;
+    line-height: 1.65;
+}
+
+.compass-section {
+    padding: 1.35rem 1.45rem;
+    margin: 1.05rem 0;
+    border: 1px solid var(--compass-border);
+    border-radius: 24px;
+    background: var(--compass-panel);
+    box-shadow: 0 12px 38px rgba(15, 23, 42, 0.055);
+}
+
+.compass-section-title {
+    margin: 0 0 0.3rem;
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--compass-text);
+}
+
+.compass-section-caption {
+    margin: 0 0 1rem;
+    color: var(--compass-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.compass-callout {
+    padding: 1rem 1.1rem;
+    margin: 0.7rem 0 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(37, 99, 235, 0.14);
+    background: rgba(37, 99, 235, 0.055);
+    color: #1e3a8a;
+}
+
+.compass-card {
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--compass-border);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.compass-candidate {
+    padding: 1.1rem 1.2rem;
+    margin: 0.75rem 0;
+    border: 1px solid rgba(37, 99, 235, 0.13);
+    border-radius: 22px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(248, 250, 252, 0.92)
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(37, 99, 235, 0.08),
+            transparent 12rem
+        );
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.compass-candidate-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.6rem;
+    border-radius: 999px;
+    background: #111827;
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.compass-candidate-name {
+    margin: 0.7rem 0 0.2rem;
+    font-size: 1.18rem;
+    font-weight: 850;
+    color: var(--compass-text);
+}
+
+.compass-candidate-meta {
+    color: var(--compass-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.compass-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.34rem 0.72rem;
+    margin: 0.15rem 0.25rem 0.15rem 0;
+    border-radius: 999px;
+    border: 1px solid var(--compass-border);
+    background: rgba(255, 255, 255, 0.9);
+    color: #344054;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.compass-pill-blue {
+    border-color: rgba(37, 99, 235, 0.18);
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+}
+
+.compass-pill-green {
+    border-color: rgba(22, 163, 74, 0.18);
+    background: rgba(22, 163, 74, 0.08);
+    color: #15803d;
+}
+
+.compass-pill-amber {
+    border-color: rgba(217, 119, 6, 0.18);
+    background: rgba(217, 119, 6, 0.08);
+    color: #b45309;
+}
+
+.compass-pill-red {
+    border-color: rgba(220, 38, 38, 0.18);
+    background: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+}
+
+[data-testid="stMetric"] {
+    padding: 1.05rem 1rem;
+    border: 1px solid var(--compass-border);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.045);
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--compass-muted);
+    font-weight: 700;
+}
+
+[data-testid="stMetricValue"] {
+    color: var(--compass-text);
+    font-weight: 850;
+}
+
+.stButton > button {
+    border-radius: 999px;
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    background: linear-gradient(180deg, #2f6df6, #1d4ed8);
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.18);
+}
+
+.stButton > button:hover {
+    border-color: rgba(37, 99, 235, 0.30);
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.045);
+}
+
+.stTabs [data-baseweb="tab"] {
+    border-radius: 999px;
+    color: #475467;
+    font-weight: 750;
+}
+
+.stTabs [aria-selected="true"] {
+    background: white;
+    color: var(--compass-text);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+[data-testid="stExpander"] {
+    border: 1px solid var(--compass-border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+[data-testid="stDataFrame"] {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+hr {
+    margin: 1.2rem 0;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 768px) {
+    .block-container {
+        padding-top: 1rem;
+    }
+
+    .compass-hero {
+        padding: 1.35rem;
+        border-radius: 22px;
+    }
+
+    .compass-section {
+        padding: 1rem;
+        border-radius: 20px;
+    }
+}
+</style>
+""",
+        unsafe_allow_html=True,
+    )
 
 
 def read_json_file(path: Path) -> dict[str, Any]:
@@ -155,6 +516,127 @@ def dataframe_columns(df: pd.DataFrame, columns: list[str]) -> list[str]:
     return [column for column in columns if column in df.columns]
 
 
+def page_hero(title: str, description: str) -> None:
+    st.markdown(
+        f"""
+<div class="compass-hero">
+    <div class="compass-kicker">COMPASS AI</div>
+    <h1>{title}</h1>
+    <p>{description}</p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def section_header(title: str, caption: str | None = None) -> None:
+    caption_html = ""
+    if caption:
+        caption_html = f'<p class="compass-section-caption">{caption}</p>'
+
+    st.markdown(
+        f"""
+<div class="compass-section">
+    <p class="compass-section-title">{title}</p>
+    {caption_html}
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def callout(text: str) -> None:
+    st.markdown(
+        f'<div class="compass-callout">{text}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def metric_cards(
+    items: list[tuple[str, Any]],
+    columns_count: int | None = None,
+) -> None:
+    if not items:
+        return
+
+    columns_count = columns_count or min(len(items), 5)
+    columns = st.columns(columns_count)
+
+    for index, (label, value) in enumerate(items):
+        with columns[index % columns_count]:
+            st.metric(label, value)
+
+
+def style_chart(chart: Any, height: int = 360) -> Any:
+    chart.update_layout(
+        template="plotly_white",
+        height=height,
+        margin=dict(l=16, r=16, t=34, b=16),
+        paper_bgcolor="rgba(255,255,255,0)",
+        plot_bgcolor="rgba(255,255,255,0)",
+        font=dict(
+            family="Inter, SF Pro Display, Arial",
+            color="#111827",
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
+    )
+    chart.update_xaxes(showgrid=False, zeroline=False)
+    chart.update_yaxes(gridcolor="rgba(15,23,42,0.08)", zeroline=False)
+    return chart
+
+
+def show_chart(chart: Any, height: int = 360) -> None:
+    st.plotly_chart(style_chart(chart, height=height), width="stretch")
+
+
+def show_table_expander(
+    title: str,
+    df: pd.DataFrame,
+    columns: list[str] | None = None,
+    expanded: bool = False,
+) -> None:
+    with st.expander(title, expanded=expanded):
+        if columns:
+            visible_columns = dataframe_columns(df, columns)
+            st.dataframe(df[visible_columns], width="stretch")
+        else:
+            st.dataframe(df, width="stretch")
+
+
+def mode_selectbox(label: str, key: str | None = None) -> str:
+    selected_label = st.selectbox(
+        label,
+        [MODE_LABELS[mode] for mode in RECOMMENDATION_MODES],
+        index=0,
+        key=key,
+    )
+    reverse_labels = {
+        label_value: mode
+        for mode, label_value in MODE_LABELS.items()
+    }
+    return reverse_labels[selected_label]
+
+
+def score_pill(value: Any) -> str:
+    score = safe_float(value)
+    if score >= 0.80:
+        class_name = "compass-pill-green"
+    elif score >= 0.60:
+        class_name = "compass-pill-blue"
+    elif score >= 0.40:
+        class_name = "compass-pill-amber"
+    else:
+        class_name = "compass-pill-red"
+
+    return f'<span class="compass-pill {class_name}">Score {score:.3f}</span>'
+
+
 def show_api_status(api_url: str) -> None:
     try:
         health = api_get(api_url, "/health")
@@ -168,7 +650,7 @@ def show_api_status(api_url: str) -> None:
 
 
 def overview_page(api_url: str) -> None:
-    st.header("Overview")
+    page_hero("Overview", PAGE_DESCRIPTIONS["Overview"])
 
     employees = load_employees()
     tasks = load_tasks()
@@ -178,7 +660,9 @@ def overview_page(api_url: str) -> None:
         st.warning("Synthetic data не найдены. Сначала запусти генерацию данных.")
         return
 
-    average_workload = safe_float(employees.get("current_workload", pd.Series()).mean())
+    average_workload = safe_float(
+        employees.get("current_workload", pd.Series()).mean(),
+    )
     average_success_probability = safe_float(
         assignments.get("success_probability", pd.Series()).mean(),
     )
@@ -188,47 +672,101 @@ def overview_page(api_url: str) -> None:
     else:
         high_risk_assignments = 0
 
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Synthetic tasks", len(tasks))
-    col2.metric("Synthetic employees", len(employees))
-    col3.metric("Avg workload", f"{average_workload:.2f}")
-    col4.metric("High risk rows", high_risk_assignments)
-    col5.metric("Avg success probability", f"{average_success_probability:.2f}")
+    metric_cards(
+        [
+            ("Synthetic tasks", len(tasks)),
+            ("Synthetic employees", len(employees)),
+            ("Avg workload", f"{average_workload:.2f}"),
+            ("High risk rows", high_risk_assignments),
+            ("Avg success probability", f"{average_success_probability:.2f}"),
+        ],
+    )
 
-    if "project_key" in tasks.columns:
-        st.subheader("Synthetic tasks by project")
-        project_counts = tasks["project_key"].value_counts().reset_index()
-        project_counts.columns = ["project_key", "tasks_count"]
-        chart = px.bar(project_counts, x="project_key", y="tasks_count")
-        st.plotly_chart(chart, width="stretch")
+    st.divider()
 
-    if "task_type" in tasks.columns:
-        st.subheader("Synthetic tasks by type")
-        type_counts = tasks["task_type"].value_counts().reset_index()
-        type_counts.columns = ["task_type", "tasks_count"]
-        chart = px.bar(type_counts, x="task_type", y="tasks_count")
-        st.plotly_chart(chart, width="stretch")
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        if "project_key" in tasks.columns:
+            section_header(
+                "Tasks by project",
+                "Где сосредоточена synthetic-нагрузка.",
+            )
+            project_counts = tasks["project_key"].value_counts().reset_index()
+            project_counts.columns = ["project_key", "tasks_count"]
+            chart = px.bar(
+                project_counts,
+                x="project_key",
+                y="tasks_count",
+                color="tasks_count",
+                color_continuous_scale="Blues",
+            )
+            show_chart(chart)
+
+    with chart_col2:
+        if "task_type" in tasks.columns:
+            section_header(
+                "Tasks by type",
+                "Какие категории задач чаще встречаются.",
+            )
+            type_counts = tasks["task_type"].value_counts().reset_index()
+            type_counts.columns = ["task_type", "tasks_count"]
+            chart = px.bar(
+                type_counts,
+                x="task_type",
+                y="tasks_count",
+                color="tasks_count",
+                color_continuous_scale="Blues",
+            )
+            show_chart(chart)
 
     if "outcome_status" in assignments.columns:
-        st.subheader("Synthetic assignment outcomes")
+        section_header(
+            "Assignment outcomes",
+            "Итоги synthetic-назначений в обучающих данных.",
+        )
         outcome_counts = assignments["outcome_status"].value_counts().reset_index()
         outcome_counts.columns = ["outcome_status", "count"]
-        chart = px.pie(outcome_counts, names="outcome_status", values="count")
-        st.plotly_chart(chart, width="stretch")
+        chart = px.pie(
+            outcome_counts,
+            names="outcome_status",
+            values="count",
+            hole=0.62,
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        show_chart(chart, height=410)
 
-    with st.expander("API status"):
+    show_table_expander("Show synthetic tasks table", tasks, expanded=False)
+    show_table_expander("Show synthetic employees table", employees, expanded=False)
+    show_table_expander(
+        "Show synthetic assignments table",
+        assignments,
+        expanded=False,
+    )
+
+    with st.expander("API status", expanded=False):
         show_api_status(api_url)
 
 
 def issue_recommendations_page(api_url: str) -> None:
-    st.header("Issue Recommendations")
+    page_hero("Issue Recommendations", PAGE_DESCRIPTIONS["Issue Recommendations"])
 
-    mode = st.selectbox("Recommendation mode", RECOMMENDATION_MODES, index=0)
-    top_k = st.slider("Top K", min_value=1, max_value=10, value=3)
-    use_llm = st.checkbox("Use LLM explanation", value=False)
+    callout(
+        "Выбери режим рекомендации один раз сверху. "
+        "Дальше можно анализировать synthetic-задачу, "
+        "реальную Plane-задачу по ID или ручное описание задачи."
+    )
+
+    control_col1, control_col2, control_col3 = st.columns([1.4, 1, 1])
+    with control_col1:
+        mode = mode_selectbox("Recommendation mode")
+    with control_col2:
+        top_k = st.slider("Top candidates", min_value=1, max_value=10, value=3)
+    with control_col3:
+        use_llm = st.checkbox("Use LLM explanation", value=False)
 
     tab_synthetic, tab_plane, tab_manual = st.tabs(
-        ["Synthetic TASK-*", "Plane work item by ID", "Manual task"],
+        ["Synthetic task", "Plane work item by ID", "Manual task"],
     )
 
     with tab_synthetic:
@@ -262,7 +800,10 @@ def synthetic_recommendation_tab(
     top_k: int,
     use_llm: bool,
 ) -> None:
-    st.subheader("Analyze synthetic task")
+    section_header(
+        "Analyze synthetic task",
+        "Быстрый демо-анализ задачи из synthetic dataset.",
+    )
 
     tasks = load_tasks()
     if tasks.empty or "task_id" not in tasks.columns:
@@ -272,7 +813,11 @@ def synthetic_recommendation_tab(
     task_options = tasks["task_id"].head(250).tolist()
     task_id = st.selectbox("Synthetic task id", task_options, index=0)
 
-    if not st.button("Analyze synthetic issue"):
+    with st.expander("Preview selected synthetic task", expanded=False):
+        selected_task = tasks[tasks["task_id"] == task_id]
+        st.dataframe(selected_task, width="stretch")
+
+    if not st.button("Analyze synthetic issue", type="primary"):
         return
 
     try:
@@ -300,25 +845,35 @@ def plane_recommendation_tab(
     top_k: int,
     use_llm: bool,
 ) -> None:
-    st.subheader("Analyze real Plane work item by ID")
-
-    project_id = st.text_input("Plane project id", value=DEFAULT_PLANE_PROJECT_ID)
-    work_item_id = st.text_input("Plane work item id")
-    write_back = st.checkbox("Write recommendation comment to Plane", value=False)
-    auto_assign = st.checkbox("Auto assign top candidate", value=False)
-    threshold = st.number_input(
-        "Auto assign threshold",
-        min_value=0.0,
-        max_value=1.0,
-        value=0.75,
+    section_header(
+        "Analyze real Plane work item by ID",
+        (
+            "Ручной режим для конкретной Plane-задачи. "
+            "Для удобного выбора из списка используй Plane Live."
+        ),
     )
 
-    st.caption(
-        "Этот старый режим анализирует Plane task по ручному ID. "
-        "Новый live-режим со списком задач находится на странице Plane Live."
-    )
+    with st.expander("Plane work item settings", expanded=True):
+        project_id = st.text_input("Plane project id", value=DEFAULT_PLANE_PROJECT_ID)
+        work_item_id = st.text_input("Plane work item id")
 
-    if not st.button("Analyze Plane work item by ID"):
+        advanced_col1, advanced_col2, advanced_col3 = st.columns(3)
+        with advanced_col1:
+            write_back = st.checkbox(
+                "Write recommendation comment to Plane",
+                value=False,
+            )
+        with advanced_col2:
+            auto_assign = st.checkbox("Auto assign top candidate", value=False)
+        with advanced_col3:
+            threshold = st.number_input(
+                "Auto assign threshold",
+                min_value=0.0,
+                max_value=1.0,
+                value=0.75,
+            )
+
+    if not st.button("Analyze Plane work item by ID", type="primary"):
         return
 
     if not work_item_id.strip():
@@ -352,31 +907,43 @@ def manual_recommendation_tab(
     top_k: int,
     use_llm: bool,
 ) -> None:
-    st.subheader("Analyze manual task")
-
-    title = st.text_input(
-        "Task title",
-        value="Добавить endpoint для командной аналитики",
-    )
-    description = st.text_area(
-        "Task description",
-        value="Нужно сделать FastAPI endpoint для summary по загрузке команды и рискам.",
-        height=120,
-    )
-    priority = st.selectbox(
-        "Priority",
-        ["none", "low", "medium", "high", "urgent"],
-        index=3,
-    )
-    labels = st.text_input("Labels", value="backend, fastapi, feature")
-    deadline_days = st.number_input(
-        "Deadline days",
-        min_value=1,
-        max_value=90,
-        value=7,
+    section_header(
+        "Analyze manual task",
+        "Опиши задачу вручную и получи AI-рекомендацию без привязки к Plane.",
     )
 
-    if not st.button("Analyze manual task"):
+    with st.expander("Task description", expanded=True):
+        title = st.text_input(
+            "Task title",
+            value="Добавить endpoint для командной аналитики",
+        )
+        description = st.text_area(
+            "Task description",
+            value=(
+                "Нужно сделать FastAPI endpoint для summary по загрузке "
+                "команды и рискам."
+            ),
+            height=130,
+        )
+
+        meta_col1, meta_col2, meta_col3 = st.columns([1, 1.4, 1])
+        with meta_col1:
+            priority = st.selectbox(
+                "Priority",
+                ["none", "low", "medium", "high", "urgent"],
+                index=3,
+            )
+        with meta_col2:
+            labels = st.text_input("Labels", value="backend, fastapi, feature")
+        with meta_col3:
+            deadline_days = st.number_input(
+                "Deadline days",
+                min_value=1,
+                max_value=90,
+                value=7,
+            )
+
+    if not st.button("Analyze manual task", type="primary"):
         return
 
     label_list = [label.strip() for label in labels.split(",") if label.strip()]
@@ -404,22 +971,15 @@ def manual_recommendation_tab(
 
 
 def plane_live_page(api_url: str) -> None:
-    st.header("Plane Live")
+    page_hero("Plane Live", PAGE_DESCRIPTIONS["Plane Live"])
 
-    st.info(
-        "Эта страница показывает только реальные данные из Plane: "
-        "projects, work items и project members. "
-        "Если в Plane появилась новая задача или новый активный member, "
-        "они появятся здесь после refresh."
-    )
-
-    col_a, col_b = st.columns([1, 1])
-    with col_a:
-        if st.button("Refresh Plane data"):
+    top_col1, top_col2 = st.columns([1, 2])
+    with top_col1:
+        if st.button("Refresh Plane data", type="primary"):
             st.cache_data.clear()
             st.rerun()
 
-    with col_b:
+    with top_col2, st.expander("API status", expanded=False):
         show_api_status(api_url)
 
     try:
@@ -442,11 +1002,15 @@ def plane_live_page(api_url: str) -> None:
     if not isinstance(pending_invitations, list):
         pending_invitations = []
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Plane projects", live_data.get("projects_count", len(projects)))
-    col2.metric("Plane work items", live_data.get("work_items_count", 0))
-    col3.metric("Open work items", live_data.get("open_work_items_count", 0))
-    col4.metric("Workspace members", live_data.get("workspace_members_count", 0))
+    metric_cards(
+        [
+            ("Plane projects", live_data.get("projects_count", len(projects))),
+            ("Plane work items", live_data.get("work_items_count", 0)),
+            ("Open work items", live_data.get("open_work_items_count", 0)),
+            ("Workspace members", live_data.get("workspace_members_count", 0)),
+        ],
+        columns_count=4,
+    )
 
     if pending_invitations:
         st.warning(
@@ -463,6 +1027,15 @@ def plane_live_page(api_url: str) -> None:
         for project in projects
         if isinstance(project, dict)
     ]
+
+    if not project_labels:
+        st.warning("Plane projects вернулись, но payload некорректный.")
+        return
+
+    section_header(
+        "Select project",
+        "Сначала выбери Plane-проект, затем задачу для AI-анализа.",
+    )
 
     selected_label = st.selectbox("Plane project", project_labels, index=0)
     selected_index = project_labels.index(selected_label)
@@ -482,19 +1055,22 @@ def plane_live_page(api_url: str) -> None:
     if not isinstance(members, list):
         members = []
 
-    project_col1, project_col2, project_col3 = st.columns(3)
-    project_col1.metric("Project members", len(members))
-    project_col2.metric("Project work items", len(work_items))
-    project_col3.metric(
-        "Project open work items",
-        int(selected_project.get("open_work_items_count") or 0),
+    metric_cards(
+        [
+            ("Project members", len(members)),
+            ("Project work items", len(work_items)),
+            (
+                "Project open work items",
+                int(selected_project.get("open_work_items_count") or 0),
+            ),
+        ],
+        columns_count=3,
     )
-
-    st.subheader("Real Plane project members")
 
     if members:
         members_df = pd.DataFrame(members)
-        visible_columns = dataframe_columns(
+        show_table_expander(
+            "Show real Plane project members",
             members_df,
             [
                 "id",
@@ -506,18 +1082,16 @@ def plane_live_page(api_url: str) -> None:
                 "role",
             ],
         )
-        st.dataframe(members_df[visible_columns], width="stretch")
     else:
         st.warning("В этом Plane project нет members или API их не вернул.")
-
-    st.subheader("Real Plane work items")
 
     if not work_items:
         st.warning("В этом Plane project нет work items.")
         return
 
     work_items_df = pd.DataFrame(work_items)
-    visible_columns = dataframe_columns(
+    show_table_expander(
+        "Show real Plane work items",
         work_items_df,
         [
             "id",
@@ -530,9 +1104,20 @@ def plane_live_page(api_url: str) -> None:
             "updated_at",
         ],
     )
-    st.dataframe(work_items_df[visible_columns], width="stretch")
 
-    open_only = st.checkbox("Show only open work items", value=True)
+    st.divider()
+
+    section_header(
+        "Analyze selected work item",
+        (
+            "Выбери задачу из проекта и запусти рекомендацию. "
+            "Таблицы и debug-данные спрятаны ниже."
+        ),
+    )
+
+    filter_col1, filter_col2 = st.columns([1, 2])
+    with filter_col1:
+        open_only = st.checkbox("Show only open work items", value=True)
 
     if open_only and "is_open" in work_items_df.columns:
         selectable_df = work_items_df[work_items_df["is_open"]].copy()
@@ -548,45 +1133,66 @@ def plane_live_page(api_url: str) -> None:
         axis=1,
     )
 
-    selected_task_label = st.selectbox(
-        "Select Plane work item for AI analysis",
-        selectable_df["select_label"].tolist(),
-    )
+    with filter_col2:
+        selected_task_label = st.selectbox(
+            "Select Plane work item for AI analysis",
+            selectable_df["select_label"].tolist(),
+        )
+
     selected_task_row = selectable_df[
         selectable_df["select_label"] == selected_task_label
     ].iloc[0]
     work_item_id = str(selected_task_row.get("id") or "")
 
-    st.subheader("Analyze selected Plane work item")
-
-    mode = st.selectbox(
-        "Plane Live recommendation mode",
-        RECOMMENDATION_MODES,
-        index=0,
+    selected_preview = pd.DataFrame(
+        [selected_task_row.drop(labels=["select_label"]).to_dict()],
     )
-    top_k = st.slider(
-        "Plane Live Top K",
-        min_value=1,
-        max_value=10,
-        value=3,
-    )
-    use_llm = st.checkbox("Plane Live: use LLM explanation", value=False)
-    write_back = st.checkbox("Plane Live: write comment to Plane", value=False)
-    auto_assign = st.checkbox("Plane Live: auto assign top candidate", value=False)
-    threshold = st.number_input(
-        "Plane Live: auto assign threshold",
-        min_value=0.0,
-        max_value=1.0,
-        value=0.75,
+    show_table_expander(
+        "Show selected work item details",
+        selected_preview,
+        expanded=False,
     )
 
-    st.caption(
-        "В этом режиме кандидаты ограничены реальными project members Plane. "
-        "Если member не связан с COMPASS employee profile, он всё равно "
-        "попадёт в список как plane_unmapped кандидат, но с нейтральными skills."
-    )
+    settings_col1, settings_col2, settings_col3 = st.columns([1.4, 1, 1])
+    with settings_col1:
+        mode = mode_selectbox("Plane Live recommendation mode", key="plane_live_mode")
+    with settings_col2:
+        top_k = st.slider(
+            "Plane Live Top K",
+            min_value=1,
+            max_value=10,
+            value=3,
+        )
+    with settings_col3:
+        use_llm = st.checkbox("Plane Live: use LLM explanation", value=False)
 
-    if not st.button("Analyze selected Plane work item"):
+    with st.expander("Advanced Plane actions", expanded=False):
+        action_col1, action_col2, action_col3 = st.columns(3)
+        with action_col1:
+            write_back = st.checkbox(
+                "Plane Live: write comment to Plane",
+                value=False,
+            )
+        with action_col2:
+            auto_assign = st.checkbox(
+                "Plane Live: auto assign top candidate",
+                value=False,
+            )
+        with action_col3:
+            threshold = st.number_input(
+                "Plane Live: auto assign threshold",
+                min_value=0.0,
+                max_value=1.0,
+                value=0.75,
+            )
+
+        st.caption(
+            "В этом режиме кандидаты ограничены реальными project members Plane. "
+            "Если member не связан с COMPASS employee profile, он всё равно "
+            "попадёт в список как plane_unmapped кандидат, но с нейтральными skills."
+        )
+
+    if not st.button("Analyze selected Plane work item", type="primary"):
         return
 
     try:
@@ -618,19 +1224,68 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
     task_id = response.get("task_id")
     plane_work_item_id = response.get("plane_work_item_id")
     top_score = safe_float(candidate.get("score")) if candidate else None
+    mode_value = MODE_LABELS.get(
+        str(response.get("mode")),
+        response.get("mode", "n/a"),
+    )
 
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Task", task_id or plane_work_item_id or "n/a")
-    col2.metric("Mode", response.get("mode", "n/a"))
-    col3.metric("Top score", f"{top_score:.4f}" if top_score is not None else "n/a")
-    col4.metric("Source", candidate.get("source", response.get("source", "n/a")))
-    col5.metric("Candidate scope", response.get("candidate_scope", "default"))
+    metric_cards(
+        [
+            ("Task", task_id or plane_work_item_id or "n/a"),
+            ("Mode", mode_value),
+            ("Top score", f"{top_score:.4f}" if top_score is not None else "n/a"),
+            ("Source", candidate.get("source", response.get("source", "n/a"))),
+            ("Candidate scope", response.get("candidate_scope", "default")),
+        ],
+    )
 
-    st.subheader("Top candidates")
     candidates = response.get("top_candidates") or []
+
+    section_header(
+        "Top candidates",
+        "Главные рекомендации отсортированы по score. Полная таблица доступна ниже.",
+    )
 
     if isinstance(candidates, list) and candidates:
         candidates_df = pd.DataFrame(candidates)
+
+        for candidate_item in candidates[:3]:
+            if not isinstance(candidate_item, dict):
+                continue
+
+            rank = candidate_item.get("rank", "n/a")
+            name = (
+                candidate_item.get("name")
+                or candidate_item.get("employee_id")
+                or "Unknown candidate"
+            )
+            role = candidate_item.get("role") or "role n/a"
+            grade = candidate_item.get("grade") or "grade n/a"
+            source = candidate_item.get("source") or "source n/a"
+            success_probability = candidate_item.get("success_probability")
+
+            probability_html = ""
+            if success_probability is not None:
+                probability_html = (
+                    '<span class="compass-pill compass-pill-green">'
+                    f"Success {safe_float(success_probability):.3f}</span>"
+                )
+
+            st.markdown(
+                f"""
+<div class="compass-candidate">
+    <span class="compass-candidate-rank">#{rank}</span>
+    <div class="compass-candidate-name">{name}</div>
+    <div class="compass-candidate-meta">{role} · {grade} · {source}</div>
+    <div style="margin-top: 0.75rem;">
+        {score_pill(candidate_item.get("score"))}
+        {probability_html}
+    </div>
+</div>
+""",
+                unsafe_allow_html=True,
+            )
+
         visible_columns = dataframe_columns(
             candidates_df,
             [
@@ -645,23 +1300,28 @@ def show_recommendation_response(response: dict[str, Any]) -> None:
                 "source",
             ],
         )
-        st.dataframe(candidates_df[visible_columns], width="stretch")
+        show_table_expander(
+            "Show full candidates table",
+            candidates_df,
+            visible_columns,
+            expanded=False,
+        )
     else:
         st.warning("Кандидаты не вернулись.")
 
-    st.subheader("Explanation")
+    section_header("Explanation", "Краткое объяснение рекомендации.")
     st.markdown(response.get("explanation") or "No explanation")
 
-    with st.expander("Plane live"):
+    with st.expander("Plane live debug", expanded=False):
         st.json(response.get("plane_live", {}))
 
-    with st.expander("Plane write-back"):
+    with st.expander("Plane write-back debug", expanded=False):
         st.json(response.get("plane_write_back", {}))
 
-    with st.expander("Plane auto-assign"):
+    with st.expander("Plane auto-assign debug", expanded=False):
         st.json(response.get("plane_auto_assign", {}))
 
-    with st.expander("Raw response"):
+    with st.expander("Raw response", expanded=False):
         st.json(response)
 
 
@@ -681,9 +1341,9 @@ def workload_risk_level(workload: Any) -> str:
 
 
 def team_workload_page() -> None:
-    st.header("Synthetic Team Workload")
+    page_hero("Synthetic Team Workload", PAGE_DESCRIPTIONS["Synthetic Team Workload"])
 
-    st.info(
+    callout(
         "Эта страница показывает synthetic/ML-профили COMPASS. "
         "Реальные люди и задачи из Plane находятся на странице Plane Live."
     )
@@ -710,22 +1370,33 @@ def team_workload_page() -> None:
         return
 
     employees = employees.copy()
-    employees["workload_percent"] = employees["current_workload"].apply(safe_float) * 100
-    employees["overload_risk"] = employees["current_workload"].apply(workload_risk_level)
+    employees["workload_percent"] = (
+        employees["current_workload"].apply(safe_float) * 100
+    )
+    employees["overload_risk"] = employees["current_workload"].apply(
+        workload_risk_level,
+    )
 
     average_workload = safe_float(employees["current_workload"].mean())
     high_risk_count = int((employees["overload_risk"] == "high").sum())
     critical_risk_count = int((employees["overload_risk"] == "critical").sum())
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Synthetic employees", len(employees))
-    col2.metric("Avg workload", f"{average_workload:.2f}")
-    col3.metric("High risk", high_risk_count)
-    col4.metric("Critical risk", critical_risk_count)
+    metric_cards(
+        [
+            ("Synthetic employees", len(employees)),
+            ("Avg workload", f"{average_workload:.2f}"),
+            ("High risk", high_risk_count),
+            ("Critical risk", critical_risk_count),
+        ],
+        columns_count=4,
+    )
 
-    st.subheader("Workload by synthetic employee")
+    section_header(
+        "Workload by synthetic employee",
+        "Самые загруженные участники сверху. Цвет показывает уровень риска.",
+    )
+
     workload_chart = employees.sort_values("current_workload", ascending=False)
-
     hover_columns = dataframe_columns(
         workload_chart,
         ["employee_id", "role", "grade", "active_tasks_count"],
@@ -736,10 +1407,15 @@ def team_workload_page() -> None:
         y="workload_percent",
         color="overload_risk",
         hover_data=hover_columns,
+        color_discrete_map={
+            "low": "#16a34a",
+            "medium": "#d97706",
+            "high": "#dc2626",
+            "critical": "#7f1d1d",
+        },
     )
-    st.plotly_chart(chart, width="stretch")
+    show_chart(chart, height=430)
 
-    st.subheader("Synthetic team table")
     columns = dataframe_columns(
         employees,
         [
@@ -757,13 +1433,19 @@ def team_workload_page() -> None:
             "deadline_reliability",
         ],
     )
-    st.dataframe(employees[columns], width="stretch")
+
+    show_table_expander(
+        "Show synthetic team table",
+        employees,
+        columns,
+        expanded=False,
+    )
 
 
 def plane_team_page(api_url: str) -> None:
-    st.header("Plane Team")
+    page_hero("Plane Team", PAGE_DESCRIPTIONS["Plane Team"])
 
-    st.info(
+    callout(
         "Эта страница оставлена как быстрый просмотр людей Plane. "
         "Полный live-режим с задачами и AI-анализом находится на странице Plane Live."
     )
@@ -787,22 +1469,25 @@ def plane_team_page(api_url: str) -> None:
     if not isinstance(projects, list):
         projects = []
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric(
-        "Workspace members",
-        response.get("workspace_members_count", len(workspace_members)),
+    metric_cards(
+        [
+            (
+                "Workspace members",
+                response.get("workspace_members_count", len(workspace_members)),
+            ),
+            (
+                "Pending invitations",
+                response.get("pending_invitations_count", len(pending_invitations)),
+            ),
+            ("Projects", len(projects)),
+        ],
+        columns_count=3,
     )
-    col2.metric(
-        "Pending invitations",
-        response.get("pending_invitations_count", len(pending_invitations)),
-    )
-    col3.metric("Projects", len(projects))
-
-    st.subheader("Active workspace members")
 
     if workspace_members:
         members_df = pd.DataFrame(workspace_members)
-        visible_columns = dataframe_columns(
+        show_table_expander(
+            "Show active workspace members",
             members_df,
             [
                 "id",
@@ -813,16 +1498,15 @@ def plane_team_page(api_url: str) -> None:
                 "last_name",
                 "role",
             ],
+            expanded=True,
         )
-        st.dataframe(members_df[visible_columns], width="stretch")
     else:
         st.warning("Plane API не вернул активных workspace members.")
 
-    st.subheader("Pending invitations")
-
     if pending_invitations:
         pending_df = pd.DataFrame(pending_invitations)
-        visible_columns = dataframe_columns(
+        show_table_expander(
+            "Show pending invitations",
             pending_df,
             [
                 "id",
@@ -832,12 +1516,18 @@ def plane_team_page(api_url: str) -> None:
                 "responded_at",
                 "created_at",
             ],
+            expanded=False,
         )
-        st.dataframe(pending_df[visible_columns], width="stretch")
     else:
         st.success("Нет pending invitations.")
 
-    st.subheader("Project members")
+    section_header(
+        "Project members",
+        (
+            "Участники по проектам спрятаны в раскрывающиеся блоки, "
+            "чтобы страница не выглядела как debug-таблица."
+        ),
+    )
 
     if not projects:
         st.warning("Plane projects не вернулись.")
@@ -854,8 +1544,8 @@ def plane_team_page(api_url: str) -> None:
         if not isinstance(members, list):
             members = []
 
-        title = f"{project_name} ({project_identifier}) — members: {len(members)}"
-        with st.expander(title):
+        title = f"{project_name} ({project_identifier}) · members: {len(members)}"
+        with st.expander(title, expanded=False):
             if members:
                 project_df = pd.DataFrame(members)
                 visible_columns = dataframe_columns(
@@ -876,7 +1566,7 @@ def plane_team_page(api_url: str) -> None:
 
 
 def model_metrics_page() -> None:
-    st.header("Model Metrics")
+    page_hero("Model Metrics", PAGE_DESCRIPTIONS["Model Metrics"])
 
     model_metrics = load_model_metrics()
     ranking_metrics = load_ranking_metrics()
@@ -893,19 +1583,30 @@ def model_metrics_page() -> None:
 
 
 def show_classification_metrics(model_metrics: dict[str, Any]) -> None:
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("ROC-AUC", f"{safe_float(model_metrics.get('roc_auc')):.4f}")
-    col2.metric("PR-AUC", f"{safe_float(model_metrics.get('pr_auc')):.4f}")
-    col3.metric("F1", f"{safe_float(model_metrics.get('f1')):.4f}")
-    col4.metric("Precision", f"{safe_float(model_metrics.get('precision')):.4f}")
-    col5.metric("Recall", f"{safe_float(model_metrics.get('recall')):.4f}")
+    section_header(
+        "Classification metrics",
+        "Основные метрики качества binary classification модели.",
+    )
 
-    st.subheader("Classification metrics")
-    st.json(model_metrics)
+    metric_cards(
+        [
+            ("ROC-AUC", f"{safe_float(model_metrics.get('roc_auc')):.4f}"),
+            ("PR-AUC", f"{safe_float(model_metrics.get('pr_auc')):.4f}"),
+            ("F1", f"{safe_float(model_metrics.get('f1')):.4f}"),
+            ("Precision", f"{safe_float(model_metrics.get('precision')):.4f}"),
+            ("Recall", f"{safe_float(model_metrics.get('recall')):.4f}"),
+        ],
+    )
+
+    with st.expander("Show raw classification metrics", expanded=False):
+        st.json(model_metrics)
 
 
 def show_ranking_metrics(ranking_metrics: dict[str, Any]) -> None:
-    st.subheader("Ranking metrics")
+    section_header(
+        "Ranking metrics",
+        "Сравнение моделей по качеству ранжирования кандидатов.",
+    )
 
     rows = []
     for model_name, metrics in ranking_metrics.items():
@@ -919,28 +1620,34 @@ def show_ranking_metrics(ranking_metrics: dict[str, Any]) -> None:
         return
 
     ranking_df = pd.DataFrame(rows)
-    st.dataframe(ranking_df, width="stretch")
 
     metric_columns = dataframe_columns(
         ranking_df,
         ["precision_at_1", "precision_at_3", "ndcg_at_3", "mrr"],
     )
 
-    if not metric_columns:
-        return
+    if metric_columns:
+        long_df = ranking_df.melt(
+            id_vars=["model"],
+            value_vars=metric_columns,
+            var_name="metric",
+            value_name="value",
+        )
+        chart = px.bar(
+            long_df,
+            x="metric",
+            y="value",
+            color="model",
+            barmode="group",
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        show_chart(chart, height=420)
 
-    long_df = ranking_df.melt(
-        id_vars=["model"],
-        value_vars=metric_columns,
-        var_name="metric",
-        value_name="value",
-    )
-    chart = px.bar(long_df, x="metric", y="value", color="model", barmode="group")
-    st.plotly_chart(chart, width="stretch")
+    show_table_expander("Show ranking metrics table", ranking_df, expanded=False)
 
 
 def fairness_page() -> None:
-    st.header("Fairness")
+    page_hero("Fairness", PAGE_DESCRIPTIONS["Fairness"])
 
     employees = load_employees()
     assignments = load_assignments()
@@ -1000,49 +1707,87 @@ def fairness_page() -> None:
     else:
         growth_share = 0.0
 
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Senior assignment share", f"{senior_share:.2f}")
-    col2.metric("Junior assignment share", f"{junior_share:.2f}")
-    col3.metric("Top employee concentration", f"{top_employee_share:.2f}")
-    col4.metric("Avg assigned workload", f"{average_workload:.2f}")
-    col5.metric("Growth match share", f"{growth_share:.2f}")
-
-    st.subheader("Assignment distribution by grade")
-    grade_counts = merged["grade"].value_counts().reset_index()
-    grade_counts.columns = ["grade", "assignments"]
-    st.plotly_chart(px.bar(grade_counts, x="grade", y="assignments"), width="stretch")
-
-    st.subheader("Assignment distribution by role")
-    role_counts = merged["role"].value_counts().reset_index()
-    role_counts.columns = ["role", "assignments"]
-    st.plotly_chart(px.bar(role_counts, x="role", y="assignments"), width="stretch")
-
-    st.subheader("Top employee concentration")
-    employee_counts = merged["name"].value_counts().head(15).reset_index()
-    employee_counts.columns = ["employee", "assignments"]
-    st.plotly_chart(
-        px.bar(employee_counts, x="employee", y="assignments"),
-        width="stretch",
+    metric_cards(
+        [
+            ("Senior assignment share", f"{senior_share:.2f}"),
+            ("Junior assignment share", f"{junior_share:.2f}"),
+            ("Top employee concentration", f"{top_employee_share:.2f}"),
+            ("Avg assigned workload", f"{average_workload:.2f}"),
+            ("Growth match share", f"{growth_share:.2f}"),
+        ],
     )
 
-    st.subheader("Fairness notes")
-    st.markdown(
-        """
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        section_header("Assignment distribution by grade")
+        grade_counts = merged["grade"].value_counts().reset_index()
+        grade_counts.columns = ["grade", "assignments"]
+        chart = px.bar(
+            grade_counts,
+            x="grade",
+            y="assignments",
+            color="grade",
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        show_chart(chart)
+
+    with chart_col2:
+        section_header("Assignment distribution by role")
+        role_counts = merged["role"].value_counts().reset_index()
+        role_counts.columns = ["role", "assignments"]
+        chart = px.bar(
+            role_counts,
+            x="role",
+            y="assignments",
+            color="role",
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        show_chart(chart)
+
+    section_header(
+        "Top employee concentration",
+        "Проверяем, не забирает ли один участник слишком большую долю назначений.",
+    )
+    employee_counts = merged["name"].value_counts().head(15).reset_index()
+    employee_counts.columns = ["employee", "assignments"]
+    chart = px.bar(
+        employee_counts,
+        x="employee",
+        y="assignments",
+        color="assignments",
+        color_continuous_scale="Blues",
+    )
+    show_chart(chart, height=430)
+
+    with st.expander("Fairness notes", expanded=False):
+        st.markdown(
+            """
 - Senior share показывает, не забирают ли senior почти все назначения.
 - Junior share показывает, не игнорируются ли junior.
 - Top employee concentration показывает, нет ли концентрации на одном человеке.
 - Avg assigned workload показывает риск усиления перегруза.
 - Growth match share показывает долю назначений, полезных для развития.
 """,
-    )
+        )
+
+    show_table_expander("Show merged fairness dataset", merged, expanded=False)
 
 
 def settings_page(api_url: str) -> None:
-    st.header("Settings")
+    page_hero("Settings", PAGE_DESCRIPTIONS["Settings"])
 
-    st.write("Current dashboard configuration")
-    st.code(
-        f"""
+    section_header(
+        "Current dashboard configuration",
+        (
+            "Служебные параметры спрятаны в аккуратные блоки, "
+            "чтобы страница не выглядела как debug-screen."
+        ),
+    )
+
+    with st.expander("Show dashboard configuration", expanded=True):
+        st.code(
+            f"""
 COMPASS_API_URL={api_url}
 DEFAULT_PLANE_PROJECT_ID={DEFAULT_PLANE_PROJECT_ID}
 
@@ -1055,25 +1800,28 @@ Reports:
 {MODEL_METRICS_PATH}
 {RANKING_METRICS_PATH}
 """.strip(),
-    )
+        )
 
-    st.subheader("Health check")
-    if st.button("Check COMPASS API"):
+    section_header("Health check")
+    if st.button("Check COMPASS API", type="primary"):
         show_api_status(api_url)
 
-    st.subheader("Required local services")
-    st.markdown(
-        """
+    with st.expander("Required local services", expanded=False):
+        st.markdown(
+            """
 - FastAPI backend: `uvicorn app.api:app --reload --host 0.0.0.0 --port 8000`
 - Plane: `./scripts/start_plane.sh`
 - Optional LLM: `ollama serve`
 - Dashboard: `streamlit run app/dashboard.py`
 """,
-    )
+        )
 
 
 def main() -> None:
+    apply_dashboard_theme()
+
     st.sidebar.title("COMPASS AI")
+    st.sidebar.caption("AI-панель для задач, команды, Plane и качества рекомендаций.")
 
     api_url = st.sidebar.text_input("COMPASS API URL", value=DEFAULT_API_URL)
 
@@ -1090,6 +1838,9 @@ def main() -> None:
             "Settings",
         ],
     )
+
+    st.sidebar.divider()
+    st.sidebar.caption(PAGE_DESCRIPTIONS.get(page, ""))
 
     if page == "Overview":
         overview_page(api_url)
