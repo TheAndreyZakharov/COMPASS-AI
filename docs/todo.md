@@ -9593,9 +9593,60 @@ Explain all Plane top candidates
 
 ---
 
-# 19. Этап 17 — Jupyter notebooks и автоматические отчёты
+# 19. Этап 17 — улучшение дизайна dashboard
 
-## 19.1. Создать notebook-шаблоны
+## 19.1. Быстро улучшить внешний вид dashboard
+
+- [ ] Пройтись по текущим страницам dashboard.
+- [ ] Сделать рекомендации, карточки кандидатов, метрики и статусы визуально аккуратнее.
+- [ ] Спрятать raw JSON/debug response в expander.
+- [ ] Улучшить страницу Plane Live, чтобы удобнее выбирать проект, задачу и запускать анализ.
+- [ ] Проверить, что dashboard выглядит как рабочая AI-панель, а не как черновой debug UI.
+
+Файл:
+
+```text
+app/dashboard.py
+```
+
+**Ожидаемый результат:** dashboard стал приятнее и понятнее для демо.
+
+**Примерное время:** 4–8 часов.  
+**Коммит:** `Improve dashboard design`
+
+---
+
+# 20. Этап 18 — ручная история реальных людей в Plane
+
+## 20.1. Добавить ручные completed/failed задачи для demo-команды
+
+- [ ] В Plane вручную создать набор исторических задач для реальных demo users.
+- [ ] Добавить задачи, выполненные хорошо.
+- [ ] Добавить задачи, выполненные плохо.
+- [ ] Добавить задачи, выполненные заранее.
+- [ ] Добавить задачи, выполненные после дедлайна.
+- [ ] Добавить задачи, которые не были завершены.
+- [ ] Назначить эти задачи реальным Plane users.
+- [ ] Закрыть часть задач в `Done`, часть оставить/перевести в плохие исходы.
+- [ ] Добавить понятные labels, priority, deadline и комментарии с результатом выполнения.
+- [ ] При необходимости зафиксировать ручную историю в `data/manual/plane_employee_history.csv`.
+
+Файл, если историю надо сохранить структурно:
+
+```text
+data/manual/plane_employee_history.csv
+```
+
+**Ожидаемый результат:** у реальных demo-сотрудников есть история, по которой COMPASS AI может лучше объяснять рекомендации.
+
+**Примерное время:** 4–8 часов.  
+**Коммит:** `Add manual Plane employee history`
+
+---
+
+# 21. Этап 19 — Jupyter notebooks и автоматические отчёты
+
+## 21.1. Создать notebook-шаблоны
 
 - [ ] Создать `notebooks/01_synthetic_data_generation.ipynb`.
 - [ ] Создать `notebooks/02_data_analysis.ipynb`.
@@ -9618,7 +9669,7 @@ touch notebooks/01_synthetic_data_generation.ipynb notebooks/02_data_analysis.ip
 
 ---
 
-## 19.2. Ноутбук генерации данных
+## 21.2. Ноутбук генерации данных
 
 - [ ] В `01_synthetic_data_generation.ipynb` показать параметры генерации.
 - [ ] Показать таблицу сотрудников.
@@ -9636,7 +9687,7 @@ touch notebooks/01_synthetic_data_generation.ipynb notebooks/02_data_analysis.ip
 
 ---
 
-## 19.3. Ноутбук EDA
+## 21.3. Ноутбук EDA
 
 - [ ] В `02_data_analysis.ipynb` загрузить все датасеты.
 - [ ] Проверить пропуски.
@@ -9667,7 +9718,7 @@ mkdir -p reports/figures
 
 ---
 
-## 19.4. Ноутбук обучения модели
+## 21.4. Ноутбук обучения модели
 
 - [ ] В `03_model_training.ipynb` показать конфиг обучения.
 - [ ] Показать размер train/val/test.
@@ -9684,7 +9735,7 @@ mkdir -p reports/figures
 
 ---
 
-## 19.5. Ноутбук оценки модели
+## 21.5. Ноутбук оценки модели
 
 - [ ] В `04_model_evaluation.ipynb` загрузить test predictions.
 - [ ] Показать classification metrics.
@@ -9703,7 +9754,7 @@ mkdir -p reports/figures
 
 ---
 
-## 19.6. Ноутбук fairness analysis
+## 21.6. Ноутбук fairness analysis
 
 - [ ] В `05_fairness_analysis.ipynb` анализировать распределение рекомендаций.
 - [ ] Проверить, не выбираются ли почти всегда senior.
@@ -9730,7 +9781,7 @@ growth_task_distribution
 
 ---
 
-## 19.7. Ноутбук Plane integration demo
+## 21.7. Ноутбук Plane integration demo
 
 - [ ] В `06_plane_integration_demo.ipynb` показать подключение к Plane.
 - [ ] Получить список проектов.
@@ -9749,7 +9800,7 @@ growth_task_distribution
 
 ---
 
-## 19.8. Ноутбук бизнес-отчёта
+## 21.8. Ноутбук бизнес-отчёта
 
 - [ ] В `07_business_report.ipynb` собрать основные результаты.
 - [ ] Показать проблему.
@@ -9768,7 +9819,7 @@ growth_task_distribution
 
 ---
 
-## 19.9. Автоматизировать запуск notebooks
+## 21.9. Автоматизировать запуск notebooks
 
 - [ ] Создать `src/reports/generate_notebooks.py`.
 - [ ] Использовать `papermill`.
@@ -9808,9 +9859,9 @@ make reports
 
 ---
 
-# 20. Этап 18 — Plane MCP Server
+# 22. Этап 20 — Plane MCP Server и ревизия backend
 
-## 20.1. Изучить Plane MCP Server
+## 22.1. Изучить Plane MCP Server
 
 - [ ] Открыть `https://github.com/makeplane/plane-mcp-server`.
 - [ ] Изучить README.
@@ -9828,7 +9879,7 @@ make reports
 
 ---
 
-## 20.2. Запустить Plane MCP Server локально
+## 22.2. Запустить Plane MCP Server локально
 
 - [ ] Следовать актуальной инструкции из README Plane MCP Server.
 - [ ] Настроить переменные окружения.
@@ -9847,7 +9898,7 @@ make reports
 
 ---
 
-## 20.3. Добавить MCP client wrapper
+## 22.3. Добавить MCP client wrapper
 
 - [ ] Создать `src/integration/mcp_client.py`.
 - [ ] Реализовать минимальную обёртку.
@@ -9870,9 +9921,38 @@ src/integration/mcp_client.py
 
 ---
 
-# 21. Этап 19 — тестирование
+## 22.4. Посмотреть серверный слой COMPASS API
 
-## 21.1. Unit tests для данных
+- [ ] Проверить структуру FastAPI app.
+- [ ] Проверить routers.
+- [ ] Проверить обработку ошибок.
+- [ ] Проверить response schemas.
+- [ ] Проверить Plane Live endpoints.
+- [ ] Проверить manual recommendation endpoint.
+- [ ] Проверить batch endpoint.
+- [ ] Проверить, что API не логирует секреты.
+- [ ] Проверить, что Plane API errors не ломают весь сервер.
+- [ ] Проверить, что LLM errors дают fallback explanation.
+
+Файлы:
+
+```text
+app/api.py
+src/api/recommendations.py
+src/integration/plane_client.py
+src/agents/orchestrator.py
+```
+
+**Ожидаемый результат:** backend достаточно стабилен перед финальным тестированием.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Review API server stability`
+
+---
+
+# 23. Этап 21 — тестирование
+
+## 23.1. Unit tests для данных
 
 - [ ] Создать тесты генерации сотрудников.
 - [ ] Проверить, что employee IDs уникальны.
@@ -9905,7 +9985,7 @@ pytest tests/test_generate_employees.py tests/test_generate_tasks.py tests/test_
 
 ---
 
-## 21.2. Unit tests для recommendation baseline
+## 23.2. Unit tests для recommendation baseline
 
 - [ ] Проверить skill matching.
 - [ ] Проверить workload scoring.
@@ -9914,6 +9994,7 @@ pytest tests/test_generate_employees.py tests/test_generate_tasks.py tests/test_
 - [ ] Проверить, что top-3 отсортирован по score.
 - [ ] Проверить, что перегруженный сотрудник получает penalty.
 - [ ] Проверить, что growth mode поднимает подходящих для развития сотрудников.
+- [ ] Проверить, что Plane Live ranking не подмешивает synthetic employees.
 
 Файлы:
 
@@ -9922,22 +10003,23 @@ tests/test_skill_matching.py
 tests/test_workload_scoring.py
 tests/test_growth_scoring.py
 tests/test_rule_based_ranker.py
+tests/test_plane_scoped_ranking.py
 ```
 
 Команда:
 
 ```bash
-pytest tests/test_skill_matching.py tests/test_workload_scoring.py tests/test_growth_scoring.py tests/test_rule_based_ranker.py
+pytest tests/test_skill_matching.py tests/test_workload_scoring.py tests/test_growth_scoring.py tests/test_rule_based_ranker.py tests/test_plane_scoped_ranking.py
 ```
 
-**Ожидаемый результат:** baseline работает предсказуемо.
+**Ожидаемый результат:** baseline и Plane scoped ranking работают предсказуемо.
 
 **Примерное время:** 5–8 часов.  
 **Коммит:** `Test recommendation baselines`
 
 ---
 
-## 21.3. Unit tests для модели
+## 23.3. Unit tests для модели
 
 - [ ] Проверить Dataset.
 - [ ] Проверить shape одного batch.
@@ -9968,13 +10050,15 @@ pytest tests/test_dataset.py tests/test_matching_net.py tests/test_onnx_inferenc
 
 ---
 
-## 21.4. Integration tests для Plane
+## 23.4. Integration tests для Plane
 
 - [ ] Создать `tests/test_plane_client.py`.
 - [ ] Тесты должны пропускаться, если нет `PLANE_API_KEY`.
 - [ ] Проверить healthcheck.
 - [ ] Проверить получение проектов.
 - [ ] Проверить получение задач.
+- [ ] Проверить получение workspace members.
+- [ ] Проверить получение project members.
 - [ ] Проверить форматирование комментария.
 - [ ] Не писать реальные комментарии без отдельного флага.
 
@@ -9997,7 +10081,7 @@ pytest tests/test_plane_client.py
 
 ---
 
-## 21.5. End-to-end test
+## 23.5. End-to-end test
 
 - [ ] Создать `tests/test_e2e_recommendation.py`.
 - [ ] Взять одну синтетическую задачу.
@@ -10009,6 +10093,7 @@ pytest tests/test_plane_client.py
 - [ ] Проверить, что есть top-3.
 - [ ] Проверить, что есть explanation.
 - [ ] Проверить, что response валидный.
+- [ ] Проверить, что LLM explanation не меняет ranking.
 
 Файл:
 
@@ -10029,9 +10114,9 @@ pytest tests/test_e2e_recommendation.py
 
 ---
 
-# 22. Этап 20 — качество кода и стабильность
+# 24. Этап 22 — качество кода и стабильность
 
-## 22.1. Добавить логирование
+## 24.1. Добавить логирование
 
 - [ ] Создать `src/utils/logging.py`.
 - [ ] Настроить единый logger.
@@ -10041,6 +10126,8 @@ pytest tests/test_e2e_recommendation.py
 - [ ] Логировать inference.
 - [ ] Логировать обращения к Plane.
 - [ ] Логировать ошибки LLM.
+- [ ] Логировать write-back result.
+- [ ] Логировать auto-assign skip reason.
 - [ ] Не логировать секреты.
 
 Файл:
@@ -10056,7 +10143,7 @@ src/utils/logging.py
 
 ---
 
-## 22.2. Добавить config loader
+## 24.2. Добавить config loader
 
 - [ ] Создать `src/utils/config.py`.
 - [ ] Читать `.env`.
@@ -10078,7 +10165,7 @@ src/utils/config.py
 
 ---
 
-## 22.3. Прогнать форматирование и линтер
+## 24.3. Прогнать форматирование и линтер
 
 - [ ] Запустить `black`.
 - [ ] Запустить `ruff`.
@@ -10107,9 +10194,9 @@ pytest
 
 ---
 
-# 23. Этап 21 — демо-сценарии
+# 25. Этап 23 — демо-сценарии
 
-## 23.1. Подготовить демо-задачи в Plane
+## 25.1. Подготовить демо-задачи в Plane
 
 - [ ] Создать задачу `Реализовать JWT-авторизацию`.
 - [ ] Создать задачу `Добавить dashboard командной загрузки`.
@@ -10128,7 +10215,7 @@ pytest
 
 ---
 
-## 23.2. Подготовить демо-сценарий Fast Delivery
+## 25.2. Подготовить демо-сценарий Fast Delivery
 
 - [ ] Взять задачу с коротким deadline.
 - [ ] Запустить recommendation mode `fast_delivery`.
@@ -10149,7 +10236,7 @@ curl "http://localhost:8000/recommendations/issue/ISSUE_ID?mode=fast_delivery&wr
 
 ---
 
-## 23.3. Подготовить демо-сценарий Balanced Workload
+## 25.3. Подготовить демо-сценарий Balanced Workload
 
 - [ ] Взять задачу средней сложности.
 - [ ] Запустить recommendation mode `balanced_workload`.
@@ -10170,7 +10257,7 @@ curl "http://localhost:8000/recommendations/issue/ISSUE_ID?mode=balanced_workloa
 
 ---
 
-## 23.4. Подготовить демо-сценарий Growth Mode
+## 25.4. Подготовить демо-сценарий Growth Mode
 
 - [ ] Взять growth-задачу.
 - [ ] Запустить recommendation mode `growth`.
@@ -10191,7 +10278,7 @@ curl "http://localhost:8000/recommendations/issue/ISSUE_ID?mode=growth&write_bac
 
 ---
 
-## 23.5. Подготовить демо-сценарий Risk Minimization
+## 25.5. Подготовить демо-сценарий Risk Minimization
 
 - [ ] Взять бизнес-критичную задачу.
 - [ ] Запустить recommendation mode `risk_minimization`.
@@ -10212,48 +10299,36 @@ curl "http://localhost:8000/recommendations/issue/ISSUE_ID?mode=risk_minimizatio
 
 ---
 
-# 24. Этап 22 — финальная проверка проекта
+# 26. Этап 24 — финальная проверка основного проекта
 
-## 24.1. Полный локальный запуск
+## 26.1. Полный локальный запуск
 
-- [ ] Запустить Docker Desktop.
-- [ ] Запустить Plane.
-- [ ] Активировать Python окружение.
-- [ ] Запустить COMPASS API.
-- [ ] Запустить Ollama.
-- [ ] Запустить dashboard.
-- [ ] Открыть Plane.
+- [ ] Запустить `COMPASS: start stack` через VS Code.
+- [ ] Проверить Plane.
+- [ ] Проверить COMPASS API.
+- [ ] Проверить Ollama.
+- [ ] Проверить dashboard.
+- [ ] Открыть Plane workspace.
 - [ ] Открыть dashboard.
-- [ ] Проверить рекомендацию для одной задачи.
+- [ ] Проверить рекомендацию для synthetic task.
+- [ ] Проверить рекомендацию для Plane Live task.
 - [ ] Проверить запись комментария в Plane.
 - [ ] Проверить отчёты.
 
-Команды:
+Команда альтернативного запуска:
 
 ```bash
-source .venv/bin/activate
+./scripts/start_compass_stack.sh
 ```
 
-```bash
-uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
-```
-
-```bash
-ollama serve
-```
-
-```bash
-streamlit run app/dashboard.py
-```
-
-**Ожидаемый результат:** вся система работает локально.
+**Ожидаемый результат:** вся основная система работает локально.
 
 **Примерное время:** 2–4 часа.  
 **Коммит:** `Verify full local system run`
 
 ---
 
-## 24.2. Полный ML pipeline с нуля
+## 26.2. Полный ML pipeline с нуля
 
 - [ ] Удалить processed data.
 - [ ] Сгенерировать synthetic data.
@@ -10280,6 +10355,10 @@ make build-features
 ```
 
 ```bash
+make split-data
+```
+
+```bash
 make train
 ```
 
@@ -10289,6 +10368,10 @@ make evaluate
 
 ```bash
 make export-onnx
+```
+
+```bash
+make validate-onnx
 ```
 
 ```bash
@@ -10302,7 +10385,7 @@ make reports
 
 ---
 
-## 24.3. Проверка итоговой структуры файлов
+## 26.3. Проверка итоговой структуры файлов
 
 - [ ] Проверить наличие `src`.
 - [ ] Проверить наличие `app`.
@@ -10311,6 +10394,7 @@ make reports
 - [ ] Проверить наличие `models/task_employee_matcher.onnx`.
 - [ ] Проверить наличие `models/compass_matching_model.pt`.
 - [ ] Проверить наличие `data/synthetic`.
+- [ ] Проверить наличие `data/manual`.
 - [ ] Проверить наличие `data/processed`.
 - [ ] Проверить наличие tests.
 - [ ] Проверить наличие dashboard.
@@ -10329,11 +10413,576 @@ find . -maxdepth 3 -type f | sort
 
 ---
 
-# 25. Этап 23 — финальная документация
+# 27. Этап 25 — автономный подпроект-песочница
 
-Документацию писать только после готового MVP, чтобы не описывать несуществующие функции.
+## 27.1. Спроектировать автономную песочницу
 
-## 25.1. Обновить README.md
+- [ ] Создать отдельную папку `sandbox_app`.
+- [ ] Не трогать LLM-файлы основного проекта.
+- [ ] Не завязывать песочницу на `src/llm` основного проекта.
+- [ ] Не ломать основной COMPASS API.
+- [ ] Сделать песочницу автономной внутри репозитория.
+- [ ] Определить отдельные папки для данных, моделей, конфигов, отчётов и UI.
+- [ ] Определить формат импортируемого датасета.
+- [ ] Определить формат генерируемого датасета.
+- [ ] Определить формат ONNX-моделей песочницы.
+- [ ] Определить формат тестовой команды и текущих задач.
+
+Папка подпроекта:
+
+```text
+sandbox_app
+```
+
+Рекомендуемая структура:
+
+```text
+sandbox_app/
+├── README.md
+├── app.py
+├── config/
+├── data/
+│   ├── imported/
+│   ├── generated/
+│   └── test_cases/
+├── models/
+│   ├── checkpoints/
+│   └── onnx/
+├── reports/
+├── src/
+│   ├── data_generation/
+│   ├── features/
+│   ├── training/
+│   ├── inference/
+│   ├── llm/
+│   └── utils/
+└── tests/
+```
+
+**Ожидаемый результат:** песочница является отдельным мини-приложением, а не набором случайных скриптов.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Design autonomous sandbox app`
+
+---
+
+## 27.2. Создать базовый UI песочницы
+
+- [ ] Создать `sandbox_app/app.py`.
+- [ ] Сделать Streamlit UI.
+- [ ] Добавить страницу `Dataset`.
+- [ ] Добавить страницу `Generator`.
+- [ ] Добавить страницу `Training`.
+- [ ] Добавить страницу `ONNX Export`.
+- [ ] Добавить страницу `Test Team`.
+- [ ] Добавить страницу `Assignment Simulation`.
+- [ ] Добавить страницу `Settings`.
+- [ ] Добавить sidebar navigation.
+- [ ] Добавить отдельный запуск песочницы.
+- [ ] Добавить Makefile command.
+
+Файл:
+
+```text
+sandbox_app/app.py
+```
+
+Команда запуска:
+
+```bash
+streamlit run sandbox_app/app.py --server.port 8601
+```
+
+Makefile target:
+
+```text
+sandbox:
+	streamlit run sandbox_app/app.py --server.port 8601
+```
+
+Локальный URL:
+
+```text
+http://localhost:8601
+```
+
+**Ожидаемый результат:** песочница открывается как отдельное приложение.
+
+**Примерное время:** 5–8 часов.  
+**Коммит:** `Add sandbox Streamlit app`
+
+---
+
+## 27.3. Реализовать импорт датасета для обучения
+
+- [ ] Добавить загрузку CSV/JSON/Parquet.
+- [ ] Поддержать импорт employees.
+- [ ] Поддержать импорт tasks.
+- [ ] Поддержать импорт assignments/history.
+- [ ] Проверять обязательные колонки.
+- [ ] Показывать preview.
+- [ ] Показывать статистику датасета.
+- [ ] Показывать distribution labels.
+- [ ] Показывать warnings по пропускам.
+- [ ] Сохранять импортированные данные в `sandbox_app/data/imported`.
+- [ ] Не перезаписывать файлы без подтверждения.
+
+Файлы:
+
+```text
+sandbox_app/src/utils/io.py
+sandbox_app/src/utils/validation.py
+```
+
+Поддерживаемые форматы:
+
+```text
+employees.csv
+tasks.csv
+assignments.csv
+employees.json
+tasks.json
+assignments.json
+training_pairs.parquet
+```
+
+**Ожидаемый результат:** можно принести внешний датасет и быстро понять, годится ли он для обучения.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox dataset import`
+
+---
+
+## 27.4. Реализовать генератор датасета по seed
+
+- [ ] Создать генератор сотрудников.
+- [ ] Создать генератор задач.
+- [ ] Создать генератор pipeline/history назначений.
+- [ ] Добавить seed.
+- [ ] Добавить параметр количества сотрудников.
+- [ ] Добавить параметр количества задач.
+- [ ] Добавить параметр количества исторических назначений.
+- [ ] Добавить параметр количества проектов.
+- [ ] Добавить параметр количества task pipelines.
+- [ ] Добавить настройку баланса good/bad outcomes.
+- [ ] Добавить настройку доли early/on-time/late/failed tasks.
+- [ ] Добавить настройку сложности задач.
+- [ ] Добавить настройку перегруза сотрудников.
+- [ ] Добавить настройку skill mismatch.
+- [ ] Сохранять результат в `sandbox_app/data/generated`.
+
+Файлы:
+
+```text
+sandbox_app/src/data_generation/employees.py
+sandbox_app/src/data_generation/tasks.py
+sandbox_app/src/data_generation/history.py
+sandbox_app/src/data_generation/pipeline.py
+```
+
+Параметры UI:
+
+```text
+seed
+employees_count
+tasks_count
+assignment_history_count
+projects_count
+pipelines_count
+min_task_complexity
+max_task_complexity
+good_outcome_share
+bad_outcome_share
+late_outcome_share
+failed_outcome_share
+overload_probability
+skill_mismatch_probability
+```
+
+**Ожидаемый результат:** можно сгенерировать обучающий датасет любого размера прямо через UI.
+
+**Примерное время:** 10–16 часов.  
+**Коммит:** `Add sandbox seeded dataset generator`
+
+---
+
+## 27.5. Добавить пользовательские признаки задач
+
+- [ ] В UI дать возможность добавить custom feature.
+- [ ] Поддержать числовой признак.
+- [ ] Поддержать категориальный признак.
+- [ ] Поддержать boolean признак.
+- [ ] Поддержать текстовый признак.
+- [ ] Добавить custom features в generated tasks.
+- [ ] Добавить custom features в feature builder.
+- [ ] Показывать schema preview.
+- [ ] Сохранять schema в JSON.
+- [ ] Проверить, что training pipeline видит новые признаки.
+
+Файл schema:
+
+```text
+sandbox_app/config/custom_feature_schema.json
+```
+
+Примеры custom features:
+
+```text
+client_importance
+domain_area
+requires_security_review
+requires_legacy_code_knowledge
+communication_intensity
+research_uncertainty
+```
+
+**Ожидаемый результат:** песочница позволяет экспериментировать с признаками, которых нет в основном COMPASS AI.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox custom task features`
+
+---
+
+## 27.6. Реализовать feature builder песочницы
+
+- [ ] Создать отдельный feature builder.
+- [ ] Не использовать напрямую основной `src/features/build_features.py`.
+- [ ] Поддержать employees/tasks/assignments из sandbox.
+- [ ] Поддержать custom features.
+- [ ] Поддержать text embeddings или lightweight fallback.
+- [ ] Поддержать skill vectors.
+- [ ] Поддержать pair features.
+- [ ] Сохранять training dataset.
+- [ ] Сохранять feature metadata.
+- [ ] Показывать feature dimensions в UI.
+
+Файлы:
+
+```text
+sandbox_app/src/features/build_features.py
+sandbox_app/src/features/skill_vectorizer.py
+sandbox_app/src/features/text_features.py
+```
+
+Результаты:
+
+```text
+sandbox_app/data/generated/training_pairs.parquet
+sandbox_app/data/generated/feature_metadata.json
+```
+
+**Ожидаемый результат:** песочница сама готовит данные для обучения.
+
+**Примерное время:** 8–14 часов.  
+**Коммит:** `Add sandbox feature builder`
+
+---
+
+## 27.7. Реализовать обучение модели через UI
+
+- [ ] Создать простую нейросеть песочницы.
+- [ ] Добавить выбор train/val/test split.
+- [ ] Добавить настройку epochs.
+- [ ] Добавить настройку batch size.
+- [ ] Добавить настройку learning rate.
+- [ ] Добавить настройку dropout.
+- [ ] Добавить настройку hidden dim.
+- [ ] Добавить настройку patience.
+- [ ] Добавить настройку threshold.
+- [ ] Добавить настройку tolerance.
+- [ ] Показывать training progress.
+- [ ] Показывать train/val loss.
+- [ ] Показывать ROC-AUC/F1/Precision/Recall.
+- [ ] Сохранять checkpoint.
+- [ ] Сохранять training config.
+- [ ] Сохранять training history.
+
+Файлы:
+
+```text
+sandbox_app/src/training/dataset.py
+sandbox_app/src/training/model.py
+sandbox_app/src/training/train.py
+sandbox_app/src/training/evaluate.py
+```
+
+UI параметры:
+
+```text
+epochs
+batch_size
+learning_rate
+dropout
+hidden_dim
+patience
+classification_threshold
+early_stopping_tolerance
+validation_size
+test_size
+```
+
+Результаты:
+
+```text
+sandbox_app/models/checkpoints/sandbox_model.pt
+sandbox_app/reports/training_history.csv
+sandbox_app/reports/model_metrics.json
+```
+
+**Ожидаемый результат:** нейросеть можно обучить прямо в песочнице без запуска основного pipeline.
+
+**Примерное время:** 12–20 часов.  
+**Коммит:** `Add sandbox model training UI`
+
+---
+
+## 27.8. Реализовать экспорт модели в ONNX
+
+- [ ] Добавить кнопку `Export to ONNX`.
+- [ ] Загружать выбранный checkpoint.
+- [ ] Экспортировать модель в ONNX.
+- [ ] Сохранять ONNX в `sandbox_app/models/onnx`.
+- [ ] Сохранять metadata экспорта.
+- [ ] Проверять ONNX Runtime.
+- [ ] Сравнивать PyTorch output и ONNX output.
+- [ ] Показывать max_abs_diff.
+- [ ] Показывать validation status.
+- [ ] Добавить список доступных ONNX-моделей в UI.
+
+Файлы:
+
+```text
+sandbox_app/src/training/export_onnx.py
+sandbox_app/src/inference/onnx_runtime.py
+```
+
+Результаты:
+
+```text
+sandbox_app/models/onnx/sandbox_model.onnx
+sandbox_app/reports/onnx_validation.json
+```
+
+**Ожидаемый результат:** обученную в песочнице модель можно сохранить как ONNX.
+
+**Примерное время:** 5–8 часов.  
+**Коммит:** `Add sandbox ONNX export`
+
+---
+
+## 27.9. Реализовать генерацию тестовой команды и текущих задач
+
+- [ ] Добавить UI для генерации тестовой команды.
+- [ ] Указать количество людей.
+- [ ] Указать роли.
+- [ ] Указать грейды.
+- [ ] Указать историю каждого сотрудника.
+- [ ] Указать текущую загрузку.
+- [ ] Указать количество текущих задач.
+- [ ] Указать seed.
+- [ ] Генерировать current backlog.
+- [ ] Генерировать history для команды.
+- [ ] Сохранять test case.
+- [ ] Давать возможность загрузить test case из файла.
+
+Папка:
+
+```text
+sandbox_app/data/test_cases
+```
+
+Файлы:
+
+```text
+sandbox_app/src/data_generation/test_team.py
+sandbox_app/src/data_generation/current_tasks.py
+```
+
+Параметры:
+
+```text
+test_seed
+test_employees_count
+current_tasks_count
+history_depth_per_employee
+active_workload_range
+deadline_range
+project_count
+```
+
+**Ожидаемый результат:** можно создать “реальную команду” с историей и текущими задачами для проверки модели.
+
+**Примерное время:** 8–14 часов.  
+**Коммит:** `Add sandbox test team generator`
+
+---
+
+## 27.10. Реализовать проверку распределения задач выбранной ONNX-моделью
+
+- [ ] В UI выбрать ONNX-модель из списка.
+- [ ] В UI выбрать test team.
+- [ ] В UI выбрать текущие задачи.
+- [ ] Для каждой задачи построить candidate pairs.
+- [ ] Прогнать пары через ONNX Runtime.
+- [ ] Получить top-3 кандидатов.
+- [ ] Показать recommended assignee.
+- [ ] Показать score.
+- [ ] Показать risks.
+- [ ] Показать reasons.
+- [ ] Показать распределение задач по людям.
+- [ ] Показать перегруз после распределения.
+- [ ] Показать fairness по ролям/грейдам.
+- [ ] Сохранить результат проверки.
+
+Файлы:
+
+```text
+sandbox_app/src/inference/recommend.py
+sandbox_app/src/inference/assignment_simulation.py
+```
+
+Результат:
+
+```text
+sandbox_app/reports/sandbox_assignment_simulation.json
+```
+
+**Ожидаемый результат:** можно проверить, как выбранная ONNX-модель распределяет задачи в тестовой команде.
+
+**Примерное время:** 10–16 часов.  
+**Коммит:** `Add sandbox ONNX assignment simulation`
+
+---
+
+## 27.11. Подключить Qwen для объяснений в песочнице
+
+- [ ] Создать отдельный Qwen/Ollama client внутри `sandbox_app`.
+- [ ] Не использовать `src/llm/ollama_client.py` основного проекта.
+- [ ] Добавить настройку base URL.
+- [ ] Добавить настройку model name.
+- [ ] Использовать Qwen только для объяснения.
+- [ ] Запретить Qwen менять ranking.
+- [ ] Запретить Qwen придумывать кандидатов.
+- [ ] Передавать Qwen только top candidates и факторы.
+- [ ] Сделать fallback explanation без LLM.
+- [ ] Проверить русскоязычные объяснения.
+
+Файл:
+
+```text
+sandbox_app/src/llm/qwen_explainer.py
+```
+
+Настройки:
+
+```text
+SANDBOX_OLLAMA_BASE_URL=http://localhost:11434
+SANDBOX_OLLAMA_MODEL=qwen2.5:1.5b-instruct
+SANDBOX_LLM_TIMEOUT_SECONDS=30
+```
+
+**Ожидаемый результат:** песочница умеет объяснять распределение задач через Qwen, но не зависит от основного LLM-кода.
+
+**Примерное время:** 5–8 часов.  
+**Коммит:** `Add sandbox Qwen explanations`
+
+---
+
+## 27.12. Добавить sandbox reports
+
+- [ ] Добавить отчёт по сгенерированному датасету.
+- [ ] Добавить отчёт по обучению.
+- [ ] Добавить отчёт по ONNX validation.
+- [ ] Добавить отчёт по assignment simulation.
+- [ ] Добавить fairness report.
+- [ ] Добавить export результатов в JSON.
+- [ ] Добавить export результатов в HTML.
+- [ ] Добавить кнопку download в UI.
+
+Папка:
+
+```text
+sandbox_app/reports
+```
+
+**Ожидаемый результат:** результаты экспериментов в песочнице можно сохранить и показать отдельно от основного проекта.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox experiment reports`
+
+---
+
+## 27.13. Протестировать песочницу
+
+- [ ] Написать unit tests для sandbox generator.
+- [ ] Написать tests для dataset import validation.
+- [ ] Написать tests для feature builder.
+- [ ] Написать tests для training smoke run.
+- [ ] Написать tests для ONNX export.
+- [ ] Написать tests для ONNX inference.
+- [ ] Написать tests для Qwen fallback explanation.
+- [ ] Проверить запуск Streamlit app.
+- [ ] Проверить полный сценарий: generate dataset -> train -> export ONNX -> generate test team -> run assignment simulation.
+
+Файлы:
+
+```text
+sandbox_app/tests/test_generator.py
+sandbox_app/tests/test_import_validation.py
+sandbox_app/tests/test_features.py
+sandbox_app/tests/test_training_smoke.py
+sandbox_app/tests/test_onnx.py
+sandbox_app/tests/test_inference.py
+sandbox_app/tests/test_llm_fallback.py
+```
+
+Команда:
+
+```bash
+pytest sandbox_app/tests
+```
+
+**Ожидаемый результат:** песочница работает автономно и не ломает основной COMPASS AI.
+
+**Примерное время:** 8–14 часов.  
+**Коммит:** `Test sandbox app pipeline`
+
+---
+
+## 27.14. Задокументировать песочницу
+
+- [ ] Создать `sandbox_app/README.md`.
+- [ ] Описать назначение песочницы.
+- [ ] Описать запуск.
+- [ ] Описать импорт датасета.
+- [ ] Описать генерацию по seed.
+- [ ] Описать custom features.
+- [ ] Описать обучение модели.
+- [ ] Описать экспорт ONNX.
+- [ ] Описать тестовую команду.
+- [ ] Описать assignment simulation.
+- [ ] Описать Qwen explanations.
+- [ ] Описать ограничения.
+- [ ] Добавить скриншоты песочницы.
+
+Файл:
+
+```text
+sandbox_app/README.md
+```
+
+**Ожидаемый результат:** подпроект можно открыть отдельно и понять, как им пользоваться.
+
+**Примерное время:** 4–6 часов.  
+**Коммит:** `Document sandbox app`
+
+---
+
+# 28. Этап 26 — финальная документация всего проекта
+
+Документацию писать только после готового MVP и после готовности sandbox-подпроекта, чтобы не описывать несуществующие функции.
+
+## 28.1. Обновить README.md
 
 - [ ] Описать, что такое COMPASS AI.
 - [ ] Описать проблему.
@@ -10342,13 +10991,17 @@ find . -maxdepth 3 -type f | sort
 - [ ] Описать agentic pipeline.
 - [ ] Описать ML-модель.
 - [ ] Описать интеграцию с Plane.
+- [ ] Описать Plane Live recommendations.
+- [ ] Описать ручную историю сотрудников.
 - [ ] Описать ONNX export.
 - [ ] Описать Jupyter reports.
+- [ ] Описать dashboard.
+- [ ] Описать sandbox-подпроект.
 - [ ] Описать локальный запуск.
 - [ ] Описать демо-сценарии.
 - [ ] Добавить скриншоты.
 - [ ] Добавить ограничения проекта.
-- [ ] Указать, что данные синтетические.
+- [ ] Указать, что часть данных синтетическая.
 - [ ] Указать, что проект учебный.
 
 Разделы README:
@@ -10362,6 +11015,10 @@ Architecture
 Agent Pipeline
 Machine Learning Model
 Plane Integration
+Plane Live Mode
+Manual Employee History
+Dashboard
+Sandbox App
 Reports
 Local Setup
 Usage
@@ -10373,12 +11030,12 @@ License
 
 **Ожидаемый результат:** README объясняет проект человеку, который впервые открыл репозиторий.
 
-**Примерное время:** 5–8 часов.  
+**Примерное время:** 6–10 часов.  
 **Коммит:** `Update project README`
 
 ---
 
-## 25.2. Обновить `docs/doc.md`
+## 28.2. Обновить `docs/doc.md`
 
 - [ ] Проверить, что `docs/doc.md` соответствует реальной реализации.
 - [ ] Удалить обещания, которые не были сделаны.
@@ -10388,15 +11045,16 @@ License
 - [ ] Добавить реальные метрики.
 - [ ] Добавить реальные ограничения.
 - [ ] Добавить схему архитектуры.
+- [ ] Добавить описание sandbox-подпроекта.
 
 **Ожидаемый результат:** общая документация совпадает с кодом.
 
-**Примерное время:** 3–5 часов.  
+**Примерное время:** 4–6 часов.  
 **Коммит:** `Update technical documentation`
 
 ---
 
-## 25.3. Создать docs для API
+## 28.3. Создать docs для API
 
 - [ ] Создать `docs/api.md`.
 - [ ] Описать `/health`.
@@ -10405,6 +11063,8 @@ License
 - [ ] Описать `/recommendations/manual`.
 - [ ] Описать `/recommendations/issue/{issue_id}`.
 - [ ] Описать `/recommendations/project/{project_id}/open-issues`.
+- [ ] Описать Plane Live endpoints.
+- [ ] Описать members endpoints.
 - [ ] Для каждого endpoint указать request.
 - [ ] Для каждого endpoint указать response.
 - [ ] Для каждого endpoint указать пример.
@@ -10422,11 +11082,12 @@ docs/api.md
 
 ---
 
-## 25.4. Создать docs для ML
+## 28.4. Создать docs для ML
 
 - [ ] Создать `docs/ml_model.md`.
 - [ ] Описать задачу ML.
 - [ ] Описать synthetic data.
+- [ ] Описать ручную историю.
 - [ ] Описать признаки.
 - [ ] Описать label.
 - [ ] Описать архитектуру `TaskEmployeeMatchingNet`.
@@ -10449,15 +11110,18 @@ docs/ml_model.md
 
 ---
 
-## 25.5. Создать docs для Plane integration
+## 28.5. Создать docs для Plane integration
 
 - [ ] Создать `docs/plane_integration.md`.
 - [ ] Описать, как Plane используется.
 - [ ] Описать, какие сущности Plane используются.
 - [ ] Описать REST API integration.
 - [ ] Описать MCP experiment.
+- [ ] Описать Plane Live candidate scope.
+- [ ] Описать real project members.
 - [ ] Описать write-back comments.
 - [ ] Описать auto-assign mode.
+- [ ] Описать ручную историю сотрудников.
 - [ ] Описать ограничения self-hosted Plane.
 - [ ] Описать настройку `.env`.
 
@@ -10474,15 +11138,47 @@ docs/plane_integration.md
 
 ---
 
-## 25.6. Сделать скриншоты
+## 28.6. Создать docs для sandbox app
+
+- [ ] Создать `docs/sandbox_app.md`.
+- [ ] Описать назначение подпроекта.
+- [ ] Описать автономность песочницы.
+- [ ] Описать структуру `sandbox_app`.
+- [ ] Описать импорт датасета.
+- [ ] Описать генерацию датасета по seed.
+- [ ] Описать custom features.
+- [ ] Описать обучение модели через UI.
+- [ ] Описать экспорт ONNX.
+- [ ] Описать генерацию тестовой команды.
+- [ ] Описать assignment simulation.
+- [ ] Описать Qwen explanations.
+- [ ] Описать ограничения.
+
+Файл:
+
+```text
+docs/sandbox_app.md
+```
+
+**Ожидаемый результат:** подпроект-песочница описан как отдельная часть репозитория.
+
+**Примерное время:** 4–6 часов.  
+**Коммит:** `Add sandbox app documentation`
+
+---
+
+## 28.7. Сделать скриншоты
 
 - [ ] Сделать скриншот Plane workspace.
 - [ ] Сделать скриншот задачи до рекомендации.
 - [ ] Сделать скриншот комментария COMPASS AI в Plane.
 - [ ] Сделать скриншот dashboard overview.
+- [ ] Сделать скриншот Plane Live page.
+- [ ] Сделать скриншот recommendation result.
 - [ ] Сделать скриншот team workload.
 - [ ] Сделать скриншот model metrics.
 - [ ] Сделать скриншот fairness analysis.
+- [ ] Сделать скриншоты sandbox app.
 - [ ] Сохранить скриншоты в `docs/assets`.
 
 Папка:
@@ -10499,22 +11195,25 @@ mkdir -p docs/assets
 
 **Ожидаемый результат:** README можно сделать визуально убедительным.
 
-**Примерное время:** 2–3 часа.  
+**Примерное время:** 3–5 часов.  
 **Коммит:** `Add project screenshots`
 
 ---
 
-## 25.7. Финальный cleanup
+## 28.8. Финальный cleanup
 
 - [ ] Проверить, что `.env` не попал в git.
+- [ ] Проверить, что Plane API key не попал в git.
 - [ ] Проверить, что тяжёлые модели не попали в git, если они слишком большие.
-- [ ] Проверить, что синтетические маленькие CSV можно оставить или убрать.
+- [ ] Проверить, что synthetic generated files либо игнорируются, либо осознанно оставлены.
+- [ ] Проверить, что sandbox generated files не засоряют git.
 - [ ] Проверить, что README не содержит секретов.
 - [ ] Проверить, что docs не содержат секретов.
 - [ ] Запустить `pytest`.
 - [ ] Запустить `ruff`.
 - [ ] Запустить API.
 - [ ] Запустить dashboard.
+- [ ] Запустить sandbox app.
 - [ ] Сделать финальный коммит.
 
 Команды:
@@ -10528,17 +11227,17 @@ pytest
 ```
 
 ```bash
-ruff check src app scripts tests
+ruff check src app scripts tests sandbox_app
 ```
 
 **Ожидаемый результат:** репозиторий готов к публикации.
 
-**Примерное время:** 2–4 часа.  
+**Примерное время:** 3–5 часов.  
 **Коммит:** `Prepare final project release`
 
 ---
 
-# 26. Итоговая структура проекта
+# 29. Итоговая структура проекта
 
 К финалу проект должен примерно выглядеть так:
 
@@ -10565,6 +11264,8 @@ COMPASS-AI/
 │
 ├── data/
 │   ├── raw/
+│   ├── manual/
+│   │   └── plane_employee_history.csv
 │   ├── synthetic/
 │   │   ├── employees.csv
 │   │   ├── employees.json
@@ -10587,6 +11288,7 @@ COMPASS-AI/
 │   ├── api.md
 │   ├── ml_model.md
 │   ├── plane_integration.md
+│   ├── sandbox_app.md
 │   └── assets/
 │
 ├── models/
@@ -10601,6 +11303,27 @@ COMPASS-AI/
 │   ├── 05_fairness_analysis.ipynb
 │   ├── 06_plane_integration_demo.ipynb
 │   └── 07_business_report.ipynb
+│
+├── sandbox_app/
+│   ├── README.md
+│   ├── app.py
+│   ├── config/
+│   ├── data/
+│   │   ├── imported/
+│   │   ├── generated/
+│   │   └── test_cases/
+│   ├── models/
+│   │   ├── checkpoints/
+│   │   └── onnx/
+│   ├── reports/
+│   ├── src/
+│   │   ├── data_generation/
+│   │   ├── features/
+│   │   ├── training/
+│   │   ├── inference/
+│   │   ├── llm/
+│   │   └── utils/
+│   └── tests/
 │
 ├── plane/
 │   ├── docker/
@@ -10624,89 +11347,38 @@ COMPASS-AI/
 │
 ├── scripts/
 │   ├── check_plane_connection.py
-│   └── generate_synthetic_data.py
+│   ├── generate_synthetic_data.py
+│   ├── start_compass_stack.sh
+│   └── stop_compass_stack.sh
 │
 ├── src/
 │   ├── agents/
-│   │   ├── state.py
-│   │   ├── task_analyzer.py
-│   │   ├── team_analyzer.py
-│   │   ├── matching_agent.py
-│   │   ├── explanation_agent.py
-│   │   ├── plane_agent.py
-│   │   └── orchestrator.py
-│   │
 │   ├── data/
-│   │   ├── generate_employees.py
-│   │   ├── generate_tasks.py
-│   │   ├── generate_assignments.py
-│   │   └── split_dataset.py
-│   │
 │   ├── features/
-│   │   ├── skill_vectorizer.py
-│   │   ├── text_embeddings.py
-│   │   └── build_features.py
-│   │
 │   ├── integration/
-│   │   ├── plane_client.py
-│   │   ├── plane_mapping.py
-│   │   ├── plane_comment_formatter.py
-│   │   └── mcp_client.py
-│   │
 │   ├── llm/
-│   │   └── ollama_client.py
-│   │
 │   ├── models/
-│   │   ├── schemas.py
-│   │   ├── dataset.py
-│   │   ├── matching_net.py
-│   │   ├── train.py
-│   │   ├── evaluate.py
-│   │   ├── ranking_metrics.py
-│   │   ├── inference.py
-│   │   ├── export_onnx.py
-│   │   └── onnx_inference.py
-│   │
 │   ├── recommendation/
-│   │   ├── skill_matching.py
-│   │   ├── workload_scoring.py
-│   │   ├── growth_scoring.py
-│   │   └── rule_based_ranker.py
-│   │
 │   ├── reports/
-│   │   └── generate_notebooks.py
-│   │
 │   └── utils/
-│       ├── config.py
-│       └── logging.py
 │
 ├── tests/
-│   ├── test_generate_employees.py
-│   ├── test_generate_tasks.py
-│   ├── test_generate_assignments.py
-│   ├── test_skill_matching.py
-│   ├── test_workload_scoring.py
-│   ├── test_growth_scoring.py
-│   ├── test_rule_based_ranker.py
-│   ├── test_dataset.py
-│   ├── test_matching_net.py
-│   ├── test_onnx_inference.py
-│   ├── test_plane_client.py
-│   └── test_e2e_recommendation.py
-│
 └── tools/
 ```
 
 ---
 
-# 27. Финальный definition of done
+# 30. Финальный definition of done
 
 Проект считается готовым, если выполнено:
 
 - [ ] Plane локально запускается.
-- [ ] В Plane есть workspace, проекты, задачи и синтетическая команда.
+- [ ] В Plane есть workspace, проекты, задачи и demo-команда.
+- [ ] В Plane есть ручная история выполненных и невыполненных задач.
 - [ ] COMPASS API запускается локально.
 - [ ] Dashboard запускается локально.
+- [ ] Dashboard визуально доведён до нормального состояния.
+- [ ] Plane Live recommendations используют только real project members.
 - [ ] Синтетические данные генерируются одной командой.
 - [ ] Features строятся одной командой.
 - [ ] Собственная нейронная сеть обучается.
@@ -10718,6 +11390,7 @@ COMPASS-AI/
 - [ ] Есть русскоязычное объяснение через LLM.
 - [ ] Есть fallback explanation без LLM.
 - [ ] Есть запись рекомендации в Plane comment.
+- [ ] Есть safe optional auto-assign.
 - [ ] Есть batch-анализ задач проекта.
 - [ ] Есть Jupyter notebooks.
 - [ ] Есть HTML-отчёты.
@@ -10725,6 +11398,14 @@ COMPASS-AI/
 - [ ] Есть comparison с random baseline.
 - [ ] Есть comparison с rule-based baseline.
 - [ ] Есть тесты.
+- [ ] Есть автономный sandbox-подпроект.
+- [ ] Sandbox умеет импортировать датасет.
+- [ ] Sandbox умеет генерировать датасет по seed.
+- [ ] Sandbox умеет обучать модель через UI.
+- [ ] Sandbox умеет экспортировать ONNX.
+- [ ] Sandbox умеет генерировать тестовую команду и текущие задачи.
+- [ ] Sandbox умеет проверять распределение задач выбранной ONNX-моделью.
+- [ ] Sandbox умеет объяснять результат через Qwen.
 - [ ] README обновлён.
 - [ ] Документация обновлена.
 - [ ] Скриншоты добавлены.
@@ -10736,5 +11417,3 @@ COMPASS-AI/
 ```text
 Complete COMPASS AI project
 ```
-
----
