@@ -596,49 +596,73 @@ Endpoint:
 
 ## 27.10. Реализовать генерацию больших training datasets
 
-- [ ] Сделать режим `small preview`.
-- [ ] Сделать режим `medium validation`.
-- [ ] Сделать режим `large training`.
-- [ ] Сделать режим `huge training`.
-- [ ] Генерировать training pairs task-employee.
-- [ ] Для каждой задачи создавать пары с несколькими кандидатами.
-- [ ] Добавлять positive и negative examples.
-- [ ] Балансировать классы.
-- [ ] Сохранять большие данные в Parquet.
-- [ ] Сохранять metadata генерации.
-- [ ] Показывать размер датасета.
-- [ ] Показывать class balance.
-- [ ] Показывать распределение ролей, навыков, outcome.
-- [ ] Добавить защиту от случайной генерации слишком огромных данных без подтверждения.
+- [x] Сделать режим small preview.
+- [x] Сделать режим medium validation.
+- [x] Сделать режим large training.
+- [x] Сделать режим huge training.
+- [x] Генерировать training pairs task-employee.
+- [x] Для каждой задачи создавать пары с несколькими кандидатами.
+- [x] Добавлять positive и negative examples.
+- [x] Балансировать классы.
+- [x] Сохранять большие данные в Parquet.
+- [x] Сохранять metadata генерации.
+- [x] Показывать размер датасета.
+- [x] Показывать class balance.
+- [x] Показывать распределение ролей, навыков, outcome.
+- [x] Добавить защиту от случайной генерации слишком огромных данных без подтверждения.
+- [x] Генерировать employees внутри dataset folder.
+- [x] Генерировать tasks внутри dataset folder.
+- [x] Генерировать assignment_history внутри dataset folder.
+- [x] Сохранять employees.csv и employees.json.
+- [x] Сохранять tasks.csv и tasks.json.
+- [x] Сохранять assignment_history.csv и assignment_history.json.
+- [x] Сохранять training_pairs.parquet.
+- [x] Сохранять dataset_metadata.json.
+- [x] Сохранять generation_report.json.
+- [x] Добавить endpoint генерации training dataset.
+- [x] Проверить генерацию напрямую через Python.
+- [x] Проверить генерацию через API.
+- [x] Проверить чтение Parquet.
+- [x] Проверить защиту huge generation.
+- [x] Проверить custom domain profile на медицинском примере.
+- [x] Проверить smoke test backend.
 
 Режимы:
 
-```text
-small_preview: 10 people, 100 tasks, 1_000 pairs
-medium_validation: 30 people, 1_000 tasks, 30_000 pairs
-large_training: 100 people, 10_000 tasks, 1_000_000 pairs
-huge_training: custom limits
-```
+- small_preview: 10 people, 100 tasks, 1 000 pairs
+- medium_validation: 30 people, 1 000 tasks, 30 000 pairs
+- large_training: 100 people, 10 000 tasks, 1 000 000 pairs
+- huge_training: custom limits with explicit confirmation
 
 Файлы:
 
-```text
-sandbox_app/backend/data_generation/training_pairs.py
-sandbox_app/backend/api/generate_dataset.py
-```
+- sandbox_app/backend/data_generation/training_pairs.py
+- sandbox_app/backend/api/generate_dataset.py
+- sandbox_app/backend/main.py
+- sandbox_app/requirements.txt
+
+Endpoint:
+
+- POST /api/generate/dataset
 
 Результаты:
 
-```text
-sandbox_app/data/generated/<dataset_id>/training_pairs.parquet
-sandbox_app/data/generated/<dataset_id>/dataset_metadata.json
-sandbox_app/data/generated/<dataset_id>/generation_report.json
-```
+- sandbox_app/data/generated/<dataset_id>/employees.csv
+- sandbox_app/data/generated/<dataset_id>/employees.json
+- sandbox_app/data/generated/<dataset_id>/tasks.csv
+- sandbox_app/data/generated/<dataset_id>/tasks.json
+- sandbox_app/data/generated/<dataset_id>/assignment_history.csv
+- sandbox_app/data/generated/<dataset_id>/assignment_history.json
+- sandbox_app/data/generated/<dataset_id>/training_pairs.parquet
+- sandbox_app/data/generated/<dataset_id>/dataset_metadata.json
+- sandbox_app/data/generated/<dataset_id>/generation_report.json
 
-**Ожидаемый результат:** можно генерировать как маленькие проверочные данные, так и большие данные для обучения модели.
+Фактически работает так: генератор создаёт полный training dataset в одной папке, генерирует команду, задачи, историю назначений и пары task-employee. Для каждой пары рассчитываются label, target_score, skill_match, параметры задачи и параметры сотрудника. Данные training_pairs сохраняются в Parquet, metadata и generation report сохраняются в JSON. Huge generation требует явного подтверждения, чтобы случайно не создать слишком большой датасет.
 
-**Примерное время:** 8–14 часов.  
-**Коммит:** `Add sandbox training dataset generator`
+Ожидаемый результат: можно генерировать как маленькие проверочные данные, так и большие данные для обучения модели.
+
+Фактическое время: 8–14 часов.  
+Коммит: Add sandbox training dataset generator
 
 ---
 
