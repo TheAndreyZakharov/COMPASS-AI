@@ -356,60 +356,75 @@ Endpoints:
 
 ## 27.7. Реализовать генератор команды
 
-- [ ] Создать генератор сотрудников.
-- [ ] Настраивать количество людей.
-- [ ] Настраивать роли.
-- [ ] Настраивать грейды.
-- [ ] Настраивать набор навыков.
-- [ ] Настраивать распределение seniority.
-- [ ] Настраивать среднюю скорость.
-- [ ] Настраивать среднее качество.
-- [ ] Настраивать надёжность по дедлайнам.
-- [ ] Настраивать fatigue и workload.
-- [ ] Настраивать learning goals.
-- [ ] Настраивать mentor level.
-- [ ] Поддержать seed.
-- [ ] Сохранять generated team.
-- [ ] Показывать preview команды в UI.
+- [x] Создать генератор сотрудников.
+- [x] Настраивать количество людей.
+- [x] Настраивать роли.
+- [x] Настраивать грейды.
+- [x] Настраивать набор навыков.
+- [x] Настраивать распределение seniority.
+- [x] Настраивать среднюю скорость.
+- [x] Настраивать среднее качество.
+- [x] Настраивать надёжность по дедлайнам.
+- [x] Настраивать fatigue и workload.
+- [x] Настраивать learning goals.
+- [x] Настраивать mentor level.
+- [x] Поддержать seed.
+- [x] Сохранять generated team.
+- [x] Показывать preview команды через API.
+- [x] Поддержать domain_profile developers.
+- [x] Поддержать domain_profile designers.
+- [x] Поддержать любые custom domain profiles.
+- [x] Генерировать custom employee features из выбранной схемы.
+- [x] Сохранять employees.json.
+- [x] Сохранять employees.csv.
+- [x] Сохранять team_metadata.json.
+- [x] Добавить endpoint генерации команды.
+- [x] Проверить генерацию напрямую через Python.
+- [x] Проверить генерацию через API.
+- [x] Проверить генерацию команды врачей через custom schema.
+- [x] Проверить smoke test backend.
 
 Файлы:
 
-```text
-sandbox_app/backend/data_generation/employees.py
-sandbox_app/backend/api/generate_team.py
-```
+- sandbox_app/backend/data_generation/employees.py
+- sandbox_app/backend/api/generate_team.py
+- sandbox_app/backend/main.py
 
-Параметры UI:
+Endpoint:
 
-```text
-seed
-employees_count
-domain_profile
-roles
-grades
-skill_count_per_person_min
-skill_count_per_person_max
-junior_share
-middle_share
-senior_share
-lead_share
-fatigue_min
-fatigue_max
-workload_min
-workload_max
-```
+- POST /api/generate/team
 
-Результат:
+Параметры:
 
-```text
-sandbox_app/data/generated/<dataset_id>/employees.csv
-sandbox_app/data/generated/<dataset_id>/employees.json
-```
+- seed
+- employees_count
+- domain_profile
+- roles
+- grades
+- skills
+- skill_count_per_person_min
+- skill_count_per_person_max
+- junior_share
+- middle_share
+- senior_share
+- lead_share
+- fatigue_min
+- fatigue_max
+- workload_min
+- workload_max
 
-**Ожидаемый результат:** можно создать реалистичную команду с людьми, ролями, навыками, загрузкой, усталостью и историческими характеристиками.
+Результаты:
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox team generator`
+- sandbox_app/data/generated/<dataset_id>/employees.csv
+- sandbox_app/data/generated/<dataset_id>/employees.json
+- sandbox_app/data/generated/<dataset_id>/team_metadata.json
+
+Фактически работает так: генератор берёт выбранный feature schema, создаёт реалистичную команду с ролями, грейдами, навыками, learning goals, workload, fatigue, availability, speed, quality, deadline reliability, mentor level и custom employee features. Для developers и designers используются готовые схемы, для любых других областей используется custom schema, например медицинская команда с врачами и собственными признаками.
+
+Ожидаемый результат: можно создать реалистичную команду с людьми, ролями, навыками, загрузкой, усталостью и историческими характеристиками.
+
+Фактическое время: 6–10 часов.  
+Коммит: Add sandbox team generator
 
 ---
 
