@@ -97,50 +97,61 @@ Makefile targets:
 
 ## 27.3. Сделать базовый backend на FastAPI
 
-- [ ] Создать `sandbox_app/backend/main.py`.
-- [ ] Подключить раздачу frontend-статики.
-- [ ] Добавить health endpoint.
-- [ ] Добавить API namespace `/api`.
-- [ ] Добавить endpoint `/api/status`.
-- [ ] Добавить endpoint `/api/config`.
-- [ ] Добавить endpoint `/api/sessions`.
-- [ ] Добавить CORS только для локального режима.
-- [ ] Добавить базовую обработку ошибок.
-- [ ] Добавить запись backend-логов.
-- [ ] Проверить, что `http://localhost:8601` открывает UI.
+- [x] Создать sandbox_app/backend/main.py.
+- [x] Подключить раздачу frontend-статики.
+- [x] Подключить отдельную раздачу CSS из sandbox_app/frontend/css.
+- [x] Подключить отдельную раздачу JS из sandbox_app/frontend/js.
+- [x] Подключить отдельную раздачу assets из sandbox_app/frontend/assets.
+- [x] Добавить health endpoint.
+- [x] Добавить API namespace /api.
+- [x] Добавить endpoint /api/status.
+- [x] Добавить endpoint /api/config.
+- [x] Добавить endpoint /api/sessions.
+- [x] Добавить CORS только для локального режима.
+- [x] Добавить базовую обработку ошибок.
+- [x] Добавить запись backend-логов.
+- [x] Вынести paths в sandbox_app/backend/core/paths.py.
+- [x] Вынести settings loader в sandbox_app/backend/core/settings.py.
+- [x] Вынести JSON helpers в sandbox_app/backend/utils/json_io.py.
+- [x] Вынести status routes в sandbox_app/backend/api/status.py.
+- [x] Вынести config routes в sandbox_app/backend/api/config.py.
+- [x] Вынести sessions routes в sandbox_app/backend/api/sessions.py.
+- [x] Проверить импорт FastAPI app.
+- [x] Проверить endpoints health, status, config, sessions.
+- [x] Проверить, что корневой URL открывает frontend.
+- [x] Проверить, что CSS открывается по /css/styles.css.
+- [x] Проверить, что JS открывается по /js/app.js.
+- [x] Проверить smoke test через sandbox_app/scripts/smoke_test.sh.
 
 Файлы:
 
-```text
-sandbox_app/backend/main.py
-sandbox_app/backend/api/status.py
-sandbox_app/backend/core/settings.py
-sandbox_app/backend/core/paths.py
-sandbox_app/backend/utils/json_io.py
-```
+- sandbox_app/backend/main.py
+- sandbox_app/backend/api/status.py
+- sandbox_app/backend/api/config.py
+- sandbox_app/backend/api/sessions.py
+- sandbox_app/backend/core/settings.py
+- sandbox_app/backend/core/paths.py
+- sandbox_app/backend/core/logging.py
+- sandbox_app/backend/utils/json_io.py
+- sandbox_app/frontend/index.html
+- sandbox_app/frontend/css/styles.css
+- sandbox_app/frontend/js/app.js
 
-Endpoint:
+Endpoints:
 
-```text
-GET /api/status
-```
+- GET /api/health
+- GET /api/status
+- GET /api/config
+- GET /api/sessions
 
-Пример ответа:
+Фактически работает так: backend стартует через существующий start.sh, отдаёт frontend по корневому URL, отдаёт CSS по /css/styles.css, отдаёт JS по /js/app.js, отдаёт assets по /assets, имеет локальный CORS, возвращает публичный config, показывает training и assignment sessions, проверяет базовый статус приложения и доступность Ollama.
 
-```json
-{
-  "app": "COMPASS AI Sandbox",
-  "status": "ok",
-  "python": "3.11",
-  "local_mode": true,
-  "ollama_available": true
-}
-```
+Исправление по факту проверки: изначально страница открывалась без CSS и JS, потому что HTML ссылался на /assets/styles.css и /assets/app.js, а файлы лежали в frontend/css и frontend/js. Исправлено через отдельные mounts /css и /js и обновлённые ссылки в index.html.
 
-**Ожидаемый результат:** локальный backend работает и отдаёт frontend в браузер.
+Ожидаемый результат: локальный backend работает и отдаёт frontend в браузер.
 
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Add sandbox FastAPI backend`
+Фактическое время: 3–5 часов.  
+Коммит: Add sandbox FastAPI backend
 
 ---
 
