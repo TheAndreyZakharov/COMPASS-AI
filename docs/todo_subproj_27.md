@@ -157,56 +157,61 @@ Endpoints:
 
 ## 27.4. Сделать базовый frontend на HTML/CSS/JS
 
-- [ ] Создать `sandbox_app/frontend/index.html`.
-- [ ] Создать общий CSS.
-- [ ] Создать общий JS-клиент для API.
-- [ ] Сделать layout приложения.
-- [ ] Сделать верхнюю навигацию или sidebar.
-- [ ] Добавить страницу `Dashboard`.
-- [ ] Добавить страницу `Data Generator`.
-- [ ] Добавить страницу `Data Viewer`.
-- [ ] Добавить страницу `Training`.
-- [ ] Добавить страницу `Models`.
-- [ ] Добавить страницу `Assignment Lab`.
-- [ ] Добавить страницу `Reports`.
-- [ ] Добавить страницу `Settings`.
-- [ ] Сделать loading/error states.
-- [ ] Сделать UI без Streamlit.
+- [x] Создать sandbox_app/frontend/index.html.
+- [x] Создать общий CSS.
+- [x] Создать общий JS-клиент для API.
+- [x] Сделать layout приложения.
+- [x] Сделать sidebar navigation.
+- [x] Добавить страницу Dashboard.
+- [x] Добавить страницу Data Generator.
+- [x] Добавить страницу Data Viewer.
+- [x] Добавить страницу Training.
+- [x] Добавить страницу Models.
+- [x] Добавить страницу Assignment Lab.
+- [x] Добавить страницу Reports.
+- [x] Добавить страницу Settings.
+- [x] Сделать loading states.
+- [x] Сделать error states.
+- [x] Сделать backend status indicator.
+- [x] Сделать refresh button.
+- [x] Сделать UI без Streamlit.
+- [x] Подключить frontend к backend endpoints health, status, config, sessions.
+- [x] Проверить отдачу CSS.
+- [x] Проверить отдачу JS.
+- [x] Проверить переключение страниц в браузере.
 
 Файлы:
 
-```text
-sandbox_app/frontend/index.html
-sandbox_app/frontend/css/styles.css
-sandbox_app/frontend/js/api.js
-sandbox_app/frontend/js/app.js
-sandbox_app/frontend/js/pages/dashboard.js
-sandbox_app/frontend/js/pages/generator.js
-sandbox_app/frontend/js/pages/viewer.js
-sandbox_app/frontend/js/pages/training.js
-sandbox_app/frontend/js/pages/models.js
-sandbox_app/frontend/js/pages/assignment_lab.js
-sandbox_app/frontend/js/pages/reports.js
-sandbox_app/frontend/js/pages/settings.js
-```
+- sandbox_app/frontend/index.html
+- sandbox_app/frontend/css/styles.css
+- sandbox_app/frontend/js/api.js
+- sandbox_app/frontend/js/app.js
+- sandbox_app/frontend/js/pages/dashboard.js
+- sandbox_app/frontend/js/pages/generator.js
+- sandbox_app/frontend/js/pages/viewer.js
+- sandbox_app/frontend/js/pages/training.js
+- sandbox_app/frontend/js/pages/models.js
+- sandbox_app/frontend/js/pages/assignment_lab.js
+- sandbox_app/frontend/js/pages/reports.js
+- sandbox_app/frontend/js/pages/settings.js
 
 Разделы UI:
 
-```text
-Dashboard
-Data Generator
-Data Viewer
-Training
-Models
-Assignment Lab
-Reports
-Settings
-```
+- Dashboard
+- Data Generator
+- Data Viewer
+- Training
+- Models
+- Assignment Lab
+- Reports
+- Settings
 
-**Ожидаемый результат:** песочница выглядит как нормальное локальное web-приложение, а не как консольный набор утилит.
+Фактически работает так: приложение открывается в браузере, имеет sidebar navigation, переключает страницы через hash routing, показывает статус backend, читает config и sessions через API, показывает loading и error states. Функциональные кнопки генерации, обучения и assignment simulation пока отключены до соответствующих backend-пунктов roadmap.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox browser UI`
+Ожидаемый результат: песочница выглядит как нормальное локальное web-приложение, а не как консольный набор утилит.
+
+Фактическое время: 6–10 часов.  
+Коммит: Add sandbox browser UI
 
 ---
 
