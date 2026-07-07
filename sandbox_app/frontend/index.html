@@ -4,11 +4,20 @@
   <meta charset="utf-8">
   <title>COMPASS AI Sandbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-  <main id="app">
-    <h1>COMPASS AI Sandbox</h1>
-    <p>Browser UI will be implemented in milestone 27.4.</p>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Local sandbox</p>
+      <h1>COMPASS AI Sandbox</h1>
+      <p class="lead">Autonomous browser app for synthetic teams, model training sessions, assignment simulations, and Qwen explanations.</p>
+      <div class="status-row">
+        <span class="status-dot"></span>
+        <span id="api-status">Checking backend...</span>
+      </div>
+    </section>
   </main>
+  <script src="/assets/app.js"></script>
 </body>
 </html>

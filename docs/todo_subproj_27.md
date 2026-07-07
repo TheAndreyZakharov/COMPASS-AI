@@ -48,73 +48,50 @@ Frontend-основа: создан минимальный `frontend/index.html`
 
 ## 27.2. Сделать локальный запуск и остановку приложения
 
-- [ ] Создать `sandbox_app/scripts/start.sh`.
-- [ ] Создать `sandbox_app/scripts/stop.sh`.
-- [ ] Создать `sandbox_app/scripts/restart.sh`.
-- [ ] Создать `sandbox_app/scripts/smoke_test.sh`.
-- [ ] Сделать запуск через уже активированное `.venv`.
-- [ ] Сделать проверку, что Python берётся из `.venv`.
-- [ ] Сделать запуск backend на порту `8601`.
-- [ ] Сделать открытие frontend через тот же FastAPI backend.
-- [ ] Сохранять PID процесса в `sandbox_app/logs/sandbox_app.pid`.
-- [ ] Сохранять логи запуска в `sandbox_app/logs/server.log`.
-- [ ] Добавить понятные сообщения в терминал.
-- [ ] Добавить команды в основной `Makefile`, если он есть.
+- [x] Создать sandbox_app/scripts/start.sh.
+- [x] Создать sandbox_app/scripts/stop.sh.
+- [x] Создать sandbox_app/scripts/restart.sh.
+- [x] Создать sandbox_app/scripts/smoke_test.sh.
+- [x] Создать безопасный sandbox_app/scripts/clean_tmp.sh.
+- [x] Сделать запуск через уже активированное .venv.
+- [x] Сделать проверку, что Python берётся из .venv.
+- [x] Сделать запуск backend на порту 8601.
+- [x] Сделать открытие frontend через тот же FastAPI backend.
+- [x] Сохранять PID процесса в sandbox_app/logs/sandbox_app.pid.
+- [x] Сохранять логи запуска в sandbox_app/logs/server.log.
+- [x] Добавить понятные сообщения в терминал.
+- [x] Добавить команды в основной Makefile.
+- [x] Добавить игнорирование runtime logs и pid-файлов.
+- [x] Добавить минимальный FastAPI bootstrap для запуска приложения.
+- [x] Добавить health endpoint для smoke test.
+- [x] Проверить shell scripts через bash -n.
+- [x] Проверить Python-пакет через compileall.
+- [x] Проверить запуск, smoke test и остановку приложения.
 
-Команда запуска вручную:
+Команды запуска:
 
-```bash
-cd /Users/andrey/Documents/projects/COMPASS-AI
-source .venv/bin/activate
-bash sandbox_app/scripts/start.sh
-```
+- cd /Users/andrey/Documents/projects/COMPASS-AI
+- source .venv/bin/activate
+- bash sandbox_app/scripts/start.sh
 
-Локальный URL:
-
-```text
-http://localhost:8601
-```
-
-Пример `start.sh`:
-
-```bash
-#!/usr/bin/env bash
-set -e
-
-cd "$(dirname "$0")/../.."
-
-mkdir -p sandbox_app/logs
-
-python -m uvicorn sandbox_app.backend.main:app \
-  --host 127.0.0.1 \
-  --port 8601 \
-  --reload \
-  > sandbox_app/logs/server.log 2>&1 &
-
-echo $! > sandbox_app/logs/sandbox_app.pid
-echo "Sandbox app started: http://localhost:8601"
-```
+Локальный URL: http://127.0.0.1:8601
 
 Makefile targets:
 
-```makefile
-sandbox-start:
-	bash sandbox_app/scripts/start.sh
+- sandbox-start
+- sandbox-stop
+- sandbox-restart
+- sandbox-test
+- sandbox-clean
 
-sandbox-stop:
-	bash sandbox_app/scripts/stop.sh
+Фактически работает так: start.sh проверяет активное .venv, проверяет Python из проекта, проверяет FastAPI runtime, проверяет занятость порта, запускает uvicorn, пишет PID и server.log. stop.sh останавливает процесс по PID и чистит pid-файл. restart.sh делает stop и start. smoke_test.sh проверяет /api/health. clean_tmp.sh чистит Python cache внутри sandbox_app.
 
-sandbox-restart:
-	bash sandbox_app/scripts/restart.sh
+Корректировка по roadmap: добавлен минимальный FastAPI bootstrap в sandbox_app/backend/main.py, потому что без него пункт 27.2 не мог бы быть рабочим. Полноценный backend API остаётся в 27.3.
 
-sandbox-test:
-	bash sandbox_app/scripts/smoke_test.sh
-```
+Ожидаемый результат: приложение можно запускать, останавливать, перезапускать и проверять одной командой.
 
-**Ожидаемый результат:** приложение можно запускать, останавливать и перезапускать одной командой.
-
-**Примерное время:** 2–3 часа.  
-**Коммит:** `Add sandbox run scripts`
+Фактическое время: 2–3 часа.  
+Коммит: Add sandbox run scripts
 
 ---
 

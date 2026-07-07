@@ -83,3 +83,18 @@ clean:
 	find . -type d -name ".pytest_cache" -prune -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -prune -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -prune -exec rm -rf {} +
+
+sandbox-start:
+	bash sandbox_app/scripts/start.sh
+
+sandbox-stop:
+	bash sandbox_app/scripts/stop.sh
+
+sandbox-restart:
+	bash sandbox_app/scripts/restart.sh
+
+sandbox-test:
+	bash sandbox_app/scripts/smoke_test.sh
+
+sandbox-clean:
+	bash sandbox_app/scripts/clean_tmp.sh
