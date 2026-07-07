@@ -1,46 +1,55 @@
 INFO:     Will watch for changes in these directories: ['/Users/andrey/Documents/projects/COMPASS-AI']
 INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     Started reloader process [95210] using WatchFiles
-INFO:     Started server process [95268]
+INFO:     Started reloader process [164] using WatchFiles
+INFO:     Started server process [214]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:57493 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57494 - "GET /js/app.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57495 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57494 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57495 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57493 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57494 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57495 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57493 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57494 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57495 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57493 - "GET /js/api.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57495 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57496 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57494 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57493 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57496 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57496 - "GET /favicon.ico HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57516 - "GET /api/contracts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57523 - "GET /api/contracts/employees HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57526 - "GET /api/contracts/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57530 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57547 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57547 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57547 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57536 - "GET /api/config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57547 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57569 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57572 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57569 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58377 - "GET /api/feature-schemas HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58384 - "GET /api/feature-schemas/custom HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58390 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58437 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58437 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58450 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58472 - "POST /api/feature-schemas HTTP/1.1" 200 OK
+2026-07-07 18:48:30,514 INFO [watchfiles.main] 1 change detected
+INFO:     127.0.0.1:58478 - "GET /api/feature-schemas/medical_team HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58495 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58496 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58497 - "GET /js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58500 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58499 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58498 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58497 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58496 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58499 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58500 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58495 - "GET /js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58498 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58501 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58497 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58501 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58501 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58499 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58510 - "DELETE /api/feature-schemas/medical_team HTTP/1.1" 200 OK
+2026-07-07 18:49:11,236 INFO [watchfiles.main] 1 change detected
+2026-07-07 18:49:49,666 INFO [watchfiles.main] 1 change detected
+2026-07-07 18:50:37,688 INFO [watchfiles.main] 1 change detected
+WARNING:  WatchFiles detected changes in 'sandbox_app/backend/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [214]
+2026-07-07 18:50:38,246 INFO [watchfiles.main] 3 changes detected
+INFO:     Started server process [3120]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+2026-07-07 18:53:50,496 INFO [watchfiles.main] 1 change detected
+WARNING:  WatchFiles detected changes in 'sandbox_app/backend/api/feature_schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3120]
+INFO:     Started server process [3925]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+2026-07-07 18:53:51,166 INFO [watchfiles.main] 3 changes detected

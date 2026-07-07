@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from sandbox_app.backend.api.config import router as config_router
 from sandbox_app.backend.api.contracts import router as contracts_router
+from sandbox_app.backend.api.feature_schemas import router as feature_schemas_router
 from sandbox_app.backend.api.sessions import router as sessions_router
 from sandbox_app.backend.api.status import router as status_router
 from sandbox_app.backend.core.logging import configure_logging
@@ -49,6 +50,7 @@ app.include_router(status_router)
 app.include_router(config_router)
 app.include_router(sessions_router)
 app.include_router(contracts_router)
+app.include_router(feature_schemas_router)
 
 css_dir = FRONTEND_DIR / "css"
 js_dir = FRONTEND_DIR / "js"

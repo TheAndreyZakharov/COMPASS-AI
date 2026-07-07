@@ -1,22 +1,129 @@
 {
   "profile_id": "developers",
   "title": "Software developers",
-  "roles": ["Frontend Developer", "Backend Developer", "Fullstack Developer", "QA Engineer", "DevOps Engineer", "Tech Lead"],
-  "grades": ["junior", "middle", "senior", "lead"],
-  "skills": ["python", "javascript", "typescript", "frontend", "backend", "sql", "api_design", "testing", "debugging", "architecture", "legacy_code", "security_review", "devops"],
+  "description": "System profile for software engineering teams.",
+  "roles": [
+    "Frontend Developer",
+    "Backend Developer",
+    "Fullstack Developer",
+    "QA Engineer",
+    "DevOps Engineer",
+    "Tech Lead"
+  ],
+  "grades": [
+    "junior",
+    "middle",
+    "senior",
+    "lead"
+  ],
+  "skills": [
+    "python",
+    "javascript",
+    "typescript",
+    "frontend",
+    "backend",
+    "sql",
+    "api_design",
+    "testing",
+    "debugging",
+    "architecture",
+    "legacy_code",
+    "security_review",
+    "devops"
+  ],
   "employee_features": [
-    {"name": "communication", "type": "numeric", "min": 0, "max": 1},
-    {"name": "speed", "type": "numeric", "min": 0, "max": 1},
-    {"name": "quality", "type": "numeric", "min": 0, "max": 1},
-    {"name": "reliability", "type": "numeric", "min": 0, "max": 1},
-    {"name": "learning_potential", "type": "numeric", "min": 0, "max": 1},
-    {"name": "fatigue_level", "type": "numeric", "min": 0, "max": 1}
+    {
+      "name": "communication",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "speed",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "quality",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "reliability",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "learning_potential",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "fatigue_level",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    }
   ],
   "task_features": [
-    {"name": "requires_security_review", "type": "boolean"},
-    {"name": "requires_legacy_code_knowledge", "type": "boolean"},
-    {"name": "domain_area", "type": "categorical"},
-    {"name": "communication_intensity", "type": "numeric", "min": 0, "max": 1},
-    {"name": "research_uncertainty", "type": "numeric", "min": 0, "max": 1}
-  ]
+    {
+      "name": "requires_security_review",
+      "type": "boolean"
+    },
+    {
+      "name": "requires_legacy_code_knowledge",
+      "type": "boolean"
+    },
+    {
+      "name": "domain_area",
+      "type": "categorical",
+      "values": [
+        "frontend",
+        "backend",
+        "infrastructure",
+        "qa",
+        "security",
+        "data"
+      ]
+    },
+    {
+      "name": "communication_intensity",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "name": "research_uncertainty",
+      "type": "numeric",
+      "min": 0,
+      "max": 1
+    }
+  ],
+  "outcome_features": [
+    {
+      "name": "rework_needed",
+      "type": "boolean"
+    },
+    {
+      "name": "review_iterations",
+      "type": "numeric",
+      "min": 0,
+      "max": 10
+    }
+  ],
+  "grade_order": [
+    "junior",
+    "middle",
+    "senior",
+    "lead"
+  ],
+  "metadata": {
+    "editable": true,
+    "system": true,
+    "domain": "software_development"
+  }
 }

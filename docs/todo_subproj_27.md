@@ -286,81 +286,71 @@ Endpoints:
 
 ## 27.6. Реализовать настраиваемые профили признаков
 
-- [ ] Сделать системные профили признаков.
-- [ ] Добавить профиль `developers`.
-- [ ] Добавить профиль `designers`.
-- [ ] Добавить возможность создать свой профиль.
-- [ ] Добавить возможность переименовать признак.
-- [ ] Добавить возможность удалить признак.
-- [ ] Добавить возможность добавить числовой признак.
-- [ ] Добавить возможность добавить категориальный признак.
-- [ ] Добавить возможность добавить boolean-признак.
-- [ ] Добавить возможность добавить текстовый признак.
-- [ ] Добавить возможность добавить список навыков.
-- [ ] Показывать preview схемы в UI.
-- [ ] Сохранять схемы в JSON.
-- [ ] Использовать выбранную схему при генерации данных.
-- [ ] Использовать выбранную схему при feature building.
+- [x] Сделать системные профили признаков.
+- [x] Добавить профиль developers.
+- [x] Добавить профиль designers.
+- [x] Добавить полностью свободный профиль custom.
+- [x] Добавить возможность создать свой профиль.
+- [x] Добавить возможность переименовать признак.
+- [x] Добавить возможность удалить признак.
+- [x] Добавить возможность добавить числовой признак.
+- [x] Добавить возможность добавить категориальный признак.
+- [x] Добавить возможность добавить boolean-признак.
+- [x] Добавить возможность добавить текстовый признак.
+- [x] Добавить возможность добавить список навыков.
+- [x] Показывать preview схемы через API.
+- [x] Сохранять схемы в JSON.
+- [x] Использовать выбранную схему как основу для будущей генерации данных.
+- [x] Использовать выбранную схему как основу для будущего feature building.
+- [x] Добавить backend validation для profile_id, feature names и feature types.
+- [x] Добавить защиту системных профилей от удаления.
+- [x] Добавить документацию по feature schemas.
+- [x] Проверить JSON.
+- [x] Проверить Python imports.
+- [x] Проверить API endpoints.
+- [x] Проверить создание custom-профиля на примере medical_team.
 
 Файлы:
 
-```text
-sandbox_app/config/feature_schemas/developers.json
-sandbox_app/config/feature_schemas/designers.json
-sandbox_app/config/feature_schemas/custom.json
-sandbox_app/backend/api/feature_schemas.py
-sandbox_app/backend/features/schema.py
-```
+- sandbox_app/config/feature_schemas/developers.json
+- sandbox_app/config/feature_schemas/designers.json
+- sandbox_app/config/feature_schemas/custom.json
+- sandbox_app/backend/api/feature_schemas.py
+- sandbox_app/backend/features/schema.py
+- sandbox_app/backend/main.py
+- sandbox_app/docs/feature_schemas.md
 
-Примеры признаков для разработчиков:
+Endpoints:
 
-```text
-python
-javascript
-frontend
-backend
-sql
-api_design
-testing
-debugging
-architecture
-legacy_code
-security_review
-devops
-```
+- GET /api/feature-schemas
+- GET /api/feature-schemas/{profile_id}
+- POST /api/feature-schemas
+- PUT /api/feature-schemas/{profile_id}
+- DELETE /api/feature-schemas/{profile_id}
+- POST /api/feature-schemas/{profile_id}/features/{group}
+- PATCH /api/feature-schemas/{profile_id}/features/{group}/{feature_name}
+- DELETE /api/feature-schemas/{profile_id}/features/{group}/{feature_name}
 
-Примеры признаков для дизайнеров:
+Поддерживаемые feature types:
 
-```text
-ux_research
-ui_design
-figma
-prototyping
-design_systems
-visual_design
-copywriting
-user_testing
-accessibility
-product_thinking
-handoff_quality
-```
+- numeric
+- categorical
+- boolean
+- text
+- skill_list
 
-Примеры общих признаков:
+Поддерживаемые feature groups:
 
-```text
-communication
-speed
-quality
-reliability
-learning_potential
-fatigue_level
-context_switching_tolerance
-```
+- employee
+- task
+- outcome
 
-**Ожидаемый результат:** можно синтетически генерировать не только разработчиков, но и дизайнеров или любую другую команду с собственными признаками.
+Фактически работает так: developers и designers являются готовыми системными примерами, custom является свободным шаблоном под любую область. Пользователь может создать профиль для врачей, юристов, дизайнеров, продаж, поддержки или любой другой команды, задать свои роли, грейды, навыки, признаки сотрудников, признаки задач и признаки результата. Backend валидирует схему, сохраняет её в JSON и отдаёт preview через API.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add configurable sandbox feature schemas`
+Ожидаемый результат: можно синтетически генерировать не только разработчиков, но и дизайнеров или любую другую команду с собственными признаками.
+
+Фактическое время: 6–10 часов.  
+Коммит: Add configurable sandbox feature schemas
 
 ---
 
