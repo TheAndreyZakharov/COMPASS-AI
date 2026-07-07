@@ -430,73 +430,93 @@ Endpoint:
 
 ## 27.8. Реализовать генератор задач и backlog
 
-- [ ] Создать генератор задач.
-- [ ] Настраивать количество задач.
-- [ ] Настраивать количество проектов.
-- [ ] Настраивать типы задач.
-- [ ] Настраивать приоритеты.
-- [ ] Настраивать сложность.
-- [ ] Настраивать дедлайны.
-- [ ] Настраивать required skills.
-- [ ] Настраивать estimated hours.
-- [ ] Настраивать зависимости.
-- [ ] Генерировать задачи в разных статусах.
-- [ ] Генерировать отдельный backlog задач в статусе `todo`.
-- [ ] Генерировать задачи для канбан-доски.
-- [ ] Поддержать custom task features.
-- [ ] Поддержать seed.
-- [ ] Сохранять задачи в dataset folder.
+- [x] Создать генератор задач.
+- [x] Настраивать количество задач.
+- [x] Настраивать количество проектов.
+- [x] Настраивать типы задач.
+- [x] Настраивать приоритеты.
+- [x] Настраивать сложность.
+- [x] Настраивать дедлайны.
+- [x] Настраивать required skills.
+- [x] Настраивать estimated hours.
+- [x] Настраивать зависимости.
+- [x] Генерировать задачи в разных статусах.
+- [x] Генерировать отдельный backlog задач в статусе todo.
+- [x] Генерировать задачи для канбан-доски.
+- [x] Поддержать custom task features.
+- [x] Поддержать seed.
+- [x] Сохранять задачи в dataset folder.
+- [x] Сохранять tasks.json.
+- [x] Сохранять tasks.csv.
+- [x] Сохранять backlog.json.
+- [x] Сохранять backlog.csv.
+- [x] Сохранять task_metadata.json.
+- [x] Добавить endpoint генерации задач.
+- [x] Проверить генерацию напрямую через Python.
+- [x] Проверить генерацию через API.
+- [x] Проверить генерацию медицинских задач через custom schema.
+- [x] Проверить smoke test backend.
 
 Файлы:
 
-```text
-sandbox_app/backend/data_generation/tasks.py
-sandbox_app/backend/data_generation/backlog.py
-sandbox_app/backend/api/generate_tasks.py
-```
+- sandbox_app/backend/data_generation/tasks.py
+- sandbox_app/backend/data_generation/backlog.py
+- sandbox_app/backend/api/generate_tasks.py
+- sandbox_app/backend/main.py
+
+Endpoint:
+
+- POST /api/generate/tasks
+
+Параметры:
+
+- seed
+- tasks_count
+- projects_count
+- domain_profile
+- task_types
+- priorities
+- skills
+- todo_share
+- in_progress_share
+- review_share
+- done_share
+- blocked_share
+- failed_share
+- min_complexity
+- max_complexity
+- min_deadline_days
+- max_deadline_days
+- min_estimated_hours
+- max_estimated_hours
+- skill_count_min
+- skill_count_max
+- dependency_probability
+- skill_mismatch_probability
 
 Статусы:
 
-```text
-todo
-in_progress
-review
-done
-blocked
-failed
-```
+- todo
+- in_progress
+- review
+- done
+- blocked
+- failed
 
-Параметры UI:
+Результаты:
 
-```text
-tasks_count
-projects_count
-todo_share
-in_progress_share
-review_share
-done_share
-blocked_share
-failed_share
-min_complexity
-max_complexity
-min_deadline_days
-max_deadline_days
-min_estimated_hours
-max_estimated_hours
-skill_mismatch_probability
-```
+- sandbox_app/data/generated/<dataset_id>/tasks.csv
+- sandbox_app/data/generated/<dataset_id>/tasks.json
+- sandbox_app/data/generated/<dataset_id>/backlog.csv
+- sandbox_app/data/generated/<dataset_id>/backlog.json
+- sandbox_app/data/generated/<dataset_id>/task_metadata.json
 
-Результат:
+Фактически работает так: генератор берёт выбранный feature schema, создаёт задачи с типами, приоритетами, сложностью, оценкой часов, дедлайнами, required skills, статусами, зависимостями, project_id и custom task features. Backlog отдельно сохраняется из задач со статусом todo. Для developers и designers используются готовые схемы, для любых других областей используется custom schema, например медицинские задачи с emergency_level, requires_surgery и department.
 
-```text
-sandbox_app/data/generated/<dataset_id>/tasks.csv
-sandbox_app/data/generated/<dataset_id>/tasks.json
-```
+Ожидаемый результат: можно создать большой набор задач, похожий на реальный backlog команды.
 
-**Ожидаемый результат:** можно создать большой набор задач, похожий на реальный backlog команды.
-
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox task generator`
+Фактическое время: 6–10 часов.  
+Коммит: Add sandbox task generator
 
 ---
 
