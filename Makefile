@@ -84,6 +84,8 @@ clean:
 	find . -type d -name ".mypy_cache" -prune -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -prune -exec rm -rf {} +
 
+.PHONY: sandbox-start sandbox-stop sandbox-restart sandbox-test sandbox-clean
+
 sandbox-start:
 	bash sandbox_app/scripts/start.sh
 

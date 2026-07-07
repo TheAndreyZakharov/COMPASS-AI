@@ -51,51 +51,56 @@ sandbox_app существует как отдельный автономный 
 
 ## 27.2. Сделать локальный запуск, остановку и smoke test
 
-- [ ] Создать scripts/start.sh.
-- [ ] Создать scripts/stop.sh.
-- [ ] Создать scripts/restart.sh.
-- [ ] Создать scripts/smoke_test.sh.
-- [ ] Создать scripts/clean_tmp.sh.
-- [ ] Запускать приложение через активированное .venv.
-- [ ] Проверять, что python берётся из .venv проекта.
-- [ ] Запускать backend на 127.0.0.1:8601.
-- [ ] Сохранять PID в sandbox_app/logs/sandbox_app.pid.
-- [ ] Сохранять server logs в sandbox_app/logs/server.log.
-- [ ] Проверять занятость порта.
-- [ ] Давать понятные terminal messages.
-- [ ] Добавить Makefile targets.
-- [ ] Добавить игнорирование runtime logs и pid-файлов.
-- [ ] Проверить shell scripts через bash -n.
-- [ ] Проверить start, smoke test, stop, restart.
+- [x] Создать scripts/start.sh.
+- [x] Создать scripts/stop.sh.
+- [x] Создать scripts/restart.sh.
+- [x] Создать scripts/smoke_test.sh.
+- [x] Создать scripts/clean_tmp.sh.
+- [x] Запускать приложение через активированное .venv.
+- [x] Проверять, что python берётся из .venv проекта.
+- [x] Запускать backend на 127.0.0.1:8601.
+- [x] Сохранять PID в sandbox_app/logs/sandbox_app.pid.
+- [x] Сохранять server logs в sandbox_app/logs/server.log.
+- [x] Проверять занятость порта.
+- [x] Давать понятные terminal messages.
+- [x] Добавить Makefile targets.
+- [x] Добавить игнорирование runtime logs и pid-файлов.
+- [x] Проверить shell scripts через bash -n.
+- [x] Проверить start, smoke test, stop, restart.
+- [x] Добавить минимальный backend entrypoint для честной проверки запуска до этапа 27.3.
+- [x] Добавить sandbox-clean для безопасной очистки runtime-файлов.
 
 Команды запуска:
 
-```bash
 cd /Users/andrey/Documents/projects/COMPASS-AI
 source .venv/bin/activate
 bash sandbox_app/scripts/start.sh
-```
 
 Локальный URL:
 
-```text
 http://127.0.0.1:8601
-```
 
 Makefile targets:
 
-```text
 sandbox-start
 sandbox-stop
 sandbox-restart
 sandbox-test
 sandbox-clean
-```
 
-**Ожидаемый результат:** приложение запускается, останавливается, перезапускается и проверяется одной командой.
+Что сделано по факту:
+Приложение запускается через .venv на 127.0.0.1:8601. PID сохраняется в sandbox_app/logs/sandbox_app.pid. Логи пишутся в sandbox_app/logs/server.log. start.sh проверяет Python 3.11.x, принадлежность python к .venv, занятость порта и health endpoint. stop.sh корректно останавливает процесс и чистит PID. restart.sh делает stop плюс start. smoke_test.sh проверяет .venv, PID, /api/health и главную страницу. clean_tmp.sh безопасно чистит runtime-файлы, если сервер не запущен.
 
-**Примерное время:** 2–3 часа.  
-**Коммит:** `Add sandbox run scripts`
+Проверки:
+Shell scripts проходят bash -n.
+Start, smoke test, restart, smoke test, stop проверены.
+Makefile targets sandbox-start, sandbox-test, sandbox-restart, sandbox-stop, sandbox-clean добавлены.
+
+Ожидаемый результат:
+приложение запускается, останавливается, перезапускается и проверяется одной командой.
+
+Примерное время: 2–3 часа.
+Коммит: Add sandbox run scripts
 
 ---
 
