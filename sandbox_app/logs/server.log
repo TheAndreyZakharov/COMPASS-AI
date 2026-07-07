@@ -1,19 +1,44 @@
 INFO:     Will watch for changes in these directories: ['/Users/andrey/Documents/projects/COMPASS-AI']
 INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     Started reloader process [12352] using WatchFiles
-INFO:     Started server process [12402]
+INFO:     Started reloader process [18524] using WatchFiles
+INFO:     Started server process [18574]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:59892 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59895 - "POST /api/generate/tasks HTTP/1.1" 200 OK
-2026-07-07 19:07:44,263 INFO [watchfiles.main] 6 changes detected
-INFO:     127.0.0.1:59898 - "POST /api/generate/tasks HTTP/1.1" 200 OK
-2026-07-07 19:07:49,358 INFO [watchfiles.main] 6 changes detected
-INFO:     127.0.0.1:59901 - "POST /api/feature-schemas HTTP/1.1" 200 OK
-2026-07-07 19:07:56,006 INFO [watchfiles.main] 1 change detected
-INFO:     127.0.0.1:59904 - "POST /api/generate/tasks HTTP/1.1" 200 OK
-2026-07-07 19:08:00,735 INFO [watchfiles.main] 6 changes detected
-INFO:     127.0.0.1:59909 - "DELETE /api/feature-schemas/medical_tasks HTTP/1.1" 200 OK
-2026-07-07 19:08:06,955 INFO [watchfiles.main] 2 changes detected
-2026-07-07 19:09:08,109 INFO [watchfiles.main] 1 change detected
-2026-07-07 19:10:20,941 INFO [watchfiles.main] 4 changes detected
+INFO:     127.0.0.1:60392 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60392 - "GET /js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60396 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60396 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60396 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60416 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60392 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60416 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60420 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60421 - "POST /api/generate/team HTTP/1.1" 200 OK
+2026-07-07 19:15:51,360 INFO [watchfiles.main] 4 changes detected
+INFO:     127.0.0.1:60428 - "POST /api/generate/tasks HTTP/1.1" 200 OK
+2026-07-07 19:15:58,755 INFO [watchfiles.main] 6 changes detected
+INFO:     127.0.0.1:60433 - "POST /api/generate/history HTTP/1.1" 400 Bad Request
+2026-07-07 19:19:06,102 INFO [watchfiles.main] 1 change detected
+2026-07-07 19:19:15,317 INFO [watchfiles.main] 5 changes detected

@@ -522,58 +522,75 @@ Endpoint:
 
 ## 27.9. Реализовать генератор истории выполненных задач
 
-- [ ] Создать генератор historical assignments.
-- [ ] Для каждого сотрудника генерировать сотни прошлых задач.
-- [ ] Настраивать глубину истории на человека.
-- [ ] Настраивать good/bad outcomes.
-- [ ] Настраивать late/on-time/failed outcomes.
-- [ ] Учитывать skill match.
-- [ ] Учитывать перегруз.
-- [ ] Учитывать усталость.
-- [ ] Учитывать сложность задачи.
-- [ ] Учитывать seniority.
-- [ ] Учитывать learning tasks.
-- [ ] Генерировать качество результата.
-- [ ] Генерировать скорость выполнения.
-- [ ] Генерировать rework.
-- [ ] Генерировать feedback score.
-- [ ] Сохранять assignment history.
-- [ ] Показывать статистику истории в UI.
+- [x] Создать генератор historical assignments.
+- [x] Для каждого сотрудника генерировать сотни прошлых задач.
+- [x] Настраивать глубину истории на человека.
+- [x] Настраивать good/bad outcomes.
+- [x] Настраивать late/on-time/failed outcomes.
+- [x] Учитывать skill match.
+- [x] Учитывать перегруз.
+- [x] Учитывать усталость.
+- [x] Учитывать сложность задачи.
+- [x] Учитывать seniority.
+- [x] Учитывать learning tasks.
+- [x] Генерировать качество результата.
+- [x] Генерировать скорость выполнения.
+- [x] Генерировать rework.
+- [x] Генерировать feedback score.
+- [x] Сохранять assignment history.
+- [x] Показывать статистику истории через API.
+- [x] Добавить outcome engine.
+- [x] Добавить endpoint генерации истории.
+- [x] Поддержать employees и tasks из payload.
+- [x] Поддержать employees и tasks из generated datasets.
+- [x] Сохранять assignment_history.json.
+- [x] Сохранять assignment_history.csv.
+- [x] Сохранять history_metadata.json.
+- [x] Проверить генерацию напрямую через Python.
+- [x] Проверить генерацию через API.
+- [x] Проверить smoke test backend.
 
 Файлы:
 
-```text
-sandbox_app/backend/data_generation/history.py
-sandbox_app/backend/data_generation/outcomes.py
-sandbox_app/backend/api/generate_history.py
-```
+- sandbox_app/backend/data_generation/history.py
+- sandbox_app/backend/data_generation/outcomes.py
+- sandbox_app/backend/api/generate_history.py
+- sandbox_app/backend/main.py
 
-Параметры UI:
+Endpoint:
 
-```text
-history_depth_per_employee
-good_outcome_share
-bad_outcome_share
-late_outcome_share
-failed_outcome_share
-rework_probability
-overload_penalty_strength
-fatigue_penalty_strength
-skill_match_bonus_strength
-learning_task_share
-```
+- POST /api/generate/history
 
-Результат:
+Параметры:
 
-```text
-sandbox_app/data/generated/<dataset_id>/assignment_history.csv
-sandbox_app/data/generated/<dataset_id>/assignment_history.json
-```
+- seed
+- employees_dataset_id
+- tasks_dataset_id
+- employees
+- tasks
+- history_depth_per_employee
+- good_outcome_share
+- bad_outcome_share
+- late_outcome_share
+- failed_outcome_share
+- rework_probability
+- overload_penalty_strength
+- fatigue_penalty_strength
+- skill_match_bonus_strength
+- learning_task_share
 
-**Ожидаемый результат:** у каждого человека есть большая история выполненных задач, по которой можно обучать модели.
+Результаты:
 
-**Примерное время:** 8–14 часов.  
-**Коммит:** `Add sandbox assignment history generator`
+- sandbox_app/data/generated/<dataset_id>/assignment_history.csv
+- sandbox_app/data/generated/<dataset_id>/assignment_history.json
+- sandbox_app/data/generated/<dataset_id>/history_metadata.json
+
+Фактически работает так: генератор берёт сотрудников и задачи, создаёт историю назначений, выбирает задачи для каждого сотрудника, учитывает совпадение навыков, загрузку, усталость, сложность, грейд и learning goals. Для каждой записи генерируются planned_hours, actual_hours, quality_score, deadline_status, outcome_label, rework, feedback_score, success_score и skill_match_score. Историю можно строить из payload или из уже сохранённых generated datasets.
+
+Ожидаемый результат: у каждого человека есть большая история выполненных задач, по которой можно обучать модели.
+
+Фактическое время: 8–14 часов.  
+Коммит: Add sandbox assignment history generator
 
 ---
 
