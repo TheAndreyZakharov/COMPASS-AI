@@ -1,0 +1,1515 @@
+# 27. Этап 25 — автономный локальный подпроект COMPASS AI Sandbox
+
+Цель этапа: сделать отдельную локальную песочницу внутри основного репозитория `COMPASS-AI`, где можно генерировать большие синтетические команды и задачи, обучать разные модели, сохранять результаты по сессиям, проверять распределение задач и получать объяснения через локальный Qwen/Ollama.
+
+Песочница должна быть автономной: со своей структурой папок, своим backend, своим frontend на HTML/CSS/JS, своими скриптами запуска, своими данными, моделями, отчётами и LLM-клиентом.
+
+---
+
+## 27.1. Создать автономную папку подпроекта
+
+- [ ] Создать папку `sandbox_app`.
+- [ ] Не смешивать код песочницы с основным `src`.
+- [ ] Не ломать основной COMPASS API.
+- [ ] Использовать уже созданное окружение проекта `.venv`.
+- [ ] Зафиксировать Python `3.11.x` как целевую версию.
+- [ ] Сделать отдельный `README.md` внутри песочницы.
+- [ ] Сделать отдельную структуру для backend, frontend, данных, моделей, отчётов и скриптов.
+- [ ] Сделать песочницу запускаемой локально из браузера.
+- [ ] Не завязывать песочницу напрямую на LLM-файлы основного проекта.
+- [ ] Не завязывать песочницу напрямую на текущие agent-файлы основного проекта.
+
+Папка подпроекта:
+
+```text
+sandbox_app
+```
+
+Рекомендуемая структура:
+
+```text
+sandbox_app/
+├── README.md
+├── requirements.txt
+├── config/
+│   ├── app_settings.json
+│   ├── feature_schemas/
+│   │   ├── developers.json
+│   │   ├── designers.json
+│   │   └── custom.json
+│   └── model_presets.json
+├── scripts/
+│   ├── start.sh
+│   ├── stop.sh
+│   ├── restart.sh
+│   ├── smoke_test.sh
+│   └── clean_tmp.sh
+├── backend/
+│   ├── main.py
+│   ├── api/
+│   ├── core/
+│   ├── data_generation/
+│   ├── features/
+│   ├── training/
+│   ├── inference/
+│   ├── reports/
+│   ├── llm/
+│   └── utils/
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   ├── js/
+│   └── assets/
+├── data/
+│   ├── generated/
+│   ├── imported/
+│   ├── test_cases/
+│   └── exports/
+├── training_sessions/
+├── assignment_sessions/
+├── reports/
+├── logs/
+└── tests/
+```
+
+Backend-стек:
+
+```text
+FastAPI
+Uvicorn
+Pandas
+NumPy
+Scikit-learn
+PyTorch
+Matplotlib
+Plotly optional
+ONNX optional
+ONNX Runtime optional
+```
+
+Frontend-стек:
+
+```text
+HTML
+CSS
+Vanilla JavaScript
+Browser Fetch API
+```
+
+**Ожидаемый результат:** подпроект существует как отдельная локальная песочница внутри репозитория и не является набором случайных скриптов.
+
+**Примерное время:** 2–4 часа.  
+**Коммит:** `Create autonomous sandbox app structure`
+
+---
+
+## 27.2. Сделать локальный запуск и остановку приложения
+
+- [ ] Создать `sandbox_app/scripts/start.sh`.
+- [ ] Создать `sandbox_app/scripts/stop.sh`.
+- [ ] Создать `sandbox_app/scripts/restart.sh`.
+- [ ] Создать `sandbox_app/scripts/smoke_test.sh`.
+- [ ] Сделать запуск через уже активированное `.venv`.
+- [ ] Сделать проверку, что Python берётся из `.venv`.
+- [ ] Сделать запуск backend на порту `8601`.
+- [ ] Сделать открытие frontend через тот же FastAPI backend.
+- [ ] Сохранять PID процесса в `sandbox_app/logs/sandbox_app.pid`.
+- [ ] Сохранять логи запуска в `sandbox_app/logs/server.log`.
+- [ ] Добавить понятные сообщения в терминал.
+- [ ] Добавить команды в основной `Makefile`, если он есть.
+
+Команда запуска вручную:
+
+```bash
+cd /Users/andrey/Documents/projects/COMPASS-AI
+source .venv/bin/activate
+bash sandbox_app/scripts/start.sh
+```
+
+Локальный URL:
+
+```text
+http://localhost:8601
+```
+
+Пример `start.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -e
+
+cd "$(dirname "$0")/../.."
+
+mkdir -p sandbox_app/logs
+
+python -m uvicorn sandbox_app.backend.main:app \
+  --host 127.0.0.1 \
+  --port 8601 \
+  --reload \
+  > sandbox_app/logs/server.log 2>&1 &
+
+echo $! > sandbox_app/logs/sandbox_app.pid
+echo "Sandbox app started: http://localhost:8601"
+```
+
+Makefile targets:
+
+```makefile
+sandbox-start:
+	bash sandbox_app/scripts/start.sh
+
+sandbox-stop:
+	bash sandbox_app/scripts/stop.sh
+
+sandbox-restart:
+	bash sandbox_app/scripts/restart.sh
+
+sandbox-test:
+	bash sandbox_app/scripts/smoke_test.sh
+```
+
+**Ожидаемый результат:** приложение можно запускать, останавливать и перезапускать одной командой.
+
+**Примерное время:** 2–3 часа.  
+**Коммит:** `Add sandbox run scripts`
+
+---
+
+## 27.3. Сделать базовый backend на FastAPI
+
+- [ ] Создать `sandbox_app/backend/main.py`.
+- [ ] Подключить раздачу frontend-статики.
+- [ ] Добавить health endpoint.
+- [ ] Добавить API namespace `/api`.
+- [ ] Добавить endpoint `/api/status`.
+- [ ] Добавить endpoint `/api/config`.
+- [ ] Добавить endpoint `/api/sessions`.
+- [ ] Добавить CORS только для локального режима.
+- [ ] Добавить базовую обработку ошибок.
+- [ ] Добавить запись backend-логов.
+- [ ] Проверить, что `http://localhost:8601` открывает UI.
+
+Файлы:
+
+```text
+sandbox_app/backend/main.py
+sandbox_app/backend/api/status.py
+sandbox_app/backend/core/settings.py
+sandbox_app/backend/core/paths.py
+sandbox_app/backend/utils/json_io.py
+```
+
+Endpoint:
+
+```text
+GET /api/status
+```
+
+Пример ответа:
+
+```json
+{
+  "app": "COMPASS AI Sandbox",
+  "status": "ok",
+  "python": "3.11",
+  "local_mode": true,
+  "ollama_available": true
+}
+```
+
+**Ожидаемый результат:** локальный backend работает и отдаёт frontend в браузер.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Add sandbox FastAPI backend`
+
+---
+
+## 27.4. Сделать базовый frontend на HTML/CSS/JS
+
+- [ ] Создать `sandbox_app/frontend/index.html`.
+- [ ] Создать общий CSS.
+- [ ] Создать общий JS-клиент для API.
+- [ ] Сделать layout приложения.
+- [ ] Сделать верхнюю навигацию или sidebar.
+- [ ] Добавить страницу `Dashboard`.
+- [ ] Добавить страницу `Data Generator`.
+- [ ] Добавить страницу `Data Viewer`.
+- [ ] Добавить страницу `Training`.
+- [ ] Добавить страницу `Models`.
+- [ ] Добавить страницу `Assignment Lab`.
+- [ ] Добавить страницу `Reports`.
+- [ ] Добавить страницу `Settings`.
+- [ ] Сделать loading/error states.
+- [ ] Сделать UI без Streamlit.
+
+Файлы:
+
+```text
+sandbox_app/frontend/index.html
+sandbox_app/frontend/css/styles.css
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/js/app.js
+sandbox_app/frontend/js/pages/dashboard.js
+sandbox_app/frontend/js/pages/generator.js
+sandbox_app/frontend/js/pages/viewer.js
+sandbox_app/frontend/js/pages/training.js
+sandbox_app/frontend/js/pages/models.js
+sandbox_app/frontend/js/pages/assignment_lab.js
+sandbox_app/frontend/js/pages/reports.js
+sandbox_app/frontend/js/pages/settings.js
+```
+
+Разделы UI:
+
+```text
+Dashboard
+Data Generator
+Data Viewer
+Training
+Models
+Assignment Lab
+Reports
+Settings
+```
+
+**Ожидаемый результат:** песочница выглядит как нормальное локальное web-приложение, а не как консольный набор утилит.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox browser UI`
+
+---
+
+## 27.5. Описать форматы данных песочницы
+
+- [ ] Определить формат `employees`.
+- [ ] Определить формат `tasks`.
+- [ ] Определить формат `assignment_history`.
+- [ ] Определить формат `training_pairs`.
+- [ ] Определить формат `current_team`.
+- [ ] Определить формат `current_backlog`.
+- [ ] Определить формат `recommendations`.
+- [ ] Определить формат `training_session`.
+- [ ] Поддержать CSV для простого просмотра.
+- [ ] Поддержать JSON для вложенных структур.
+- [ ] Поддержать Parquet для больших training datasets.
+- [ ] Зафиксировать обязательные и optional поля.
+
+Базовые файлы датасета:
+
+```text
+employees.csv
+tasks.csv
+assignment_history.csv
+training_pairs.parquet
+dataset_metadata.json
+```
+
+Основные сущности:
+
+```text
+employee
+task
+assignment
+outcome
+skill
+custom_feature
+model_session
+assignment_session
+```
+
+Минимальные поля сотрудника:
+
+```text
+employee_id
+name
+role
+grade
+skills
+learning_goals
+current_workload
+active_tasks_count
+fatigue_level
+availability_score
+avg_completion_speed
+avg_quality_score
+deadline_reliability
+mentor_level
+```
+
+Минимальные поля задачи:
+
+```text
+task_id
+title
+description
+task_type
+priority
+complexity
+estimated_hours
+deadline_days
+required_skills
+status
+project_id
+created_at
+```
+
+Минимальные поля истории:
+
+```text
+assignment_id
+task_id
+employee_id
+assigned_at
+completed_at
+planned_hours
+actual_hours
+quality_score
+deadline_status
+outcome_label
+was_rework_needed
+feedback_score
+```
+
+**Ожидаемый результат:** до генерации и обучения понятно, какие данные живут в системе и как они связаны.
+
+**Примерное время:** 3–5 часов.  
+**Коммит:** `Define sandbox data contracts`
+
+---
+
+## 27.6. Реализовать настраиваемые профили признаков
+
+- [ ] Сделать системные профили признаков.
+- [ ] Добавить профиль `developers`.
+- [ ] Добавить профиль `designers`.
+- [ ] Добавить возможность создать свой профиль.
+- [ ] Добавить возможность переименовать признак.
+- [ ] Добавить возможность удалить признак.
+- [ ] Добавить возможность добавить числовой признак.
+- [ ] Добавить возможность добавить категориальный признак.
+- [ ] Добавить возможность добавить boolean-признак.
+- [ ] Добавить возможность добавить текстовый признак.
+- [ ] Добавить возможность добавить список навыков.
+- [ ] Показывать preview схемы в UI.
+- [ ] Сохранять схемы в JSON.
+- [ ] Использовать выбранную схему при генерации данных.
+- [ ] Использовать выбранную схему при feature building.
+
+Файлы:
+
+```text
+sandbox_app/config/feature_schemas/developers.json
+sandbox_app/config/feature_schemas/designers.json
+sandbox_app/config/feature_schemas/custom.json
+sandbox_app/backend/api/feature_schemas.py
+sandbox_app/backend/features/schema.py
+```
+
+Примеры признаков для разработчиков:
+
+```text
+python
+javascript
+frontend
+backend
+sql
+api_design
+testing
+debugging
+architecture
+legacy_code
+security_review
+devops
+```
+
+Примеры признаков для дизайнеров:
+
+```text
+ux_research
+ui_design
+figma
+prototyping
+design_systems
+visual_design
+copywriting
+user_testing
+accessibility
+product_thinking
+handoff_quality
+```
+
+Примеры общих признаков:
+
+```text
+communication
+speed
+quality
+reliability
+learning_potential
+fatigue_level
+context_switching_tolerance
+```
+
+**Ожидаемый результат:** можно синтетически генерировать не только разработчиков, но и дизайнеров или любую другую команду с собственными признаками.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add configurable sandbox feature schemas`
+
+---
+
+## 27.7. Реализовать генератор команды
+
+- [ ] Создать генератор сотрудников.
+- [ ] Настраивать количество людей.
+- [ ] Настраивать роли.
+- [ ] Настраивать грейды.
+- [ ] Настраивать набор навыков.
+- [ ] Настраивать распределение seniority.
+- [ ] Настраивать среднюю скорость.
+- [ ] Настраивать среднее качество.
+- [ ] Настраивать надёжность по дедлайнам.
+- [ ] Настраивать fatigue и workload.
+- [ ] Настраивать learning goals.
+- [ ] Настраивать mentor level.
+- [ ] Поддержать seed.
+- [ ] Сохранять generated team.
+- [ ] Показывать preview команды в UI.
+
+Файлы:
+
+```text
+sandbox_app/backend/data_generation/employees.py
+sandbox_app/backend/api/generate_team.py
+```
+
+Параметры UI:
+
+```text
+seed
+employees_count
+domain_profile
+roles
+grades
+skill_count_per_person_min
+skill_count_per_person_max
+junior_share
+middle_share
+senior_share
+lead_share
+fatigue_min
+fatigue_max
+workload_min
+workload_max
+```
+
+Результат:
+
+```text
+sandbox_app/data/generated/<dataset_id>/employees.csv
+sandbox_app/data/generated/<dataset_id>/employees.json
+```
+
+**Ожидаемый результат:** можно создать реалистичную команду с людьми, ролями, навыками, загрузкой, усталостью и историческими характеристиками.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox team generator`
+
+---
+
+## 27.8. Реализовать генератор задач и backlog
+
+- [ ] Создать генератор задач.
+- [ ] Настраивать количество задач.
+- [ ] Настраивать количество проектов.
+- [ ] Настраивать типы задач.
+- [ ] Настраивать приоритеты.
+- [ ] Настраивать сложность.
+- [ ] Настраивать дедлайны.
+- [ ] Настраивать required skills.
+- [ ] Настраивать estimated hours.
+- [ ] Настраивать зависимости.
+- [ ] Генерировать задачи в разных статусах.
+- [ ] Генерировать отдельный backlog задач в статусе `todo`.
+- [ ] Генерировать задачи для канбан-доски.
+- [ ] Поддержать custom task features.
+- [ ] Поддержать seed.
+- [ ] Сохранять задачи в dataset folder.
+
+Файлы:
+
+```text
+sandbox_app/backend/data_generation/tasks.py
+sandbox_app/backend/data_generation/backlog.py
+sandbox_app/backend/api/generate_tasks.py
+```
+
+Статусы:
+
+```text
+todo
+in_progress
+review
+done
+blocked
+failed
+```
+
+Параметры UI:
+
+```text
+tasks_count
+projects_count
+todo_share
+in_progress_share
+review_share
+done_share
+blocked_share
+failed_share
+min_complexity
+max_complexity
+min_deadline_days
+max_deadline_days
+min_estimated_hours
+max_estimated_hours
+skill_mismatch_probability
+```
+
+Результат:
+
+```text
+sandbox_app/data/generated/<dataset_id>/tasks.csv
+sandbox_app/data/generated/<dataset_id>/tasks.json
+```
+
+**Ожидаемый результат:** можно создать большой набор задач, похожий на реальный backlog команды.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox task generator`
+
+---
+
+## 27.9. Реализовать генератор истории выполненных задач
+
+- [ ] Создать генератор historical assignments.
+- [ ] Для каждого сотрудника генерировать сотни прошлых задач.
+- [ ] Настраивать глубину истории на человека.
+- [ ] Настраивать good/bad outcomes.
+- [ ] Настраивать late/on-time/failed outcomes.
+- [ ] Учитывать skill match.
+- [ ] Учитывать перегруз.
+- [ ] Учитывать усталость.
+- [ ] Учитывать сложность задачи.
+- [ ] Учитывать seniority.
+- [ ] Учитывать learning tasks.
+- [ ] Генерировать качество результата.
+- [ ] Генерировать скорость выполнения.
+- [ ] Генерировать rework.
+- [ ] Генерировать feedback score.
+- [ ] Сохранять assignment history.
+- [ ] Показывать статистику истории в UI.
+
+Файлы:
+
+```text
+sandbox_app/backend/data_generation/history.py
+sandbox_app/backend/data_generation/outcomes.py
+sandbox_app/backend/api/generate_history.py
+```
+
+Параметры UI:
+
+```text
+history_depth_per_employee
+good_outcome_share
+bad_outcome_share
+late_outcome_share
+failed_outcome_share
+rework_probability
+overload_penalty_strength
+fatigue_penalty_strength
+skill_match_bonus_strength
+learning_task_share
+```
+
+Результат:
+
+```text
+sandbox_app/data/generated/<dataset_id>/assignment_history.csv
+sandbox_app/data/generated/<dataset_id>/assignment_history.json
+```
+
+**Ожидаемый результат:** у каждого человека есть большая история выполненных задач, по которой можно обучать модели.
+
+**Примерное время:** 8–14 часов.  
+**Коммит:** `Add sandbox assignment history generator`
+
+---
+
+## 27.10. Реализовать генерацию больших training datasets
+
+- [ ] Сделать режим `small preview`.
+- [ ] Сделать режим `medium validation`.
+- [ ] Сделать режим `large training`.
+- [ ] Сделать режим `huge training`.
+- [ ] Генерировать training pairs task-employee.
+- [ ] Для каждой задачи создавать пары с несколькими кандидатами.
+- [ ] Добавлять positive и negative examples.
+- [ ] Балансировать классы.
+- [ ] Сохранять большие данные в Parquet.
+- [ ] Сохранять metadata генерации.
+- [ ] Показывать размер датасета.
+- [ ] Показывать class balance.
+- [ ] Показывать распределение ролей, навыков, outcome.
+- [ ] Добавить защиту от случайной генерации слишком огромных данных без подтверждения.
+
+Режимы:
+
+```text
+small_preview: 10 people, 100 tasks, 1_000 pairs
+medium_validation: 30 people, 1_000 tasks, 30_000 pairs
+large_training: 100 people, 10_000 tasks, 1_000_000 pairs
+huge_training: custom limits
+```
+
+Файлы:
+
+```text
+sandbox_app/backend/data_generation/training_pairs.py
+sandbox_app/backend/api/generate_dataset.py
+```
+
+Результаты:
+
+```text
+sandbox_app/data/generated/<dataset_id>/training_pairs.parquet
+sandbox_app/data/generated/<dataset_id>/dataset_metadata.json
+sandbox_app/data/generated/<dataset_id>/generation_report.json
+```
+
+**Ожидаемый результат:** можно генерировать как маленькие проверочные данные, так и большие данные для обучения модели.
+
+**Примерное время:** 8–14 часов.  
+**Коммит:** `Add sandbox training dataset generator`
+
+---
+
+## 27.11. Сделать удобный просмотр данных
+
+- [ ] Сделать страницу `Data Viewer`.
+- [ ] Показывать список generated datasets.
+- [ ] Показывать список imported datasets.
+- [ ] Показывать сотрудников в таблице.
+- [ ] Показывать задачи в таблице.
+- [ ] Показывать assignment history в таблице.
+- [ ] Показывать training pairs в таблице с пагинацией.
+- [ ] Показывать карточку сотрудника.
+- [ ] Показывать карточку задачи.
+- [ ] Показывать историю сотрудника.
+- [ ] Показывать канбан-доску для текущих задач.
+- [ ] Добавить фильтры по статусу, роли, грейду, проекту, приоритету.
+- [ ] Добавить поиск.
+- [ ] Добавить summary-графики.
+- [ ] Не заставлять смотреть только CSV.
+
+Файлы:
+
+```text
+sandbox_app/backend/api/data_viewer.py
+sandbox_app/frontend/js/pages/viewer.js
+sandbox_app/frontend/js/components/table.js
+sandbox_app/frontend/js/components/kanban.js
+sandbox_app/frontend/js/components/charts.js
+```
+
+Представления:
+
+```text
+Team Table
+Employee Profile
+Tasks Table
+Kanban Board
+History Table
+Training Pairs Table
+Dataset Summary
+```
+
+**Ожидаемый результат:** сгенерированные данные можно нормально изучить глазами прямо в браузере.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox data viewer`
+
+---
+
+## 27.12. Реализовать feature builder
+
+- [ ] Создать отдельный feature builder песочницы.
+- [ ] Не использовать напрямую основной feature pipeline.
+- [ ] Поддержать employees.
+- [ ] Поддержать tasks.
+- [ ] Поддержать assignment history.
+- [ ] Поддержать custom features.
+- [ ] Поддержать skill vectors.
+- [ ] Поддержать pair features.
+- [ ] Поддержать workload features.
+- [ ] Поддержать fatigue features.
+- [ ] Поддержать learning potential features.
+- [ ] Поддержать quality/speed/reliability targets.
+- [ ] Поддержать разные target modes.
+- [ ] Сохранять feature matrix.
+- [ ] Сохранять feature metadata.
+- [ ] Показывать feature dimensions в UI.
+
+Файлы:
+
+```text
+sandbox_app/backend/features/build_features.py
+sandbox_app/backend/features/skill_vectorizer.py
+sandbox_app/backend/features/custom_features.py
+sandbox_app/backend/features/pair_features.py
+sandbox_app/backend/features/targets.py
+```
+
+Target modes:
+
+```text
+quality
+speed
+balanced
+learning
+risk_aware
+```
+
+Результаты:
+
+```text
+sandbox_app/data/generated/<dataset_id>/features/features.parquet
+sandbox_app/data/generated/<dataset_id>/features/targets.parquet
+sandbox_app/data/generated/<dataset_id>/features/feature_metadata.json
+```
+
+**Ожидаемый результат:** песочница сама превращает сгенерированные данные в обучающий набор для разных моделей.
+
+**Примерное время:** 10–16 часов.  
+**Коммит:** `Add sandbox feature builder`
+
+---
+
+## 27.13. Реализовать обучение нескольких моделей
+
+- [ ] Сделать страницу `Training`.
+- [ ] Выбирать dataset.
+- [ ] Выбирать target mode.
+- [ ] Выбирать одну или несколько моделей.
+- [ ] Реализовать Logistic Regression / SGD Classifier.
+- [ ] Реализовать Random Forest.
+- [ ] Реализовать Gradient Boosting или HistGradientBoosting.
+- [ ] Реализовать простую PyTorch neural network.
+- [ ] Реализовать baseline rule-based модель.
+- [ ] Настраивать train/validation/test split.
+- [ ] Настраивать random seed.
+- [ ] Настраивать параметры моделей.
+- [ ] Запускать обучение из UI.
+- [ ] Показывать progress.
+- [ ] Показывать метрики.
+- [ ] Сохранять каждую модель отдельно.
+- [ ] Сохранять общий training session.
+
+Файлы:
+
+```text
+sandbox_app/backend/training/train_session.py
+sandbox_app/backend/training/sklearn_models.py
+sandbox_app/backend/training/torch_model.py
+sandbox_app/backend/training/baseline.py
+sandbox_app/backend/training/evaluate.py
+sandbox_app/backend/api/training.py
+```
+
+Модели:
+
+```text
+baseline_rule_based
+sgd_classifier
+logistic_regression
+random_forest
+hist_gradient_boosting
+torch_mlp
+```
+
+Метрики:
+
+```text
+roc_auc
+f1
+precision
+recall
+accuracy
+log_loss
+mae_for_score
+top_1_accuracy
+top_3_accuracy
+```
+
+**Ожидаемый результат:** можно обучить несколько моделей на одном датасете и сравнить их поведение.
+
+**Примерное время:** 14–24 часа.  
+**Коммит:** `Add sandbox multi-model training`
+
+---
+
+## 27.14. Сделать формат training sessions
+
+- [ ] При каждом запуске обучения создавать отдельную папку сессии.
+- [ ] Называть сессии по времени и короткому id.
+- [ ] Сохранять config сессии.
+- [ ] Сохранять dataset metadata.
+- [ ] Сохранять feature metadata.
+- [ ] Для каждой модели создавать отдельную подпапку.
+- [ ] Сохранять model artifact.
+- [ ] Сохранять metrics.
+- [ ] Сохранять predictions на test split.
+- [ ] Сохранять графики обучения.
+- [ ] Сохранять confusion matrix.
+- [ ] Сохранять feature importance, если модель поддерживает.
+- [ ] Сохранять session summary.
+- [ ] Показывать список training sessions в UI.
+
+Структура:
+
+```text
+sandbox_app/training_sessions/
+└── 2026-07-06_14-30-22_ab12cd/
+    ├── session_config.json
+    ├── dataset_metadata.json
+    ├── feature_metadata.json
+    ├── session_summary.json
+    ├── comparison_metrics.csv
+    ├── comparison_metrics.json
+    └── models/
+        ├── random_forest/
+        │   ├── model.joblib
+        │   ├── metrics.json
+        │   ├── predictions.parquet
+        │   ├── confusion_matrix.png
+        │   └── feature_importance.png
+        ├── sgd_classifier/
+        │   ├── model.joblib
+        │   ├── metrics.json
+        │   └── learning_curve.png
+        └── torch_mlp/
+            ├── model.pt
+            ├── metrics.json
+            ├── training_history.csv
+            ├── loss_curve.png
+            └── roc_curve.png
+```
+
+**Ожидаемый результат:** каждое обучение сохраняется как отдельная воспроизводимая сессия.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox training sessions`
+
+---
+
+## 27.15. Реализовать графики и отчёты обучения
+
+- [ ] Строить loss curve для neural network.
+- [ ] Строить learning curve для моделей, где это возможно.
+- [ ] Строить ROC curve.
+- [ ] Строить precision-recall curve.
+- [ ] Строить confusion matrix.
+- [ ] Строить feature importance.
+- [ ] Строить comparison chart по моделям.
+- [ ] Строить распределение score.
+- [ ] Строить calibration plot, если применимо.
+- [ ] Сохранять графики PNG.
+- [ ] Показывать графики в UI.
+- [ ] Добавить export отчёта в HTML.
+
+Файлы:
+
+```text
+sandbox_app/backend/reports/training_plots.py
+sandbox_app/backend/reports/training_report.py
+sandbox_app/backend/api/reports.py
+```
+
+Результаты:
+
+```text
+loss_curve.png
+roc_curve.png
+precision_recall_curve.png
+confusion_matrix.png
+feature_importance.png
+model_comparison.png
+training_report.html
+```
+
+**Ожидаемый результат:** после обучения остаются не только модели, но и нормальные визуальные артефакты для анализа.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox training reports`
+
+---
+
+## 27.16. Реализовать экспорт моделей
+
+- [ ] Поддержать сохранение sklearn-моделей в `joblib`.
+- [ ] Поддержать сохранение PyTorch-модели в `.pt`.
+- [ ] Поддержать optional export PyTorch модели в ONNX.
+- [ ] Поддержать optional export sklearn моделей в ONNX, если зависимости доступны.
+- [ ] Сохранять export metadata.
+- [ ] Проверять inference после сохранения.
+- [ ] Сравнивать output до и после экспорта.
+- [ ] Показывать validation status.
+- [ ] Показывать список доступных моделей в UI.
+- [ ] Не делать ONNX обязательным для всей песочницы.
+
+Файлы:
+
+```text
+sandbox_app/backend/training/export_models.py
+sandbox_app/backend/inference/model_loader.py
+sandbox_app/backend/inference/onnx_runtime.py
+sandbox_app/backend/api/models.py
+```
+
+Форматы:
+
+```text
+model.joblib
+model.pt
+model.onnx
+model_metadata.json
+export_validation.json
+```
+
+**Ожидаемый результат:** модели всегда сохраняются, а ONNX используется как полезный экспорт, но не блокирует работу песочницы.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox model export`
+
+---
+
+## 27.17. Реализовать генерацию тестовой команды
+
+- [ ] Сделать страницу `Assignment Lab`.
+- [ ] Генерировать отдельную текущую команду для проверки.
+- [ ] Настраивать количество людей.
+- [ ] Настраивать роли.
+- [ ] Настраивать грейды.
+- [ ] Настраивать текущую загрузку.
+- [ ] Настраивать fatigue.
+- [ ] Настраивать availability.
+- [ ] Настраивать историю каждого сотрудника.
+- [ ] Настраивать learning goals.
+- [ ] Настраивать текущие активные задачи.
+- [ ] Сохранять test case.
+- [ ] Загружать test case из файла.
+- [ ] Показывать команду в UI.
+
+Файлы:
+
+```text
+sandbox_app/backend/data_generation/test_team.py
+sandbox_app/backend/api/test_cases.py
+```
+
+Папка:
+
+```text
+sandbox_app/data/test_cases
+```
+
+Результат:
+
+```text
+sandbox_app/data/test_cases/<test_case_id>/team.json
+sandbox_app/data/test_cases/<test_case_id>/active_tasks.json
+sandbox_app/data/test_cases/<test_case_id>/history.json
+sandbox_app/data/test_cases/<test_case_id>/metadata.json
+```
+
+**Ожидаемый результат:** можно создать отдельную реалистичную команду для проверки уже обученных моделей.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox test team generator`
+
+---
+
+## 27.18. Реализовать проверку одной задачи
+
+- [ ] Выбирать сохранённую модель.
+- [ ] Выбирать test case.
+- [ ] Выбирать одну задачу.
+- [ ] Выбирать режим рекомендации.
+- [ ] Строить пары task-employee.
+- [ ] Прогонять пары через выбранную модель.
+- [ ] Получать top candidates.
+- [ ] Показывать top-1.
+- [ ] Показывать top-3.
+- [ ] Показывать score.
+- [ ] Показывать факторы.
+- [ ] Показывать риски.
+- [ ] Показывать разные рекомендации для quality/speed/learning/balanced.
+- [ ] Сохранять результат проверки.
+
+Файлы:
+
+```text
+sandbox_app/backend/inference/recommend.py
+sandbox_app/backend/inference/scoring.py
+sandbox_app/backend/inference/risk_factors.py
+sandbox_app/backend/api/recommendations.py
+```
+
+Recommendation modes:
+
+```text
+best_quality
+fastest_delivery
+best_learning
+balanced
+risk_aware
+```
+
+Результат:
+
+```json
+{
+  "task_id": "TASK-001",
+  "mode": "balanced",
+  "top_candidates": [
+    {
+      "rank": 1,
+      "employee_id": "EMP-001",
+      "name": "Andrey",
+      "score": 0.91,
+      "factors": {
+        "skill_match": 0.88,
+        "quality": 0.92,
+        "speed": 0.74,
+        "fatigue_risk": 0.18,
+        "workload_pressure": 0.22
+      },
+      "risks": []
+    }
+  ]
+}
+```
+
+**Ожидаемый результат:** можно проверить, кому модель отдаст конкретную задачу и почему.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox single task recommendation`
+
+---
+
+## 27.19. Реализовать массовое распределение todo-задач
+
+- [ ] Выбирать модель.
+- [ ] Выбирать test case.
+- [ ] Брать все задачи в статусе `todo`.
+- [ ] Настраивать режим распределения.
+- [ ] Настраивать top-k.
+- [ ] Настраивать максимальную загрузку на человека.
+- [ ] Настраивать fairness penalty.
+- [ ] Настраивать fatigue penalty.
+- [ ] Настраивать learning bonus.
+- [ ] Распределять задачи пачкой.
+- [ ] Обновлять прогнозную загрузку после каждого назначения.
+- [ ] Не назначать всё одному сильному человеку.
+- [ ] Показывать итоговое распределение.
+- [ ] Показывать перегруз.
+- [ ] Показывать fairness.
+- [ ] Показывать задачи без хорошего кандидата.
+- [ ] Сохранять assignment session.
+
+Файлы:
+
+```text
+sandbox_app/backend/inference/bulk_assignment.py
+sandbox_app/backend/inference/assignment_optimizer.py
+sandbox_app/backend/api/assignment_sessions.py
+```
+
+Режимы:
+
+```text
+maximize_quality
+minimize_delivery_time
+maximize_learning
+balanced_distribution
+risk_aware_distribution
+```
+
+Структура сессии:
+
+```text
+sandbox_app/assignment_sessions/
+└── 2026-07-06_15-40-10_cd34ef/
+    ├── assignment_config.json
+    ├── recommendations.json
+    ├── assigned_tasks.csv
+    ├── unassigned_tasks.csv
+    ├── workload_after_assignment.csv
+    ├── fairness_report.json
+    └── assignment_report.html
+```
+
+**Ожидаемый результат:** модель может разом распределить все todo-задачи среди команды с учётом качества, скорости, обучения, усталости и загрузки.
+
+**Примерное время:** 12–20 часов.  
+**Коммит:** `Add sandbox bulk assignment simulation`
+
+---
+
+## 27.20. Сделать визуальный вывод рекомендаций
+
+- [ ] Показывать top candidates карточками.
+- [ ] Показывать score breakdown.
+- [ ] Показывать риски.
+- [ ] Показывать режим рекомендации.
+- [ ] Показывать сравнение кандидатов.
+- [ ] Показывать канбан-доску после распределения.
+- [ ] Показывать workload chart.
+- [ ] Показывать fatigue chart.
+- [ ] Показывать fairness chart.
+- [ ] Показывать список задач без кандидата.
+- [ ] Добавить фильтры по человеку, статусу, проекту, риску.
+- [ ] Добавить export результатов.
+
+UI blocks:
+
+```text
+Recommendation Cards
+Candidate Comparison
+Kanban Board
+Workload After Assignment
+Risks Panel
+Fairness Panel
+Unassigned Tasks
+```
+
+Файлы:
+
+```text
+sandbox_app/frontend/js/components/recommendation_cards.js
+sandbox_app/frontend/js/components/candidate_comparison.js
+sandbox_app/frontend/js/components/workload_chart.js
+sandbox_app/frontend/js/components/fairness_chart.js
+```
+
+**Ожидаемый результат:** результаты работы модели понятны человеку, а не выглядят как сырой JSON.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox recommendation UI`
+
+---
+
+## 27.21. Подключить Qwen/Ollama для объяснений
+
+- [ ] Создать отдельный Ollama client внутри песочницы.
+- [ ] Не использовать `src/llm/ollama_client.py` напрямую.
+- [ ] Добавить настройки Ollama в `Settings`.
+- [ ] Поддержать base URL.
+- [ ] Поддержать model name.
+- [ ] Поддержать timeout.
+- [ ] Проверять доступность Ollama.
+- [ ] Использовать Qwen только для объяснения.
+- [ ] Запретить Qwen менять ranking.
+- [ ] Запретить Qwen придумывать кандидатов.
+- [ ] Передавать Qwen только готовый top-k и факторы.
+- [ ] Добавить checkbox `LLM explanations`.
+- [ ] Сделать fallback explanation без LLM.
+- [ ] Валидировать, что объяснение упоминает только разрешённых кандидатов.
+- [ ] Объяснять на русском языке.
+
+Файлы:
+
+```text
+sandbox_app/backend/llm/ollama_client.py
+sandbox_app/backend/llm/qwen_explainer.py
+sandbox_app/backend/api/llm.py
+```
+
+Настройки:
+
+```text
+SANDBOX_OLLAMA_BASE_URL=http://localhost:11434
+SANDBOX_OLLAMA_MODEL=qwen2.5:1.5b-instruct
+SANDBOX_LLM_TIMEOUT_SECONDS=30
+```
+
+Правила prompt:
+
+```text
+Qwen не выбирает исполнителя.
+Qwen не меняет ranking.
+Qwen не придумывает людей.
+Qwen не придумывает навыки.
+Qwen объясняет только данные из top_candidates.
+Qwen обязан объяснить top-1 и альтернативы.
+```
+
+**Ожидаемый результат:** по галочке можно включить русские LLM-объяснения рекомендаций через локальный Qwen.
+
+**Примерное время:** 6–10 часов.  
+**Коммит:** `Add sandbox Qwen explanations`
+
+---
+
+## 27.22. Реализовать импорт внешних данных
+
+- [ ] Поддержать импорт CSV.
+- [ ] Поддержать импорт JSON.
+- [ ] Поддержать импорт Parquet.
+- [ ] Импортировать employees.
+- [ ] Импортировать tasks.
+- [ ] Импортировать assignment history.
+- [ ] Импортировать training pairs.
+- [ ] Проверять обязательные поля.
+- [ ] Показывать preview.
+- [ ] Показывать warnings.
+- [ ] Показывать ошибки схемы.
+- [ ] Не перезаписывать файлы без подтверждения.
+- [ ] Сохранять imported dataset отдельно.
+- [ ] Позволять обучать модели на imported dataset.
+
+Файлы:
+
+```text
+sandbox_app/backend/api/import_data.py
+sandbox_app/backend/utils/importers.py
+sandbox_app/backend/utils/validation.py
+```
+
+Папка:
+
+```text
+sandbox_app/data/imported
+```
+
+**Ожидаемый результат:** песочница работает не только с синтетикой, но и с внешними датасетами.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox dataset import`
+
+---
+
+## 27.23. Добавить reports и exports
+
+- [ ] Делать отчёт по генерации датасета.
+- [ ] Делать отчёт по качеству датасета.
+- [ ] Делать отчёт по обучению.
+- [ ] Делать отчёт по сравнению моделей.
+- [ ] Делать отчёт по рекомендациям.
+- [ ] Делать отчёт по массовому распределению.
+- [ ] Делать fairness report.
+- [ ] Делать workload report.
+- [ ] Экспортировать JSON.
+- [ ] Экспортировать CSV.
+- [ ] Экспортировать HTML.
+- [ ] Показывать список отчётов в UI.
+
+Папки:
+
+```text
+sandbox_app/reports
+sandbox_app/data/exports
+```
+
+Файлы:
+
+```text
+sandbox_app/backend/reports/dataset_report.py
+sandbox_app/backend/reports/model_report.py
+sandbox_app/backend/reports/assignment_report.py
+sandbox_app/backend/reports/html_export.py
+```
+
+**Ожидаемый результат:** результаты экспериментов можно сохранить, открыть и показать отдельно.
+
+**Примерное время:** 8–12 часов.  
+**Коммит:** `Add sandbox reports and exports`
+
+---
+
+## 27.24. Добавить настройки приложения
+
+- [ ] Сделать страницу `Settings`.
+- [ ] Настраивать пути хранения данных.
+- [ ] Настраивать Ollama base URL.
+- [ ] Настраивать Qwen model name.
+- [ ] Настраивать default dataset size.
+- [ ] Настраивать default recommendation mode.
+- [ ] Настраивать default training models.
+- [ ] Настраивать лимиты huge generation.
+- [ ] Настраивать seed по умолчанию.
+- [ ] Сохранять настройки в JSON.
+- [ ] Добавить reset settings.
+
+Файл:
+
+```text
+sandbox_app/config/app_settings.json
+```
+
+Пример настроек:
+
+```json
+{
+  "server_port": 8601,
+  "default_seed": 42,
+  "default_domain_profile": "developers",
+  "default_recommendation_mode": "balanced",
+  "ollama_base_url": "http://localhost:11434",
+  "ollama_model": "qwen2.5:1.5b-instruct",
+  "max_preview_rows": 200,
+  "huge_generation_requires_confirm": true
+}
+```
+
+**Ожидаемый результат:** основные параметры песочницы можно менять без правки кода.
+
+**Примерное время:** 4–6 часов.  
+**Коммит:** `Add sandbox settings`
+
+---
+
+## 27.25. Протестировать полный pipeline
+
+- [ ] Написать unit tests для генератора команды.
+- [ ] Написать unit tests для генератора задач.
+- [ ] Написать unit tests для генератора истории.
+- [ ] Написать tests для custom feature schemas.
+- [ ] Написать tests для feature builder.
+- [ ] Написать training smoke test.
+- [ ] Написать tests для сохранения training session.
+- [ ] Написать tests для model loading.
+- [ ] Написать tests для single recommendation.
+- [ ] Написать tests для bulk assignment.
+- [ ] Написать tests для Qwen fallback explanation.
+- [ ] Написать smoke test запуска backend.
+- [ ] Проверить сценарий end-to-end.
+
+Файлы:
+
+```text
+sandbox_app/tests/test_team_generator.py
+sandbox_app/tests/test_task_generator.py
+sandbox_app/tests/test_history_generator.py
+sandbox_app/tests/test_feature_schemas.py
+sandbox_app/tests/test_feature_builder.py
+sandbox_app/tests/test_training_smoke.py
+sandbox_app/tests/test_model_loading.py
+sandbox_app/tests/test_single_recommendation.py
+sandbox_app/tests/test_bulk_assignment.py
+sandbox_app/tests/test_llm_fallback.py
+sandbox_app/tests/test_api_status.py
+```
+
+Команда:
+
+```bash
+pytest sandbox_app/tests
+```
+
+End-to-end сценарий:
+
+```text
+generate dataset
+build features
+train models
+save training session
+generate test team
+run single recommendation
+run bulk assignment
+enable Qwen explanations
+save assignment session
+open reports
+```
+
+**Ожидаемый результат:** песочница работает автономно от генерации данных до объяснённого распределения задач.
+
+**Примерное время:** 10–18 часов.  
+**Коммит:** `Test sandbox end to end pipeline`
+
+---
+
+## 27.26. Задокументировать песочницу
+
+- [ ] Создать полноценный `sandbox_app/README.md`.
+- [ ] Описать назначение песочницы.
+- [ ] Описать запуск.
+- [ ] Описать остановку.
+- [ ] Описать структуру папок.
+- [ ] Описать генерацию команды.
+- [ ] Описать генерацию задач.
+- [ ] Описать custom feature schemas.
+- [ ] Описать training datasets.
+- [ ] Описать обучение моделей.
+- [ ] Описать training sessions.
+- [ ] Описать проверку одной задачи.
+- [ ] Описать массовое распределение задач.
+- [ ] Описать Qwen explanations.
+- [ ] Описать reports.
+- [ ] Описать ограничения.
+- [ ] Добавить troubleshooting.
+
+Файл:
+
+```text
+sandbox_app/README.md
+```
+
+Troubleshooting:
+
+```text
+Ollama is not running
+Qwen model not found
+Port 8601 is busy
+Dataset is too large
+Training session failed
+Model cannot be loaded
+ONNX Runtime is not installed
+```
+
+**Ожидаемый результат:** подпроект можно открыть отдельно и понять, как им пользоваться без чтения всего кода.
+
+**Примерное время:** 5–8 часов.  
+**Коммит:** `Document sandbox app`
+
+---
+
+## 27.27. Финальная проверка готовности этапа
+
+- [ ] Папка `sandbox_app` полностью автономна.
+- [ ] Приложение запускается через `scripts/start.sh`.
+- [ ] Приложение открывается в браузере.
+- [ ] UI сделан на HTML/CSS/JS.
+- [ ] Backend работает на FastAPI.
+- [ ] Можно генерировать команды.
+- [ ] Можно генерировать задачи.
+- [ ] Можно менять наборы признаков.
+- [ ] Можно генерировать большие training datasets.
+- [ ] Можно просматривать данные в таблицах и канбане.
+- [ ] Можно обучать несколько моделей.
+- [ ] Каждое обучение сохраняется как session.
+- [ ] Модели сохраняются.
+- [ ] Графики сохраняются PNG-файлами.
+- [ ] Можно проверить одну задачу.
+- [ ] Можно распределить все todo-задачи.
+- [ ] Можно включить Qwen explanations по checkbox.
+- [ ] Есть fallback explanation без LLM.
+- [ ] Есть reports и exports.
+- [ ] Есть tests.
+- [ ] Есть README.
+
+**Ожидаемый результат:** этап считается завершённым, когда песочница позволяет пройти полный цикл: сгенерировать данные, обучить модели, создать тестовую команду, распределить задачи и получить понятные объяснения.
+
+**Примерное время:** 2–4 часа.  
+**Коммит:** `Finalize sandbox app milestone`
+
+---
