@@ -1,0 +1,22 @@
+{
+  "profile_id": "designers",
+  "title": "Product designers",
+  "roles": ["Product Designer", "UX Researcher", "UI Designer", "Design Lead", "Content Designer"],
+  "grades": ["junior", "middle", "senior", "lead"],
+  "skills": ["ux_research", "ui_design", "figma", "prototyping", "design_systems", "visual_design", "copywriting", "user_testing", "accessibility", "product_thinking", "handoff_quality"],
+  "employee_features": [
+    {"name": "communication", "type": "numeric", "min": 0, "max": 1},
+    {"name": "speed", "type": "numeric", "min": 0, "max": 1},
+    {"name": "quality", "type": "numeric", "min": 0, "max": 1},
+    {"name": "reliability", "type": "numeric", "min": 0, "max": 1},
+    {"name": "learning_potential", "type": "numeric", "min": 0, "max": 1},
+    {"name": "fatigue_level", "type": "numeric", "min": 0, "max": 1}
+  ],
+  "task_features": [
+    {"name": "requires_user_research", "type": "boolean"},
+    {"name": "requires_design_system_update", "type": "boolean"},
+    {"name": "visual_complexity", "type": "numeric", "min": 0, "max": 1},
+    {"name": "stakeholder_pressure", "type": "numeric", "min": 0, "max": 1},
+    {"name": "product_area", "type": "categorical"}
+  ]
+}

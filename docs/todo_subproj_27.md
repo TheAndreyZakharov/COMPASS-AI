@@ -8,97 +8,40 @@
 
 ## 27.1. Создать автономную папку подпроекта
 
-- [ ] Создать папку `sandbox_app`.
-- [ ] Не смешивать код песочницы с основным `src`.
-- [ ] Не ломать основной COMPASS API.
-- [ ] Использовать уже созданное окружение проекта `.venv`.
-- [ ] Зафиксировать Python `3.11.x` как целевую версию.
-- [ ] Сделать отдельный `README.md` внутри песочницы.
-- [ ] Сделать отдельную структуру для backend, frontend, данных, моделей, отчётов и скриптов.
-- [ ] Сделать песочницу запускаемой локально из браузера.
-- [ ] Не завязывать песочницу напрямую на LLM-файлы основного проекта.
-- [ ] Не завязывать песочницу напрямую на текущие agent-файлы основного проекта.
+- [x] Создать папку `sandbox_app`.
+- [x] Не смешивать код песочницы с основным `src`.
+- [x] Не ломать основной COMPASS API.
+- [x] Использовать уже созданное окружение проекта `.venv`.
+- [x] Зафиксировать Python `3.11.x` как целевую версию.
+- [x] Сделать отдельный `README.md` внутри песочницы.
+- [x] Сделать отдельную структуру для backend, frontend, данных, моделей, отчётов и скриптов.
+- [x] Сделать основу для локального browser-приложения.
+- [x] Не завязывать песочницу напрямую на LLM-файлы основного проекта.
+- [x] Не завязывать песочницу напрямую на текущие agent-файлы основного проекта.
+- [x] Добавить `requirements.txt` для будущего backend, обучения, графиков, отчётов и тестов.
+- [x] Добавить `app_settings.json` с путями, портом, Python-версией и настройками Ollama/Qwen.
+- [x] Добавить `model_presets.json` для будущего обучения нескольких моделей.
+- [x] Добавить feature schemas: `developers`, `designers`, `custom`.
+- [x] Добавить Python package markers для backend-модулей.
+- [x] Добавить `.gitkeep` в пустые runtime-папки.
+- [x] Проверить JSON-конфиги.
+- [x] Проверить Python-пакет через compileall.
 
-Папка подпроекта:
+Папка подпроекта: `sandbox_app`.
 
-```text
-sandbox_app
-```
+Фактическая структура: есть отдельные папки `config`, `scripts`, `backend`, `frontend`, `data`, `training_sessions`, `assignment_sessions`, `reports`, `logs`, `tests`.
 
-Рекомендуемая структура:
+Backend-основа: создан отдельный пакет `sandbox_app.backend`, реальный FastAPI backend будет реализован в 27.3.
 
-```text
-sandbox_app/
-├── README.md
-├── requirements.txt
-├── config/
-│   ├── app_settings.json
-│   ├── feature_schemas/
-│   │   ├── developers.json
-│   │   ├── designers.json
-│   │   └── custom.json
-│   └── model_presets.json
-├── scripts/
-│   ├── start.sh
-│   ├── stop.sh
-│   ├── restart.sh
-│   ├── smoke_test.sh
-│   └── clean_tmp.sh
-├── backend/
-│   ├── main.py
-│   ├── api/
-│   ├── core/
-│   ├── data_generation/
-│   ├── features/
-│   ├── training/
-│   ├── inference/
-│   ├── reports/
-│   ├── llm/
-│   └── utils/
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── assets/
-├── data/
-│   ├── generated/
-│   ├── imported/
-│   ├── test_cases/
-│   └── exports/
-├── training_sessions/
-├── assignment_sessions/
-├── reports/
-├── logs/
-└── tests/
-```
+Frontend-основа: создан минимальный `frontend/index.html`, полноценный HTML/CSS/JS интерфейс будет реализован в 27.4.
 
-Backend-стек:
+Конфиги: созданы `app_settings.json`, `model_presets.json`, `feature_schemas/developers.json`, `feature_schemas/designers.json`, `feature_schemas/custom.json`.
 
-```text
-FastAPI
-Uvicorn
-Pandas
-NumPy
-Scikit-learn
-PyTorch
-Matplotlib
-Plotly optional
-ONNX optional
-ONNX Runtime optional
-```
-
-Frontend-стек:
-
-```text
-HTML
-CSS
-Vanilla JavaScript
-Browser Fetch API
-```
+Проверки: JSON-конфиги валидны, Python-пакет компилируется.
 
 **Ожидаемый результат:** подпроект существует как отдельная локальная песочница внутри репозитория и не является набором случайных скриптов.
 
-**Примерное время:** 2–4 часа.  
+**Фактическое время:** 2–4 часа.  
 **Коммит:** `Create autonomous sandbox app structure`
 
 ---

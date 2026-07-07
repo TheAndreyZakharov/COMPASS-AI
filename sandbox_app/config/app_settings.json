@@ -1,0 +1,33 @@
+{
+  "app_name": "COMPASS AI Sandbox",
+  "app_version": "0.1.0",
+  "python_version": "3.11.x",
+  "local_mode": true,
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8601
+  },
+  "paths": {
+    "generated_data": "sandbox_app/data/generated",
+    "imported_data": "sandbox_app/data/imported",
+    "test_cases": "sandbox_app/data/test_cases",
+    "exports": "sandbox_app/data/exports",
+    "training_sessions": "sandbox_app/training_sessions",
+    "assignment_sessions": "sandbox_app/assignment_sessions",
+    "reports": "sandbox_app/reports",
+    "logs": "sandbox_app/logs"
+  },
+  "defaults": {
+    "seed": 42,
+    "domain_profile": "developers",
+    "recommendation_mode": "balanced",
+    "max_preview_rows": 200,
+    "huge_generation_requires_confirm": true
+  },
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "model": "qwen2.5:1.5b-instruct",
+    "timeout_seconds": 30,
+    "enabled_by_default": false
+  }
+}

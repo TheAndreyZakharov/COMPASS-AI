@@ -1,0 +1,16 @@
+{
+  "profile_id": "custom",
+  "title": "Custom team profile",
+  "description": "Editable profile for any domain: medicine, design, engineering, law, education, operations, or another custom team type.",
+  "roles": [],
+  "grades": [],
+  "skills": [],
+  "employee_features": [],
+  "task_features": [],
+  "outcome_features": [],
+  "grade_order": [],
+  "metadata": {
+    "editable": true,
+    "is_template": true
+  }
+}
