@@ -1,0 +1,229 @@
+{
+  "version": "0.1.0",
+  "description": "Canonical data contracts for COMPASS AI Sandbox datasets, sessions, recommendations, and generated test cases.",
+  "storage_formats": {
+    "csv": "Human-readable tabular data for small and medium datasets.",
+    "json": "Nested structures, metadata, schemas, recommendations, sessions, and test cases.",
+    "parquet": "Large training datasets and feature matrices."
+  },
+  "entities": {
+    "employees": {
+      "primary_key": "employee_id",
+      "default_files": ["employees.csv", "employees.json"],
+      "required_fields": {
+        "employee_id": "string",
+        "name": "string",
+        "role": "string",
+        "grade": "string",
+        "skills": "object",
+        "learning_goals": "array[string]",
+        "current_workload": "number",
+        "active_tasks_count": "integer",
+        "fatigue_level": "number",
+        "availability_score": "number",
+        "avg_completion_speed": "number",
+        "avg_quality_score": "number",
+        "deadline_reliability": "number",
+        "mentor_level": "integer"
+      },
+      "optional_fields": {
+        "team_id": "string",
+        "timezone": "string",
+        "availability": "string",
+        "workload_risk": "string",
+        "custom_features": "object",
+        "created_at": "datetime",
+        "updated_at": "datetime"
+      },
+      "notes": "Roles, grades, skills, and custom_features are domain-specific. They can describe developers, designers, doctors, lawyers, educators, or any other team."
+    },
+    "tasks": {
+      "primary_key": "task_id",
+      "default_files": ["tasks.csv", "tasks.json"],
+      "required_fields": {
+        "task_id": "string",
+        "title": "string",
+        "description": "string",
+        "task_type": "string",
+        "priority": "string",
+        "complexity": "integer",
+        "estimated_hours": "number",
+        "deadline_days": "integer",
+        "required_skills": "array[string]",
+        "status": "string",
+        "project_id": "string",
+        "created_at": "datetime"
+      },
+      "optional_fields": {
+        "project_key": "string",
+        "dependencies_count": "integer",
+        "blocked_by": "array[string]",
+        "labels": "array[string]",
+        "custom_features": "object",
+        "updated_at": "datetime"
+      },
+      "allowed_statuses": ["todo", "in_progress", "review", "done", "blocked", "failed"]
+    },
+    "assignment_history": {
+      "primary_key": "assignment_id",
+      "default_files": ["assignment_history.csv", "assignment_history.json"],
+      "required_fields": {
+        "assignment_id": "string",
+        "task_id": "string",
+        "employee_id": "string",
+        "assigned_at": "datetime",
+        "completed_at": "datetime",
+        "planned_hours": "number",
+        "actual_hours": "number",
+        "quality_score": "number",
+        "deadline_status": "string",
+        "outcome_label": "string",
+        "was_rework_needed": "boolean",
+        "feedback_score": "number"
+      },
+      "optional_fields": {
+        "reviewer_id": "string",
+        "rework_hours": "number",
+        "assignment_mode": "string",
+        "skill_match_score": "number",
+        "workload_at_assignment": "number",
+        "fatigue_at_assignment": "number",
+        "custom_outcome_features": "object"
+      },
+      "allowed_deadline_statuses": ["early", "on_time", "late", "failed"],
+      "allowed_outcome_labels": ["good", "neutral", "bad", "failed"]
+    },
+    "training_pairs": {
+      "primary_key": "pair_id",
+      "default_files": ["training_pairs.parquet"],
+      "required_fields": {
+        "pair_id": "string",
+        "task_id": "string",
+        "employee_id": "string",
+        "label": "integer",
+        "target_quality": "number",
+        "target_speed": "number",
+        "target_reliability": "number",
+        "target_learning": "number",
+        "target_risk": "number"
+      },
+      "optional_fields": {
+        "split": "string",
+        "sample_weight": "number",
+        "feature_vector": "array[number]",
+        "pair_features": "object",
+        "created_at": "datetime"
+      },
+      "allowed_splits": ["train", "validation", "test"]
+    },
+    "current_team": {
+      "primary_key": "employee_id",
+      "default_files": ["team.json"],
+      "required_fields": {
+        "test_case_id": "string",
+        "employees": "array[employee]"
+      },
+      "optional_fields": {
+        "active_tasks": "array[task]",
+        "history": "array[assignment]",
+        "metadata": "object"
+      }
+    },
+    "current_backlog": {
+      "primary_key": "task_id",
+      "default_files": ["current_backlog.json"],
+      "required_fields": {
+        "test_case_id": "string",
+        "tasks": "array[task]"
+      },
+      "optional_fields": {
+        "kanban_columns": "array[string]",
+        "metadata": "object"
+      }
+    },
+    "recommendations": {
+      "primary_key": "recommendation_id",
+      "default_files": ["recommendations.json"],
+      "required_fields": {
+        "recommendation_id": "string",
+        "task_id": "string",
+        "mode": "string",
+        "top_candidates": "array[recommendation_candidate]",
+        "created_at": "datetime"
+      },
+      "optional_fields": {
+        "selected_model_id": "string",
+        "llm_explanation_enabled": "boolean",
+        "explanation": "string",
+        "errors": "array[object]"
+      },
+      "candidate_required_fields": {
+        "rank": "integer",
+        "employee_id": "string",
+        "name": "string",
+        "score": "number",
+        "factors": "object",
+        "risks": "array[string]"
+      }
+    },
+    "training_session": {
+      "primary_key": "session_id",
+      "default_files": ["session_config.json", "session_summary.json", "comparison_metrics.json"],
+      "required_fields": {
+        "session_id": "string",
+        "dataset_id": "string",
+        "target_mode": "string",
+        "models": "array[string]",
+        "created_at": "datetime",
+        "status": "string"
+      },
+      "optional_fields": {
+        "finished_at": "datetime",
+        "metrics": "object",
+        "artifacts": "object",
+        "errors": "array[object]"
+      }
+    },
+    "assignment_session": {
+      "primary_key": "assignment_session_id",
+      "default_files": ["assignment_config.json", "recommendations.json", "assigned_tasks.csv", "unassigned_tasks.csv", "fairness_report.json"],
+      "required_fields": {
+        "assignment_session_id": "string",
+        "test_case_id": "string",
+        "model_id": "string",
+        "mode": "string",
+        "created_at": "datetime",
+        "status": "string"
+      },
+      "optional_fields": {
+        "finished_at": "datetime",
+        "assigned_tasks_count": "integer",
+        "unassigned_tasks_count": "integer",
+        "fairness_metrics": "object",
+        "workload_after_assignment": "object",
+        "errors": "array[object]"
+      }
+    },
+    "dataset_metadata": {
+      "primary_key": "dataset_id",
+      "default_files": ["dataset_metadata.json", "generation_report.json"],
+      "required_fields": {
+        "dataset_id": "string",
+        "source": "string",
+        "domain_profile": "string",
+        "created_at": "datetime",
+        "employees_count": "integer",
+        "tasks_count": "integer",
+        "assignment_history_count": "integer"
+      },
+      "optional_fields": {
+        "training_pairs_count": "integer",
+        "seed": "integer",
+        "feature_schema_id": "string",
+        "files": "object",
+        "warnings": "array[string]"
+      },
+      "allowed_sources": ["generated", "imported", "mixed"]
+    }
+  }
+}

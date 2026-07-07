@@ -4,10 +4,11 @@ import logging
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from sandbox_app.backend.api.config import router as config_router
+from sandbox_app.backend.api.contracts import router as contracts_router
 from sandbox_app.backend.api.sessions import router as sessions_router
 from sandbox_app.backend.api.status import router as status_router
 from sandbox_app.backend.core.logging import configure_logging
@@ -47,6 +48,7 @@ app.add_middleware(
 app.include_router(status_router)
 app.include_router(config_router)
 app.include_router(sessions_router)
+app.include_router(contracts_router)
 
 css_dir = FRONTEND_DIR / "css"
 js_dir = FRONTEND_DIR / "js"
@@ -58,7 +60,11 @@ if js_dir.exists():
     app.mount("/js", StaticFiles(directory=js_dir), name="js")
 
 if FRONTEND_ASSETS_DIR.exists():
-    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS_DIR), name="assets")
+    app.mount(
+        "/assets",
+        StaticFiles(directory=FRONTEND_ASSETS_DIR),
+        name="assets",
+    )
 
 
 @app.exception_handler(Exception)
@@ -84,7 +90,7 @@ def index() -> FileResponse:
 
 
 @app.get("/{path:path}")
-def frontend_fallback(path: str) -> FileResponse:
+def frontend_fallback(path: str) -> Response:
     if path.startswith("api/"):
         return JSONResponse(
             status_code=404,

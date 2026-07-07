@@ -217,99 +217,70 @@ Endpoints:
 
 ## 27.5. Описать форматы данных песочницы
 
-- [ ] Определить формат `employees`.
-- [ ] Определить формат `tasks`.
-- [ ] Определить формат `assignment_history`.
-- [ ] Определить формат `training_pairs`.
-- [ ] Определить формат `current_team`.
-- [ ] Определить формат `current_backlog`.
-- [ ] Определить формат `recommendations`.
-- [ ] Определить формат `training_session`.
-- [ ] Поддержать CSV для простого просмотра.
-- [ ] Поддержать JSON для вложенных структур.
-- [ ] Поддержать Parquet для больших training datasets.
-- [ ] Зафиксировать обязательные и optional поля.
+- [x] Определить формат employees.
+- [x] Определить формат tasks.
+- [x] Определить формат assignment_history.
+- [x] Определить формат training_pairs.
+- [x] Определить формат current_team.
+- [x] Определить формат current_backlog.
+- [x] Определить формат recommendations.
+- [x] Определить формат training_session.
+- [x] Определить формат assignment_session.
+- [x] Определить формат dataset_metadata.
+- [x] Поддержать CSV для простого просмотра.
+- [x] Поддержать JSON для вложенных структур.
+- [x] Поддержать Parquet для больших training datasets.
+- [x] Зафиксировать обязательные и optional поля.
+- [x] Зафиксировать allowed statuses для задач.
+- [x] Зафиксировать outcome labels и deadline statuses для истории.
+- [x] Зафиксировать target поля для training pairs.
+- [x] Зафиксировать формат recommendation candidates.
+- [x] Добавить единый файл data contracts.
+- [x] Добавить backend loader для data contracts.
+- [x] Добавить API endpoints для просмотра contracts.
+- [x] Добавить краткую документацию data contracts.
+- [x] Проверить JSON.
+- [x] Проверить Python imports.
+- [x] Проверить endpoints contracts.
 
-Базовые файлы датасета:
+Файлы:
 
-```text
-employees.csv
-tasks.csv
-assignment_history.csv
-training_pairs.parquet
-dataset_metadata.json
-```
+- sandbox_app/config/data_contracts/data_contracts.json
+- sandbox_app/backend/core/data_contracts.py
+- sandbox_app/backend/api/contracts.py
+- sandbox_app/docs/data_contracts.md
+- sandbox_app/backend/main.py
+
+Endpoints:
+
+- GET /api/contracts
+- GET /api/contracts/{contract_name}
 
 Основные сущности:
 
-```text
-employee
-task
-assignment
-outcome
-skill
-custom_feature
-model_session
-assignment_session
-```
+- employees
+- tasks
+- assignment_history
+- training_pairs
+- current_team
+- current_backlog
+- recommendations
+- training_session
+- assignment_session
+- dataset_metadata
 
-Минимальные поля сотрудника:
+Форматы хранения:
 
-```text
-employee_id
-name
-role
-grade
-skills
-learning_goals
-current_workload
-active_tasks_count
-fatigue_level
-availability_score
-avg_completion_speed
-avg_quality_score
-deadline_reliability
-mentor_level
-```
+- CSV для простых таблиц и ручного просмотра
+- JSON для вложенных структур, metadata, recommendations, sessions и test cases
+- Parquet для больших training datasets и feature matrices
 
-Минимальные поля задачи:
+Фактически работает так: data contracts лежат в одном JSON-файле, backend умеет загружать список контрактов и отдельный контракт по имени, API отдаёт contracts через /api/contracts и /api/contracts/{contract_name}. Контракты заранее поддерживают разные домены через роли, грейды, навыки и custom features.
 
-```text
-task_id
-title
-description
-task_type
-priority
-complexity
-estimated_hours
-deadline_days
-required_skills
-status
-project_id
-created_at
-```
+Ожидаемый результат: до генерации и обучения понятно, какие данные живут в системе и как они связаны.
 
-Минимальные поля истории:
-
-```text
-assignment_id
-task_id
-employee_id
-assigned_at
-completed_at
-planned_hours
-actual_hours
-quality_score
-deadline_status
-outcome_label
-was_rework_needed
-feedback_score
-```
-
-**Ожидаемый результат:** до генерации и обучения понятно, какие данные живут в системе и как они связаны.
-
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Define sandbox data contracts`
+Фактическое время: 3–5 часов.  
+Коммит: Define sandbox data contracts
 
 ---
 

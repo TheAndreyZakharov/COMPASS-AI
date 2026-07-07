@@ -25,7 +25,7 @@ LOGS_DIR = SANDBOX_ROOT / "logs"
 
 
 def ensure_runtime_dirs() -> None:
-    for path in (
+    runtime_dirs = (
         GENERATED_DATA_DIR,
         IMPORTED_DATA_DIR,
         TEST_CASES_DIR,
@@ -34,5 +34,7 @@ def ensure_runtime_dirs() -> None:
         ASSIGNMENT_SESSIONS_DIR,
         REPORTS_DIR,
         LOGS_DIR,
-    ):
+    )
+
+    for path in runtime_dirs:
         path.mkdir(parents=True, exist_ok=True)
