@@ -1,0 +1,80 @@
+{
+  "models": {
+    "baseline_rule_based": {
+      "enabled": true,
+      "type": "rules",
+      "description": "Deterministic baseline for comparison."
+    },
+    "sgd_classifier": {
+      "enabled": true,
+      "type": "sklearn",
+      "default_params": {
+        "loss": "log_loss",
+        "penalty": "l2",
+        "max_iter": 1000,
+        "random_state": 42
+      }
+    },
+    "logistic_regression": {
+      "enabled": true,
+      "type": "sklearn",
+      "default_params": {
+        "max_iter": 1000,
+        "class_weight": "balanced",
+        "random_state": 42
+      }
+    },
+    "random_forest": {
+      "enabled": true,
+      "type": "sklearn",
+      "default_params": {
+        "n_estimators": 300,
+        "max_depth": null,
+        "n_jobs": -1,
+        "random_state": 42
+      }
+    },
+    "hist_gradient_boosting": {
+      "enabled": true,
+      "type": "sklearn",
+      "default_params": {
+        "max_iter": 300,
+        "learning_rate": 0.08,
+        "random_state": 42
+      }
+    },
+    "torch_mlp": {
+      "enabled": true,
+      "type": "pytorch",
+      "default_params": {
+        "hidden_layers": [
+          256,
+          128
+        ],
+        "dropout": 0.15,
+        "epochs": 20,
+        "batch_size": 512,
+        "learning_rate": 0.001,
+        "seed": 42
+      }
+    }
+  },
+  "target_modes": [
+    "quality",
+    "speed",
+    "balanced",
+    "learning",
+    "risk_aware"
+  ],
+  "metrics": [
+    "roc_auc",
+    "f1",
+    "precision",
+    "recall",
+    "accuracy",
+    "log_loss",
+    "mae_for_score",
+    "top_1_accuracy",
+    "top_3_accuracy"
+  ]
+}

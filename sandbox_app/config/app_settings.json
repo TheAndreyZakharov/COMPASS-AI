@@ -1,0 +1,75 @@
+{
+  "app": {
+    "name": "COMPASS AI Sandbox",
+    "slug": "compass-ai-sandbox",
+    "version": "0.1.0",
+    "environment": "local",
+    "target_python": "3.11.x",
+    "host": "127.0.0.1",
+    "port": 8601
+  },
+  "isolation": {
+    "autonomous_subproject": true,
+    "do_not_import_main_src": true,
+    "do_not_import_main_llm": true,
+    "do_not_import_main_agents": true,
+    "do_not_modify_main_compass_api": true
+  },
+  "paths": {
+    "config_dir": "sandbox_app/config",
+    "feature_schemas_dir": "sandbox_app/config/feature_schemas",
+    "data_contracts_dir": "sandbox_app/config/data_contracts",
+    "generated_data_dir": "sandbox_app/data/generated",
+    "imported_data_dir": "sandbox_app/data/imported",
+    "test_cases_dir": "sandbox_app/data/test_cases",
+    "exports_dir": "sandbox_app/data/exports",
+    "training_sessions_dir": "sandbox_app/training_sessions",
+    "assignment_sessions_dir": "sandbox_app/assignment_sessions",
+    "reports_dir": "sandbox_app/reports",
+    "logs_dir": "sandbox_app/logs"
+  },
+  "defaults": {
+    "seed": 42,
+    "domain_profile": "developers",
+    "dataset_mode": "small_preview",
+    "recommendation_mode": "balanced",
+    "training_models": [
+      "baseline_rule_based",
+      "sgd_classifier",
+      "logistic_regression"
+    ]
+  },
+  "dataset_modes": {
+    "small_preview": {
+      "employees_count": 10,
+      "tasks_count": 100,
+      "target_pairs": 1000,
+      "history_depth_per_employee": 25
+    },
+    "medium_validation": {
+      "employees_count": 30,
+      "tasks_count": 1000,
+      "target_pairs": 30000,
+      "history_depth_per_employee": 100
+    },
+    "large_training": {
+      "employees_count": 100,
+      "tasks_count": 10000,
+      "target_pairs": 1000000,
+      "history_depth_per_employee": 250
+    },
+    "huge_training": {
+      "requires_confirmation": true,
+      "max_employees_count": 1000,
+      "max_tasks_count": 100000,
+      "max_target_pairs": 10000000
+    }
+  },
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "model": "qwen2.5:1.5b-instruct",
+    "timeout_seconds": 30,
+    "explanations_only": true,
+    "can_change_ranking": false
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "profile_id": "developers",
+  "name": "Developers",
+  "system": true,
+  "version": "1.0.0",
+  "description": "Developers domain profile for COMPASS AI Sandbox.",
+  "roles": [
+    "backend_engineer",
+    "frontend_engineer",
+    "fullstack_engineer",
+    "qa_engineer",
+    "devops_engineer",
+    "ml_engineer",
+    "tech_lead"
+  ],
+  "grades": [
+    "junior",
+    "middle",
+    "senior",
+    "lead"
+  ],
+  "skills": [
+    "python",
+    "fastapi",
+    "sql",
+    "postgresql",
+    "javascript",
+    "typescript",
+    "react",
+    "testing",
+    "docker",
+    "ci_cd",
+    "ml",
+    "data_processing",
+    "api_design",
+    "debugging"
+  ],
+  "task_types": [
+    "feature",
+    "bugfix",
+    "refactor",
+    "test",
+    "infra",
+    "research",
+    "documentation",
+    "review"
+  ],
+  "feature_groups": {
+    "employee": [
+      {
+        "name": "availability_score",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "current_workload",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "fatigue_score",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "avg_completion_speed",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "avg_quality_score",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "deadline_reliability",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "mentor_level",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "learning_goals",
+        "type": "skill_list",
+        "required": false
+      }
+    ],
+    "task": [
+      {
+        "name": "priority",
+        "type": "categorical",
+        "required": true,
+        "values": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      {
+        "name": "complexity",
+        "type": "numeric",
+        "required": true,
+        "min": 1,
+        "max": 10
+      },
+      {
+        "name": "estimated_hours",
+        "type": "numeric",
+        "required": true,
+        "min": 0.5,
+        "max": 240
+      },
+      {
+        "name": "deadline_days",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 365
+      },
+      {
+        "name": "required_skills",
+        "type": "skill_list",
+        "required": true
+      },
+      {
+        "name": "requires_mentor",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "outcome": [
+      {
+        "name": "planned_hours",
+        "type": "numeric",
+        "required": true,
+        "min": 0.5,
+        "max": 240
+      },
+      {
+        "name": "actual_hours",
+        "type": "numeric",
+        "required": true,
+        "min": 0.5,
+        "max": 400
+      },
+      {
+        "name": "quality_score",
+        "type": "numeric",
+        "required": true,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "deadline_status",
+        "type": "categorical",
+        "required": true,
+        "values": [
+          "early",
+          "on_time",
+          "late",
+          "missed"
+        ]
+      },
+      {
+        "name": "outcome_label",
+        "type": "categorical",
+        "required": true,
+        "values": [
+          "success",
+          "good",
+          "acceptable",
+          "late",
+          "failed",
+          "rework"
+        ]
+      },
+      {
+        "name": "was_rework_needed",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "feedback_score",
+        "type": "numeric",
+        "required": false,
+        "min": 0,
+        "max": 1
+      }
+    ]
+  }
+}
