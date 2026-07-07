@@ -4,9 +4,5 @@
 # macOS
 .DS_Store
 
-# Environment
-.env
-.env.*
-
 # External Plane source checkout
 plane/docker/plane-source/
