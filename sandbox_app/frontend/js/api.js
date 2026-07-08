@@ -89,4 +89,11 @@ export const api = {
   importSupportedTables: () => apiGet("/api/import-data/supported-tables"),
   importPreview: (formData) => apiUpload("/api/import-data/preview", formData),
   importDataset: (formData) => apiUpload("/api/import-data/datasets", formData),
+
+  buildFeatures: (payload) => apiPost("/api/features/build", payload),
+  featureMetadata: (datasetId, query = "") =>
+    apiGet(
+      `/api/features/datasets/${encodeURIComponent(datasetId)}/metadata${query}`,
+    ),
+    
 };

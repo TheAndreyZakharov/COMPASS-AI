@@ -921,49 +921,74 @@ Smoke test проходит.
 
 ## 27.15. Реализовать feature builder
 
-- [ ] Создать отдельный feature builder песочницы.
-- [ ] Не использовать напрямую основной feature pipeline.
-- [ ] Поддержать employees.
-- [ ] Поддержать tasks.
-- [ ] Поддержать assignment_history.
-- [ ] Поддержать training_pairs.
-- [ ] Поддержать custom employee features.
-- [ ] Поддержать custom task features.
-- [ ] Поддержать skill vectors.
-- [ ] Поддержать pair features.
-- [ ] Поддержать workload features.
-- [ ] Поддержать fatigue features.
-- [ ] Поддержать learning potential features.
-- [ ] Поддержать target modes quality, speed, balanced, learning, risk_aware.
-- [ ] Сохранять features.parquet.
-- [ ] Сохранять targets.parquet.
-- [ ] Сохранять feature_metadata.json.
-- [ ] Добавить endpoint build features.
-- [ ] Показывать feature dimensions в UI.
+- [x] Создать отдельный feature builder песочницы.
+- [x] Не использовать напрямую основной feature pipeline.
+- [x] Поддержать employees.
+- [x] Поддержать tasks.
+- [x] Поддержать assignment_history.
+- [x] Поддержать training_pairs.
+- [x] Поддержать custom employee features.
+- [x] Поддержать custom task features.
+- [x] Поддержать skill vectors.
+- [x] Поддержать pair features.
+- [x] Поддержать workload features.
+- [x] Поддержать fatigue features.
+- [x] Поддержать learning potential features.
+- [x] Поддержать target modes quality, speed, balanced, learning, risk_aware.
+- [x] Сохранять features.parquet.
+- [x] Сохранять targets.parquet.
+- [x] Сохранять feature_metadata.json.
+- [x] Добавить endpoint build features.
+- [x] Показывать feature dimensions в UI.
+- [x] Поддержать generated datasets.
+- [x] Поддержать imported datasets.
+- [x] Добавить metadata endpoint.
+- [x] Добавить pytest smoke test feature builder.
 
 Файлы:
 
-```text
 sandbox_app/backend/features/build_features.py
 sandbox_app/backend/features/skill_vectorizer.py
 sandbox_app/backend/features/custom_features.py
 sandbox_app/backend/features/pair_features.py
 sandbox_app/backend/features/targets.py
 sandbox_app/backend/api/features.py
-```
+sandbox_app/frontend/js/pages/training.js
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_feature_builder.py
+
+Endpoints:
+
+POST /api/features/build
+GET /api/features/datasets/{dataset_id}/metadata
 
 Результаты:
 
-```text
 sandbox_app/data/generated/<dataset_id>/features/features.parquet
 sandbox_app/data/generated/<dataset_id>/features/targets.parquet
 sandbox_app/data/generated/<dataset_id>/features/feature_metadata.json
-```
 
-**Ожидаемый результат:** песочница превращает generated/imported dataset в обучающие признаки для моделей.
+Что сделано по факту:
+Feature builder работает как отдельный pipeline внутри sandbox_app и не использует основной feature pipeline проекта. Он читает employees, tasks, assignment_history и training_pairs из generated или imported dataset. Для каждой пары task-employee строятся employee features, task features, pair features, workload features, fatigue features, learning features, skill overlap features, skill vectors и custom features. Targets сохраняются отдельно с target_mode, target_score, label и split. Metadata содержит source counts, output counts, feature dimensions, feature names, skill vocabulary и paths. На странице Training добавлен UI для запуска feature builder и просмотра feature dimensions.
 
-**Примерное время:** 10–16 часов.  
-**Коммит:** `Add sandbox feature builder`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test feature builder проходит.
+Если Node.js установлен, training.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена генерация smoke dataset.
+Проверен endpoint POST /api/features/build.
+Проверено создание features.parquet, targets.parquet и feature_metadata.json.
+Проверено чтение Parquet.
+Проверен metadata endpoint.
+Проверена страница /training.
+Smoke test проходит.
+
+Ожидаемый результат:
+песочница превращает generated/imported dataset в обучающие признаки для моделей.
+
+Примерное время: 10–16 часов.
+Коммит: Add sandbox feature builder
 
 ---
 

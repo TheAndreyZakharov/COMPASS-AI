@@ -13,6 +13,7 @@ from sandbox_app.backend.api import (
     contracts,
     data_viewer,
     feature_schemas,
+    features,
     generate_dataset,
     generate_history,
     generate_tasks,
@@ -87,6 +88,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(generate_dataset.router, prefix=api_prefix)
     app.include_router(data_viewer.router, prefix=api_prefix)
     app.include_router(import_data.router, prefix=api_prefix)
+    app.include_router(features.router, prefix=api_prefix)
 
 def register_frontend_routes(app: FastAPI) -> None:
     PATHS.frontend_css_dir.mkdir(parents=True, exist_ok=True)
