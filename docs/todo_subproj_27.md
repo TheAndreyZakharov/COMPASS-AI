@@ -1323,36 +1323,60 @@ Smoke test проходит.
 
 ## 27.20. Подключить frontend Training и Models
 
-- [ ] Сделать страницу Training рабочей.
-- [ ] Выбирать generated/imported dataset.
-- [ ] Выбирать target mode.
-- [ ] Выбирать models.
-- [ ] Настраивать split.
-- [ ] Настраивать seed.
-- [ ] Настраивать базовые model params.
-- [ ] Запускать training через API.
-- [ ] Показывать progress/status.
-- [ ] Показывать metrics.
-- [ ] Показывать comparison table.
-- [ ] Показывать графики.
-- [ ] Сделать страницу Models рабочей.
-- [ ] Показывать training sessions.
-- [ ] Показывать model artifacts.
-- [ ] Показывать export status.
+- [x] Сделать страницу Training рабочей.
+- [x] Выбирать generated/imported dataset.
+- [x] Выбирать target mode.
+- [x] Выбирать models.
+- [x] Настраивать split.
+- [x] Настраивать seed.
+- [x] Настраивать базовые model params.
+- [x] Запускать training через API.
+- [x] Показывать progress/status.
+- [x] Показывать metrics.
+- [x] Показывать comparison table.
+- [x] Показывать графики.
+- [x] Сделать страницу Models рабочей.
+- [x] Показывать training sessions.
+- [x] Показывать model artifacts.
+- [x] Показывать export status.
+- [x] Добавить frontend component для training metrics.
+- [x] Добавить frontend component для training plots.
+- [x] Добавить безопасную отдачу PNG report files через reports API.
+- [x] Добавить frontend smoke test для Training UI assets.
 
 Файлы:
 
-```text
 sandbox_app/frontend/js/pages/training.js
 sandbox_app/frontend/js/pages/models.js
 sandbox_app/frontend/js/components/training_metrics.js
 sandbox_app/frontend/js/components/training_plots.js
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/backend/api/reports.py
+sandbox_app/tests/test_training_ui_assets.py
 
-**Ожидаемый результат:** пользователь может обучать и сравнивать модели из браузера.
+Что сделано по факту:
+Страница Training стала полноценной рабочей страницей. Пользователь выбирает generated или imported dataset, target_mode, seed, split, набор моделей и базовые model params. Можно собрать features, загрузить metadata, запустить multi-model training, обновить список training sessions, открыть session details, сгенерировать report plots и посмотреть PNG-графики прямо в UI. Metrics показываются как comparison table и карточки моделей. Models page остаётся рабочей страницей для просмотра sessions, model artifacts, export validation и optional ONNX export. Для report PNG добавлен безопасный endpoint выдачи файлов внутри папки reports конкретной training session.
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox training UI`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test Training UI assets проходит.
+Pytest smoke tests training session, training artifacts, training reports и model export проходят.
+Если Node.js установлен, training.js, models.js, training_metrics.js, training_plots.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена страница /training.
+Проверена страница /models.
+Проверена генерация smoke dataset.
+Проверен запуск training через API.
+Проверено получение comparison metrics.
+Проверена генерация report plots.
+Проверена загрузка report manifest.
+Smoke test проходит.
+
+Ожидаемый результат:
+пользователь может обучать и сравнивать модели из браузера.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox training UI
 
 ---
 

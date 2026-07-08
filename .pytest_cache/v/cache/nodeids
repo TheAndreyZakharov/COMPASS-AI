@@ -11,6 +11,7 @@
   "sandbox_app/tests/test_training_reports.py::test_generate_training_report_for_session",
   "sandbox_app/tests/test_training_session.py::test_run_training_session_with_baseline_and_logistic_regression",
   "sandbox_app/tests/test_training_session_artifacts.py::test_training_session_artifact_contract",
+  "sandbox_app/tests/test_training_ui_assets.py::test_training_ui_assets_are_wired",
   "tests/test_dataset.py::test_assignment_pair_dataloader_batch_shapes",
   "tests/test_dataset.py::test_assignment_pair_dataset_item_shapes",
   "tests/test_dataset.py::test_assignment_pair_dataset_loads_processed_data",

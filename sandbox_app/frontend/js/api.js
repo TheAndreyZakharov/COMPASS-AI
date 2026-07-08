@@ -139,6 +139,23 @@ export const api = {
       payload,
     ),
 
+  runTraining: (payload) => apiPost("/api/training/run", payload),
+  trainingSessions: () => apiGet("/api/training/sessions"),
+  trainingSession: (sessionId) =>
+    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
+  trainingArtifacts: (sessionId) =>
+    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
+  trainingModelArtifact: (sessionId, modelName) =>
+    apiGet(
+      `/api/training/sessions/${encodeURIComponent(sessionId)}/models/` +
+        encodeURIComponent(modelName),
+    ),
+  trainingReports: () => apiGet("/api/reports/training"),
+  generateTrainingReport: (sessionId) =>
+    apiPost(`/api/reports/training/${encodeURIComponent(sessionId)}/generate`, {}),
+  trainingReport: (sessionId) =>
+    apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
+
 
 
 
