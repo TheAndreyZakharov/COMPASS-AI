@@ -115,5 +115,31 @@ export const api = {
   trainingReport: (sessionId) =>
     apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
 
+  modelsList: () => apiGet("/api/models"),
+  modelMetadata: (sessionId, modelName) =>
+    apiGet(
+      `/api/models/${encodeURIComponent(sessionId)}/` +
+        encodeURIComponent(modelName),
+    ),
+  modelValidation: (sessionId, modelName) =>
+    apiGet(
+      `/api/models/${encodeURIComponent(sessionId)}/` +
+        `${encodeURIComponent(modelName)}/validation`,
+    ),
+  validateModel: (sessionId, modelName, payload) =>
+    apiPost(
+      `/api/models/${encodeURIComponent(sessionId)}/` +
+        `${encodeURIComponent(modelName)}/validate`,
+      payload,
+    ),
+  exportModel: (sessionId, modelName, payload) =>
+    apiPost(
+      `/api/models/${encodeURIComponent(sessionId)}/` +
+        `${encodeURIComponent(modelName)}/export`,
+      payload,
+    ),
+
+
+
 
 };

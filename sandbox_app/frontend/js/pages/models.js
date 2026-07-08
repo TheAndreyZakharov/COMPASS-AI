@@ -5,8 +5,11 @@ import { renderDataTable } from "../components/table.js";
 
 const state = {
   sessions: null,
+  models: null,
   selectedSessionId: "",
   selectedModelName: "",
+  exportOnnx: false,
+  sampleSize: 100,
 };
 
 function sessionOptions(payload) {
@@ -29,14 +32,60 @@ function sessionOptions(payload) {
     .join("");
 }
 
+function modelOptions() {
+  const models = filteredModels();
+
+  if (models.length === 0) {
+    return '<option value="">Нет моделей</option>';
+  }
+
+  return models
+    .map((model) => {
+      const selected = model.model_name === state.selectedModelName ? "selected" : "";
+
+      return `
+        <option value="${htmlEscape(model.model_name)}" ${selected}>
+          ${htmlEscape(model.model_name)} · ${htmlEscape(model.artifact_format || "")}
+        </option>
+      `;
+    })
+    .join("");
+}
+
+function filteredModels() {
+  return (state.models?.models || []).filter(
+    (model) => model.session_id === state.selectedSessionId,
+  );
+}
+
 function selectedSession() {
   return (state.sessions?.sessions || []).find(
     (session) => session.session_id === state.selectedSessionId,
   );
 }
 
+function selectedModel() {
+  return filteredModels().find((model) => model.model_name === state.selectedModelName);
+}
+
 function readControls() {
   state.selectedSessionId = document.querySelector("#modelsSession").value;
+  state.selectedModelName = document.querySelector("#modelsModel").value;
+  state.exportOnnx = document.querySelector("#modelsExportOnnx").checked;
+  state.sampleSize = Number.parseInt(
+    document.querySelector("#modelsSampleSize").value,
+    10,
+  ) || 100;
+}
+
+function syncModelSelect() {
+  const select = document.querySelector("#modelsModel");
+  select.innerHTML = modelOptions();
+
+  if (!state.selectedModelName) {
+    state.selectedModelName = filteredModels()[0]?.model_name || "";
+    select.value = state.selectedModelName;
+  }
 }
 
 function setModelsLoading(isLoading, label = "Loading...") {
@@ -70,6 +119,7 @@ function renderError(error) {
 
 function renderSessionsList() {
   const sessions = state.sessions?.sessions || [];
+  const models = state.models?.models || [];
 
   if (sessions.length === 0) {
     renderOutput(`
@@ -97,9 +147,11 @@ function renderSessionsList() {
     <section class="grid grid-4">
       ${renderSummaryCards({
         sessions: state.sessions.total || 0,
-        latest_models: sessions[0]?.trained_models?.length || 0,
-        latest_rows: sessions[0]?.rows || 0,
-        latest_features: sessions[0]?.feature_count || 0,
+        models: models.length,
+        validated: models.filter(
+          (model) => model.export_validation_status === "validated",
+        ).length,
+        onnx: models.filter((model) => model.onnx_path).length,
       })}
     </section>
 
@@ -115,6 +167,47 @@ function renderSessionsList() {
         "rows",
         "trained_models",
         "completed_at",
+      ])}
+    </article>
+  `);
+}
+
+function renderModelsList() {
+  const models = state.models?.models || [];
+
+  if (models.length === 0) {
+    renderOutput(`
+      <article class="card">
+        <h2>Saved models</h2>
+        <p class="muted">Saved models пока не найдены.</p>
+      </article>
+    `);
+    return;
+  }
+
+  const rows = models.map((model) => ({
+    session_id: model.session_id,
+    model_name: model.model_name,
+    artifact_format: model.artifact_format,
+    dataset_id: model.dataset_id,
+    target_mode: model.target_mode,
+    feature_count: model.feature_count,
+    validation: model.export_validation_status,
+    onnx: model.onnx_path ? "yes" : "no",
+  }));
+
+  renderOutput(`
+    <article class="card">
+      <h2>Saved models</h2>
+      ${renderDataTable(rows, [
+        "session_id",
+        "model_name",
+        "artifact_format",
+        "dataset_id",
+        "target_mode",
+        "feature_count",
+        "validation",
+        "onnx",
       ])}
     </article>
   `);
@@ -163,12 +256,7 @@ function renderSessionDetails(details) {
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <div class="viewer-section-header">
-        <div>
-          <h2>Model artifacts</h2>
-          <p class="muted">Artifact metadata, predictions, metrics and export validation.</p>
-        </div>
-      </div>
+      <h2>Model artifacts</h2>
       ${renderDataTable(artifactRows)}
       <div class="toolbar" style="margin-top: 12px;">${buttons}</div>
     </article>
@@ -221,16 +309,50 @@ function renderModelArtifact(details) {
   `);
 }
 
+function renderExportResult(result) {
+  renderOutput(`
+    <section class="grid grid-3">
+      <article class="card">
+        <h2>${htmlEscape(result.model_name)}</h2>
+        <p class="muted">${htmlEscape(result.session_id)}</p>
+      </article>
+      <article class="card">
+        <h2>Validation</h2>
+        <p><strong>${htmlEscape(result.status || "unknown")}</strong></p>
+      </article>
+      <article class="card">
+        <h2>ONNX</h2>
+        <p><strong>${htmlEscape(result.onnx?.status || "not_requested")}</strong></p>
+      </article>
+    </section>
+
+    <article class="card" style="margin-top: 16px;">
+      <h2>Export validation</h2>
+      <pre class="code">${prettyJson(result)}</pre>
+    </article>
+  `);
+}
+
+async function refreshAll() {
+  state.sessions = await api.trainingSessions();
+  state.models = await api.modelsList();
+
+  if (!state.selectedSessionId) {
+    state.selectedSessionId = state.sessions?.sessions?.[0]?.session_id || "";
+  }
+
+  if (!state.selectedModelName) {
+    state.selectedModelName = filteredModels()[0]?.model_name || "";
+  }
+
+  document.querySelector("#modelsSession").innerHTML = sessionOptions(state.sessions);
+  syncModelSelect();
+}
+
 async function refreshSessions() {
   try {
     setModelsLoading(true, "Sessions...");
-    state.sessions = await api.trainingSessions();
-
-    if (!state.selectedSessionId) {
-      state.selectedSessionId = state.sessions?.sessions?.[0]?.session_id || "";
-    }
-
-    document.querySelector("#modelsSession").innerHTML = sessionOptions(state.sessions);
+    await refreshAll();
     renderSessionsList();
   } catch (error) {
     renderError(error);
@@ -259,16 +381,21 @@ async function loadSessionDetails() {
   }
 }
 
-async function loadModelArtifact(modelName) {
+async function loadModelArtifact(modelName = null) {
   try {
     readControls();
 
-    if (!state.selectedSessionId) {
-      throw new Error("Сначала выбери training session.");
+    const selectedModelName = modelName || state.selectedModelName;
+
+    if (!state.selectedSessionId || !selectedModelName) {
+      throw new Error("Сначала выбери training session и model.");
     }
 
-    setModelsLoading(true, `${modelName}...`);
-    const details = await api.trainingModelArtifact(state.selectedSessionId, modelName);
+    setModelsLoading(true, `${selectedModelName}...`);
+    const details = await api.trainingModelArtifact(
+      state.selectedSessionId,
+      selectedModelName,
+    );
     renderModelArtifact(details);
   } catch (error) {
     renderError(error);
@@ -278,16 +405,54 @@ async function loadModelArtifact(modelName) {
   }
 }
 
+async function validateSelectedModel(exportOnnx = false) {
+  try {
+    readControls();
+
+    if (!state.selectedSessionId || !state.selectedModelName) {
+      throw new Error("Сначала выбери training session и model.");
+    }
+
+    setModelsLoading(true, exportOnnx ? "Export..." : "Validate...");
+    const payload = {
+      export_onnx: exportOnnx,
+      sample_size: state.sampleSize,
+    };
+    const result = exportOnnx
+      ? await api.exportModel(state.selectedSessionId, state.selectedModelName, payload)
+      : await api.validateModel(state.selectedSessionId, state.selectedModelName, payload);
+
+    renderExportResult(result);
+    state.models = await api.modelsList();
+    syncModelSelect();
+  } catch (error) {
+    renderError(error);
+    toast("Model export", error.message || String(error));
+  } finally {
+    setModelsLoading(false);
+  }
+}
+
 function bindModelButtons() {
   document.querySelectorAll("[data-models-action='model']").forEach((button) => {
     button.addEventListener("click", () => {
+      state.selectedModelName = button.dataset.modelName;
+      document.querySelector("#modelsModel").value = state.selectedModelName;
       loadModelArtifact(button.dataset.modelName);
     });
   });
 }
 
 function bindEvents() {
-  document.querySelector("#modelsSession").addEventListener("change", readControls);
+  document.querySelector("#modelsSession").addEventListener("change", () => {
+    readControls();
+    state.selectedModelName = filteredModels()[0]?.model_name || "";
+    syncModelSelect();
+  });
+
+  document.querySelector("#modelsModel").addEventListener("change", readControls);
+  document.querySelector("#modelsExportOnnx").addEventListener("change", readControls);
+  document.querySelector("#modelsSampleSize").addEventListener("change", readControls);
 
   document.querySelector("[data-models-action='refresh']").addEventListener("click", () => {
     refreshSessions();
@@ -297,14 +462,35 @@ function bindEvents() {
     renderSessionsList();
   });
 
+  document.querySelector("[data-models-action='models']").addEventListener("click", () => {
+    renderModelsList();
+  });
+
   document.querySelector("[data-models-action='details']").addEventListener("click", () => {
     loadSessionDetails();
+  });
+
+  document.querySelector("[data-models-action='selected-model']").addEventListener(
+    "click",
+    () => {
+      loadModelArtifact();
+    },
+  );
+
+  document.querySelector("[data-models-action='validate']").addEventListener("click", () => {
+    validateSelectedModel(false);
+  });
+
+  document.querySelector("[data-models-action='export']").addEventListener("click", () => {
+    validateSelectedModel(state.exportOnnx);
   });
 }
 
 export async function renderModels() {
   state.sessions = await api.trainingSessions();
+  state.models = await api.modelsList();
   state.selectedSessionId = state.sessions?.sessions?.[0]?.session_id || "";
+  state.selectedModelName = filteredModels()[0]?.model_name || "";
 
   window.setTimeout(() => {
     bindEvents();
@@ -318,7 +504,7 @@ export async function renderModels() {
           <div>
             <h2>Models</h2>
             <p class="muted">
-              Training sessions, model artifacts, predictions, metrics and export validation.
+              Saved models, native artifacts, optional ONNX export and validation status.
             </p>
           </div>
           <div class="status-pill status-ok" id="modelsStatus">
@@ -334,14 +520,54 @@ export async function renderModels() {
               ${sessionOptions(state.sessions)}
             </select>
           </div>
+
+          <div class="form-row">
+            <label for="modelsModel">Model</label>
+            <select class="select" id="modelsModel">
+              ${modelOptions()}
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="modelsSampleSize">Validation sample</label>
+            <input
+              class="input"
+              id="modelsSampleSize"
+              min="1"
+              max="10000"
+              type="number"
+              value="100"
+            />
+          </div>
         </div>
+
+        <label class="checkbox-row">
+          <input id="modelsExportOnnx" type="checkbox" />
+          <span>Try optional ONNX export</span>
+        </label>
 
         <div class="toolbar">
           <button class="button button-secondary" data-models-action="sessions" type="button">
             Sessions
           </button>
+          <button class="button button-secondary" data-models-action="models" type="button">
+            Models
+          </button>
           <button class="button button-primary" data-models-action="details" type="button">
             Session details
+          </button>
+          <button
+            class="button button-secondary"
+            data-models-action="selected-model"
+            type="button"
+          >
+            Model details
+          </button>
+          <button class="button button-secondary" data-models-action="validate" type="button">
+            Validate native
+          </button>
+          <button class="button button-secondary" data-models-action="export" type="button">
+            Export / validate
           </button>
           <button class="button button-secondary" data-models-action="refresh" type="button">
             Refresh
@@ -350,8 +576,11 @@ export async function renderModels() {
       </article>
 
       <article class="card">
-        <h2>Selected session</h2>
-        <pre class="code">${prettyJson(selectedSession() || {})}</pre>
+        <h2>Selected</h2>
+        <pre class="code">${prettyJson({
+          session: selectedSession() || {},
+          model: selectedModel() || {},
+        })}</pre>
       </article>
     </section>
 

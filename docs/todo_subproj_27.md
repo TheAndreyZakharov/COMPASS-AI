@@ -1251,40 +1251,73 @@ Smoke test проходит.
 
 ## 27.19. Реализовать model export
 
-- [ ] Поддержать joblib для sklearn моделей.
-- [ ] Поддержать pt для PyTorch модели.
-- [ ] Поддержать optional ONNX export.
-- [ ] Не делать ONNX обязательным для всей песочницы.
-- [ ] Проверять inference после сохранения.
-- [ ] Сравнивать output до и после export.
-- [ ] Сохранять model_metadata.json.
-- [ ] Сохранять export_validation.json.
-- [ ] Показывать validation status в UI.
-- [ ] Показывать список доступных моделей.
+- [x] Поддержать joblib для sklearn моделей.
+- [x] Поддержать pt для PyTorch модели.
+- [x] Поддержать optional ONNX export.
+- [x] Не делать ONNX обязательным для всей песочницы.
+- [x] Проверять inference после сохранения.
+- [x] Сравнивать output до и после export.
+- [x] Сохранять model_metadata.json.
+- [x] Сохранять export_validation.json.
+- [x] Показывать validation status в UI.
+- [x] Показывать список доступных моделей.
+- [x] Добавить backend model loader.
+- [x] Добавить backend model export service.
+- [x] Добавить Models API.
+- [x] Добавить pytest smoke test model export.
 
 Файлы:
 
-```text
 sandbox_app/backend/training/export_models.py
 sandbox_app/backend/inference/model_loader.py
 sandbox_app/backend/inference/onnx_runtime.py
 sandbox_app/backend/api/models.py
-```
+sandbox_app/frontend/js/pages/models.js
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_model_export.py
+
+Endpoints:
+
+GET /api/models
+GET /api/models/{session_id}/{model_name}
+GET /api/models/{session_id}/{model_name}/validation
+POST /api/models/{session_id}/{model_name}/validate
+POST /api/models/{session_id}/{model_name}/export
+POST /api/models/{session_id}/{model_name}/predict
 
 Форматы:
 
-```text
 model.joblib
 model.pt
 model.onnx
 model_metadata.json
 export_validation.json
-```
 
-**Ожидаемый результат:** модели всегда сохраняются, а ONNX доступен как дополнительный переносимый export.
+Что сделано по факту:
+Model export работает поверх сохранённых training sessions. Sklearn и baseline модели загружаются из model.joblib. PyTorch MLP загружается из model.pt с восстановлением архитектуры, scaler и feature_names. Native validation заново прогоняет модель на features.parquet и сравнивает scores с сохранёнными predictions.parquet. Optional ONNX export запускается только по запросу и не является обязательной зависимостью. Для sklearn моделей ONNX используется через skl2onnx, для PyTorch через torch.onnx. Если ONNX зависимости не установлены, export корректно помечается как skipped. Models API показывает список моделей, metadata, validation status, запускает native validation, optional ONNX export и predict endpoint. Страница Models показывает saved models, validation status и кнопки validate/export.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox model export`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test model export проходит.
+Pytest smoke tests training session и training artifacts проходят.
+Если Node.js установлен, models.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена генерация smoke dataset.
+Проверена сборка features.
+Проверен запуск training session.
+Проверен список models через API.
+Проверен metadata endpoint.
+Проверен native validation.
+Проверен optional ONNX export без обязательной зависимости.
+Проверен export_validation.json.
+Проверена страница /models.
+Smoke test проходит.
+
+Ожидаемый результат:
+модели всегда сохраняются, а ONNX доступен как дополнительный переносимый export.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox model export
 
 ---
 
