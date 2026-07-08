@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>COMPASS AI Sandbox</title>
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Local autonomous sandbox</p>
+        <h1>COMPASS AI Sandbox</h1>
+        <p class="lead">
+          FastAPI backend is running locally on 127.0.0.1:8601. The browser UI shell will be expanded in the next frontend milestones.
+        </p>
+        <div class="cards">
+          <article class="card">
+            <h2>Backend health</h2>
+            <p id="health-status">Checking...</p>
+          </article>
+          <article class="card">
+            <h2>Configuration</h2>
+            <p id="config-status">Loading...</p>
+          </article>
+          <article class="card">
+            <h2>Sessions</h2>
+            <p id="sessions-status">Loading...</p>
+          </article>
+        </div>
+        <div class="links">
+          <a href="/api/health">Health</a>
+          <a href="/api/status">Status</a>
+          <a href="/api/config">Config</a>
+          <a href="/api/sessions">Sessions</a>
+          <a href="/api/docs">API docs</a>
+        </div>
+      </section>
+    </main>
+    <script src="/js/app.js"></script>
+  </body>
+</html>

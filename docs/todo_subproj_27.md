@@ -106,30 +106,36 @@ Makefile targets sandbox-start, sandbox-test, sandbox-restart, sandbox-stop, san
 
 ## 27.3. Сделать production-ready FastAPI backend foundation
 
-- [ ] Создать backend/main.py.
-- [ ] Подключить FastAPI.
-- [ ] Подключить health endpoint.
-- [ ] Подключить API namespace.
-- [ ] Подключить endpoint /api/status.
-- [ ] Подключить endpoint /api/config.
-- [ ] Подключить endpoint /api/sessions.
-- [ ] Подключить локальный CORS только для 127.0.0.1 и localhost.
-- [ ] Подключить раздачу frontend из того же backend.
-- [ ] Подключить раздачу CSS из frontend/css.
-- [ ] Подключить раздачу JS из frontend/js.
-- [ ] Подключить раздачу assets из frontend/assets.
-- [ ] Сделать SPA fallback для frontend.
-- [ ] Сделать JSON error handler.
-- [ ] Сделать backend logging.
-- [ ] Вынести paths в backend/core/paths.py.
-- [ ] Вынести settings loader в backend/core/settings.py.
-- [ ] Вынести JSON helpers в backend/utils/json_io.py.
-- [ ] Проверить endpoints через terminal.
-- [ ] Проверить, что браузер открывает UI.
+- [x] Создать backend/main.py.
+- [x] Подключить FastAPI.
+- [x] Подключить health endpoint.
+- [x] Подключить API namespace.
+- [x] Подключить endpoint /api/status.
+- [x] Подключить endpoint /api/config.
+- [x] Подключить endpoint /api/sessions.
+- [x] Подключить локальный CORS только для 127.0.0.1 и localhost.
+- [x] Подключить раздачу frontend из того же backend.
+- [x] Подключить раздачу CSS из frontend/css.
+- [x] Подключить раздачу JS из frontend/js.
+- [x] Подключить раздачу assets из frontend/assets.
+- [x] Сделать SPA fallback для frontend.
+- [x] Сделать JSON error handler.
+- [x] Сделать backend logging.
+- [x] Вынести paths в backend/core/paths.py.
+- [x] Вынести settings loader в backend/core/settings.py.
+- [x] Вынести JSON helpers в backend/utils/json_io.py.
+- [x] Проверить endpoints через terminal.
+- [x] Проверить, что браузер открывает UI.
+- [x] Добавить API docs на /api/docs.
+- [x] Добавить frontend shell, который сразу проверяет health, config и sessions.
+- [x] Добавить endpoint /api/config/settings.
+- [x] Добавить endpoint /api/config/model-presets.
+- [x] Добавить endpoint /api/config/feature-schemas.
+- [x] Добавить endpoint /api/sessions/training.
+- [x] Добавить endpoint /api/sessions/assignment.
 
 Файлы:
 
-```text
 sandbox_app/backend/main.py
 sandbox_app/backend/api/status.py
 sandbox_app/backend/api/config.py
@@ -138,21 +144,45 @@ sandbox_app/backend/core/paths.py
 sandbox_app/backend/core/settings.py
 sandbox_app/backend/core/logging.py
 sandbox_app/backend/utils/json_io.py
-```
+sandbox_app/frontend/index.html
+sandbox_app/frontend/css/styles.css
+sandbox_app/frontend/js/app.js
 
 Endpoints:
 
-```text
 GET /api/health
 GET /api/status
 GET /api/config
 GET /api/sessions
-```
 
-**Ожидаемый результат:** backend автономно работает, отдаёт API и frontend без Streamlit.
+Дополнительные endpoints:
 
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Add sandbox FastAPI backend`
+GET /api/config/settings
+GET /api/config/model-presets
+GET /api/config/feature-schemas
+GET /api/sessions/training
+GET /api/sessions/assignment
+GET /api/docs
+
+Что сделано по факту:
+Backend теперь собирается через create_app, использует lifespan startup, локальный CORS, JSON error handlers, отдельные routers и отдельные core modules. Settings и model presets читаются из JSON. Feature schemas доступны через config API. Sessions API сканирует training_sessions и assignment_sessions. Frontend отдается тем же FastAPI backend без Streamlit. CSS, JS и assets раздаются отдельными static mounts. Browser routes работают через SPA fallback, а неизвестные API routes возвращают JSON error.
+
+Проверки:
+JSON-конфиги проходят python -m json.tool.
+Backend проходит python -m compileall.
+Shell scripts проходят bash -n.
+Проверены /api/health, /api/status, /api/config, /api/sessions.
+Проверены static mounts /css/styles.css и /js/app.js.
+Проверен SPA fallback.
+Проверен JSON error handler.
+Проверено открытие UI в браузере.
+Smoke test проходит.
+
+Ожидаемый результат:
+backend автономно работает, отдаёт API и frontend без Streamlit.
+
+Примерное время: 3–5 часов.
+Коммит: Add sandbox FastAPI backend
 
 ---
 
