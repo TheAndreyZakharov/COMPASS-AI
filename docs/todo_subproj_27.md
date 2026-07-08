@@ -795,38 +795,58 @@ Smoke test проходит.
 
 ## 27.13. Подключить frontend Data Viewer
 
-- [ ] Сделать страницу Data Viewer.
-- [ ] Показывать список generated datasets.
-- [ ] Показывать список imported datasets.
-- [ ] Показывать таблицу employees.
-- [ ] Показывать таблицу tasks.
-- [ ] Показывать таблицу assignment_history.
-- [ ] Показывать таблицу training_pairs с пагинацией.
-- [ ] Показывать карточки summary.
-- [ ] Показывать простые summary charts.
-- [ ] Показывать kanban board.
-- [ ] Добавить фильтры.
-- [ ] Добавить search.
-- [ ] Добавить pagination controls.
-- [ ] Сделать frontend table component.
-- [ ] Сделать frontend kanban component.
-- [ ] Сделать frontend charts component.
-- [ ] Проверить Data Viewer в браузере на реальном generated dataset.
+- [x] Сделать страницу Data Viewer.
+- [x] Показывать список generated datasets.
+- [x] Показывать список imported datasets.
+- [x] Показывать таблицу employees.
+- [x] Показывать таблицу tasks.
+- [x] Показывать таблицу assignment_history.
+- [x] Показывать таблицу training_pairs с пагинацией.
+- [x] Показывать карточки summary.
+- [x] Показывать простые summary charts.
+- [x] Показывать kanban board.
+- [x] Добавить фильтры.
+- [x] Добавить search.
+- [x] Добавить pagination controls.
+- [x] Сделать frontend table component.
+- [x] Сделать frontend kanban component.
+- [x] Сделать frontend charts component.
+- [x] Проверить Data Viewer в браузере на реальном generated dataset.
+- [x] Добавить переключение tables employees, tasks, assignment_history и training_pairs.
+- [x] Добавить refresh datasets.
+- [x] Добавить clear filters.
+- [x] Добавить сохранение последнего выбранного dataset_id.
 
 Файлы:
 
-```text
 sandbox_app/frontend/js/pages/viewer.js
 sandbox_app/frontend/js/components/table.js
 sandbox_app/frontend/js/components/kanban.js
 sandbox_app/frontend/js/components/charts.js
 sandbox_app/frontend/css/styles.css
-```
 
-**Ожидаемый результат:** пользователь может изучать сгенерированные данные глазами, без ручного открытия CSV.
+Что сделано по факту:
+Data Viewer стал полноценной frontend-страницей. UI показывает generated и imported datasets, summary cards, простые charts, таблицы employees, tasks, assignment_history и training_pairs, pagination controls, search, фильтры status, role, grade, project_id и priority, а также kanban board. Таблица, kanban и charts вынесены в отдельные frontend components. Последний выбранный dataset_id сохраняется и используется при переходе из Data Generator.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox data viewer`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Если Node.js установлен, viewer.js и components проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена страница /viewer.
+Проверена отдача viewer.js.
+Проверена отдача table, kanban и charts components.
+Проверены CSS additions.
+Проверен реальный generated dataset.
+Проверены datasets, summary, employees, tasks, training_pairs и kanban endpoints.
+Проверены pagination, search и filters через Data Viewer API.
+Smoke test проходит.
+
+Ожидаемый результат:
+пользователь может изучать сгенерированные данные глазами, без ручного открытия CSV.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox data viewer
 
 ---
 
