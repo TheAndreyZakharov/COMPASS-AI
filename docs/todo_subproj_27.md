@@ -621,34 +621,35 @@ Smoke test проходит.
 
 ## 27.10. Сделать backend Data Viewer API
 
-- [ ] Показывать список generated datasets.
-- [ ] Показывать список imported datasets.
-- [ ] Читать JSON tables.
-- [ ] Читать CSV tables.
-- [ ] Читать Parquet training pairs.
-- [ ] Отдавать dataset summary.
-- [ ] Отдавать employees table.
-- [ ] Отдавать tasks table.
-- [ ] Отдавать assignment_history table.
-- [ ] Отдавать training_pairs table с пагинацией.
-- [ ] Поддержать page и page_size.
-- [ ] Поддержать search.
-- [ ] Поддержать фильтры по status, role, grade, project_id, priority.
-- [ ] Отдавать employee profile.
-- [ ] Отдавать task profile.
-- [ ] Отдавать employee history.
-- [ ] Отдавать kanban board.
-- [ ] Отдавать summary counts.
+- [x] Показывать список generated datasets.
+- [x] Показывать список imported datasets.
+- [x] Читать JSON tables.
+- [x] Читать CSV tables.
+- [x] Читать Parquet training pairs.
+- [x] Отдавать dataset summary.
+- [x] Отдавать employees table.
+- [x] Отдавать tasks table.
+- [x] Отдавать assignment_history table.
+- [x] Отдавать training_pairs table с пагинацией.
+- [x] Поддержать page и page_size.
+- [x] Поддержать search.
+- [x] Поддержать фильтры по status, role, grade, project_id, priority.
+- [x] Отдавать employee profile.
+- [x] Отдавать task profile.
+- [x] Отдавать employee history.
+- [x] Отдавать kanban board.
+- [x] Отдавать summary counts.
+- [x] Добавить backend validation dataset_id и table_name.
+- [x] Добавить поддержку dataset_kind generated и imported.
+- [x] Добавить pytest smoke test Data Viewer API helpers.
 
 Файл:
 
-```text
 sandbox_app/backend/api/data_viewer.py
-```
+sandbox_app/tests/test_data_viewer_api.py
 
 Endpoints:
 
-```text
 GET /api/data-viewer/datasets
 GET /api/data-viewer/datasets/{dataset_id}/summary
 GET /api/data-viewer/datasets/{dataset_id}/{table_name}
@@ -656,12 +657,28 @@ GET /api/data-viewer/datasets/{dataset_id}/employees/{employee_id}
 GET /api/data-viewer/datasets/{dataset_id}/tasks/{task_id}
 GET /api/data-viewer/datasets/{dataset_id}/employees/{employee_id}/history
 GET /api/data-viewer/datasets/{dataset_id}/kanban
-```
 
-**Ожидаемый результат:** backend отдаёт все данные для удобного просмотра без ручного открытия CSV.
+Что сделано по факту:
+Data Viewer API читает generated и imported datasets. Поддержаны JSON, CSV и Parquet tables. Employees, tasks, assignment_history и training_pairs отдаются через единый table endpoint с pagination, search и фильтрами. Dataset summary показывает metadata, available tables и summary counts. Employee profile, task profile, employee history и kanban board отдаются отдельными endpoints. Training pairs читаются из Parquet. Для dataset_id и table_name добавлена backend validation.
 
-**Примерное время:** 4–6 часов.  
-**Коммит:** `Add sandbox data viewer API`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Pytest smoke test Data Viewer API helpers проходит.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверен endpoint списка datasets.
+Проверен dataset summary.
+Проверены employees, tasks, assignment_history и training_pairs tables.
+Проверены pagination, search и status filter.
+Проверены employee profile, task profile и employee history.
+Проверен kanban endpoint.
+Smoke test проходит.
+
+Ожидаемый результат:
+backend отдаёт все данные для удобного просмотра без ручного открытия CSV.
+
+Примерное время: 4–6 часов.
+Коммит: Add sandbox data viewer API
 
 ---
 

@@ -1,4 +1,5 @@
 [
+  "sandbox_app/tests/test_data_viewer_api.py::test_data_viewer_reads_generated_dataset_tables",
   "sandbox_app/tests/test_full_dataset_generator.py::test_generate_full_dataset_small_preview",
   "sandbox_app/tests/test_full_dataset_generator.py::test_huge_generation_requires_confirmation",
   "sandbox_app/tests/test_history_generator.py::test_generate_assignment_history_from_payload",
