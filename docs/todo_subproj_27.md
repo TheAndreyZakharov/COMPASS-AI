@@ -743,33 +743,53 @@ Smoke test проходит.
 
 ## 27.12. Подключить frontend Data Generator
 
-- [ ] Подключить форму генерации full dataset к /api/generate/dataset.
-- [ ] Подключить генерацию команды к /api/generate/team.
-- [ ] Подключить генерацию задач к /api/generate/tasks.
-- [ ] Подключить генерацию истории к /api/generate/history.
-- [ ] Сделать выбор domain_profile.
-- [ ] Сделать ввод seed.
-- [ ] Сделать выбор dataset mode.
-- [ ] Сделать поля employees_count, tasks_count, target_pairs, history_depth_per_employee.
-- [ ] Сделать confirm_huge_generation.
-- [ ] Показывать loading state.
-- [ ] Показывать error state.
-- [ ] Показывать dataset_id после генерации.
-- [ ] Показывать dataset_dir после генерации.
-- [ ] Показывать counts: employees, tasks, history, training_pairs.
-- [ ] Добавить переход в Data Viewer после генерации.
-- [ ] Проверить генерацию через браузер.
+- [x] Подключить форму генерации full dataset к /api/generate/dataset.
+- [x] Подключить генерацию команды к /api/generate/team.
+- [x] Подключить генерацию задач к /api/generate/tasks.
+- [x] Подключить генерацию истории к /api/generate/history.
+- [x] Сделать выбор domain_profile.
+- [x] Сделать ввод seed.
+- [x] Сделать выбор dataset mode.
+- [x] Сделать поля employees_count, tasks_count, target_pairs, history_depth_per_employee.
+- [x] Сделать confirm_huge_generation.
+- [x] Показывать loading state.
+- [x] Показывать error state.
+- [x] Показывать dataset_id после генерации.
+- [x] Показывать dataset_dir после генерации.
+- [x] Показывать counts: employees, tasks, history, training_pairs.
+- [x] Добавить переход в Data Viewer после генерации.
+- [x] Проверить генерацию через браузер.
+- [x] Добавить запуск отдельных генераторов team, tasks и history.
+- [x] Добавить preview payload для проверки настроек перед запуском.
+- [x] Добавить автоподстановку последнего dataset_id.
 
 Файл:
 
-```text
 sandbox_app/frontend/js/pages/generator.js
-```
+sandbox_app/frontend/css/styles.css
 
-**Ожидаемый результат:** пользователь может в браузере одной кнопкой создать полный dataset и сразу открыть его в Data Viewer.
+Что сделано по факту:
+Страница Data Generator теперь работает как полноценная форма, а не JSON-заглушка. Пользователь выбирает domain_profile, seed, dataset_mode, target_mode и задаёт employees_count, tasks_count, projects_count, history_depth_per_employee, target_pairs и candidates_per_task. Для huge_training есть отдельный confirm_huge_generation. Можно запускать full dataset, team, tasks и history через готовые backend endpoints. После генерации UI показывает dataset_id, dataset_dir, counts и полный response JSON. Последний dataset_id сохраняется и используется для перехода в Data Viewer.
 
-**Примерное время:** 4–6 часов.  
-**Коммит:** `Connect sandbox generator UI`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Если Node.js установлен, generator.js, api.js и app.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена страница /generator.
+Проверена отдача нового generator.js.
+Проверены CSS additions.
+Проверены backend endpoints, которые использует форма.
+Проверена генерация full dataset payload из UI-формы.
+Проверено появление dataset в Data Viewer API.
+Проверены metadata counts.
+Smoke test проходит.
+
+Ожидаемый результат:
+пользователь может в браузере одной кнопкой создать полный dataset и сразу открыть его в Data Viewer.
+
+Примерное время: 4–6 часов.
+Коммит: Connect sandbox generator UI
 
 ---
 
