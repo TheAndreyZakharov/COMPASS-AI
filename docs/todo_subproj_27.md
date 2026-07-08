@@ -461,58 +461,79 @@ Smoke test проходит.
 
 ## 27.8. Реализовать backend generator истории выполненных задач
 
-- [ ] Создать outcome engine.
-- [ ] Создать generator assignment_history.
-- [ ] Поддержать employees из payload.
-- [ ] Поддержать tasks из payload.
-- [ ] Поддержать employees из generated dataset.
-- [ ] Поддержать tasks из generated dataset.
-- [ ] Настраивать history_depth_per_employee.
-- [ ] Настраивать good_outcome_share.
-- [ ] Настраивать bad_outcome_share.
-- [ ] Настраивать late_outcome_share.
-- [ ] Настраивать failed_outcome_share.
-- [ ] Настраивать rework_probability.
-- [ ] Настраивать overload_penalty_strength.
-- [ ] Настраивать fatigue_penalty_strength.
-- [ ] Настраивать skill_match_bonus_strength.
-- [ ] Настраивать learning_task_share.
-- [ ] Учитывать skill match.
-- [ ] Учитывать workload.
-- [ ] Учитывать fatigue.
-- [ ] Учитывать complexity.
-- [ ] Учитывать grade.
-- [ ] Учитывать learning goals.
-- [ ] Генерировать planned_hours.
-- [ ] Генерировать actual_hours.
-- [ ] Генерировать quality_score.
-- [ ] Генерировать deadline_status.
-- [ ] Генерировать outcome_label.
-- [ ] Генерировать was_rework_needed.
-- [ ] Генерировать feedback_score.
-- [ ] Сохранять assignment_history.json.
-- [ ] Сохранять assignment_history.csv.
-- [ ] Сохранять history_metadata.json.
-- [ ] Добавить endpoint генерации истории.
+- [x] Создать outcome engine.
+- [x] Создать generator assignment_history.
+- [x] Поддержать employees из payload.
+- [x] Поддержать tasks из payload.
+- [x] Поддержать employees из generated dataset.
+- [x] Поддержать tasks из generated dataset.
+- [x] Настраивать history_depth_per_employee.
+- [x] Настраивать good_outcome_share.
+- [x] Настраивать bad_outcome_share.
+- [x] Настраивать late_outcome_share.
+- [x] Настраивать failed_outcome_share.
+- [x] Настраивать rework_probability.
+- [x] Настраивать overload_penalty_strength.
+- [x] Настраивать fatigue_penalty_strength.
+- [x] Настраивать skill_match_bonus_strength.
+- [x] Настраивать learning_task_share.
+- [x] Учитывать skill match.
+- [x] Учитывать workload.
+- [x] Учитывать fatigue.
+- [x] Учитывать complexity.
+- [x] Учитывать grade.
+- [x] Учитывать learning goals.
+- [x] Генерировать planned_hours.
+- [x] Генерировать actual_hours.
+- [x] Генерировать quality_score.
+- [x] Генерировать deadline_status.
+- [x] Генерировать outcome_label.
+- [x] Генерировать was_rework_needed.
+- [x] Генерировать feedback_score.
+- [x] Сохранять assignment_history.json.
+- [x] Сохранять assignment_history.csv.
+- [x] Сохранять history_metadata.json.
+- [x] Добавить endpoint генерации истории.
+- [x] Добавить validation generated assignment_history через data contracts.
+- [x] Добавить защиту от случайного overwrite history-файлов.
+- [x] Добавить pytest smoke test генератора истории.
 
 Файлы:
 
-```text
 sandbox_app/backend/data_generation/outcomes.py
 sandbox_app/backend/data_generation/history.py
 sandbox_app/backend/api/generate_history.py
-```
+sandbox_app/tests/test_history_generator.py
 
 Endpoint:
 
-```text
 POST /api/generate/history
-```
 
-**Ожидаемый результат:** у каждого сотрудника есть реалистичная история выполненных задач, пригодная для обучения моделей.
+Результаты:
 
-**Примерное время:** 8–14 часов.  
-**Коммит:** `Add sandbox assignment history generator`
+sandbox_app/data/generated/<dataset_id>/assignment_history.csv
+sandbox_app/data/generated/<dataset_id>/assignment_history.json
+sandbox_app/data/generated/<dataset_id>/history_metadata.json
+
+Что сделано по факту:
+Outcome engine рассчитывает качество выполнения, риск дедлайна, planned_hours, actual_hours, deadline_status, outcome_label, rework и feedback_score. Генератор истории поддерживает employees и tasks напрямую из payload, а также загрузку employees.json и tasks.json из generated dataset. На outcome влияют skill match, workload, fatigue, complexity, grade и learning goals. Настраиваются history_depth_per_employee, outcome shares, penalties, rework probability и learning_task_share. История сохраняется в assignment_history.json, assignment_history.csv и history_metadata.json. Endpoint возвращает dataset_id, paths, metadata и preview.
+
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Pytest smoke test генератора истории проходит.
+Проверена генерация истории из generated dataset после генерации team и tasks.
+Проверено сохранение assignment_history.json, assignment_history.csv и history_metadata.json.
+Проверено наличие required outcome fields.
+Проверено наличие quality_summary и outcome_counts в metadata.
+Проверена защита от overwrite.
+Smoke test проходит.
+
+Ожидаемый результат:
+у каждого сотрудника есть реалистичная история выполненных задач, пригодная для обучения моделей.
+
+Примерное время: 8–14 часов.
+Коммит: Add sandbox assignment history generator
 
 ---
 

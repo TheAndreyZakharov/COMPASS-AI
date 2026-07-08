@@ -1,4 +1,5 @@
 [
+  "sandbox_app/tests/test_history_generator.py::test_generate_assignment_history_from_payload",
   "sandbox_app/tests/test_task_generator.py::test_generate_tasks_dataset_custom_profile",
   "tests/test_dataset.py::test_assignment_pair_dataloader_batch_shapes",
   "tests/test_dataset.py::test_assignment_pair_dataset_item_shapes",
