@@ -387,59 +387,75 @@ Smoke test проходит.
 
 ## 27.7. Реализовать backend generator задач и backlog
 
-- [ ] Создать генератор задач.
-- [ ] Использовать выбранный domain_profile.
-- [ ] Настраивать tasks_count.
-- [ ] Настраивать projects_count.
-- [ ] Настраивать task_types.
-- [ ] Настраивать priorities.
-- [ ] Настраивать complexity.
-- [ ] Настраивать deadline_days.
-- [ ] Настраивать estimated_hours.
-- [ ] Настраивать required skills.
-- [ ] Настраивать dependencies.
-- [ ] Настраивать skill_mismatch_probability.
-- [ ] Генерировать статусы todo, in_progress, review, done, blocked, failed.
-- [ ] Генерировать backlog из задач в статусе todo.
-- [ ] Генерировать kanban summary.
-- [ ] Генерировать custom task features из schema.
-- [ ] Поддержать seed.
-- [ ] Сохранять tasks.json.
-- [ ] Сохранять tasks.csv.
-- [ ] Сохранять backlog.json.
-- [ ] Сохранять backlog.csv.
-- [ ] Сохранять task_metadata.json.
-- [ ] Добавить endpoint генерации задач.
-- [ ] Проверить developers, designers и custom domain.
+- [x] Создать генератор задач.
+- [x] Использовать выбранный domain_profile.
+- [x] Настраивать tasks_count.
+- [x] Настраивать projects_count.
+- [x] Настраивать task_types.
+- [x] Настраивать priorities.
+- [x] Настраивать complexity.
+- [x] Настраивать deadline_days.
+- [x] Настраивать estimated_hours.
+- [x] Настраивать required skills.
+- [x] Настраивать dependencies.
+- [x] Настраивать skill_mismatch_probability.
+- [x] Генерировать статусы todo, in_progress, review, done, blocked, failed.
+- [x] Генерировать backlog из задач в статусе todo.
+- [x] Генерировать kanban summary.
+- [x] Генерировать custom task features из schema.
+- [x] Поддержать seed.
+- [x] Сохранять tasks.json.
+- [x] Сохранять tasks.csv.
+- [x] Сохранять backlog.json.
+- [x] Сохранять backlog.csv.
+- [x] Сохранять task_metadata.json.
+- [x] Добавить endpoint генерации задач.
+- [x] Проверить developers, designers и custom domain.
+- [x] Добавить validation generated tasks через data contracts.
+- [x] Добавить защиту от случайного overwrite task-файлов.
+- [x] Добавить pytest smoke test генератора задач.
 
 Файлы:
 
-```text
 sandbox_app/backend/data_generation/tasks.py
 sandbox_app/backend/data_generation/backlog.py
 sandbox_app/backend/api/generate_tasks.py
-```
+sandbox_app/tests/test_task_generator.py
 
 Endpoint:
 
-```text
 POST /api/generate/tasks
-```
 
 Результаты:
 
-```text
 sandbox_app/data/generated/<dataset_id>/tasks.csv
 sandbox_app/data/generated/<dataset_id>/tasks.json
 sandbox_app/data/generated/<dataset_id>/backlog.csv
 sandbox_app/data/generated/<dataset_id>/backlog.json
 sandbox_app/data/generated/<dataset_id>/task_metadata.json
-```
 
-**Ожидаемый результат:** можно сгенерировать большой backlog задач, похожий на реальный рабочий поток команды.
+Что сделано по факту:
+Генератор задач создаёт реалистичный набор tasks по выбранному domain_profile. Используются task_types, skills и task feature definitions из feature schema. Настраиваются tasks_count, projects_count, task_types, priorities, complexity, estimated_hours, deadline_days, required skills, dependencies, skill_mismatch_probability, status distribution и priority distribution. Генерируются статусы todo, in_progress, review, done, blocked и failed. Backlog формируется только из todo задач. Kanban summary сохраняет counts по статусам, приоритетам и проектам. Custom task features генерируются из выбранной schema. Результаты сохраняются в tasks.json, tasks.csv, backlog.json, backlog.csv и task_metadata.json.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox task generator`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Pytest smoke test генератора задач проходит.
+Проверена генерация developers.
+Проверена генерация designers.
+Проверена генерация custom.
+Проверено сохранение tasks.json, tasks.csv, backlog.json, backlog.csv и task_metadata.json.
+Проверено, что backlog содержит только todo задачи.
+Проверено наличие kanban_summary в metadata.
+Проверено наличие custom_features в tasks.
+Проверена защита от overwrite.
+Smoke test проходит.
+
+Ожидаемый результат:
+можно сгенерировать большой backlog задач, похожий на реальный рабочий поток команды.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox task generator
 
 ---
 

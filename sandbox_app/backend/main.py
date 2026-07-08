@@ -12,6 +12,7 @@ from sandbox_app.backend.api import (
     config,
     contracts,
     feature_schemas,
+    generate_tasks,
     generate_team,
     sessions,
     status,
@@ -76,6 +77,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(contracts.router, prefix=api_prefix)
     app.include_router(feature_schemas.router, prefix=api_prefix)
     app.include_router(generate_team.router, prefix=api_prefix)
+    app.include_router(generate_tasks.router, prefix=api_prefix)
     app.include_router(sessions.router, prefix=api_prefix)
 
 
