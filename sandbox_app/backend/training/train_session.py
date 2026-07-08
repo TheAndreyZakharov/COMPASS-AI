@@ -308,6 +308,7 @@ def build_model_metadata(
     train_rows: int,
     prediction_rows: int,
     config: TrainingSessionConfig,
+    training_history: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     return {
         "model_name": model_name,
@@ -325,6 +326,7 @@ def build_model_metadata(
         "train_rows": train_rows,
         "prediction_rows": prediction_rows,
         "model_params": config.model_params.get(model_name, {}),
+        "training_history": training_history or {},
         "export_formats": {
             "native": artifact_format_for_model(model_name),
             "onnx": "optional_future_export",
@@ -401,6 +403,8 @@ def train_single_model(
 
     artifact_path = model_dir / artifact_filename_for_model(model_name)
 
+    training_history: dict[str, Any] = {}
+
     if model_name == "baseline_rule_based":
         model = train_baseline_model(x_train, y_train, params)
         scores = model.predict_score(x_full)
@@ -413,6 +417,7 @@ def train_single_model(
         model = train_torch_mlp(x_train, y_train, config.seed, params)
         scores = model.predict_score(x_full)
         model.save(artifact_path)
+        training_history = {"loss_history": model.loss_history}
     else:
         raise TrainingSessionError(f"Unsupported model: {model_name}")
 
@@ -438,6 +443,7 @@ def train_single_model(
         train_rows=len(train_frame),
         prediction_rows=len(full_frame),
         config=config,
+        training_history=training_history,
     )
     write_json(model_metadata_path, model_metadata)
 

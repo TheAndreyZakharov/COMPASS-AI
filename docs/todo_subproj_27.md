@@ -1172,44 +1172,80 @@ Smoke test проходит.
 
 ## 27.18. Реализовать training plots и reports
 
-- [ ] Строить loss curve для PyTorch.
-- [ ] Строить learning curve где применимо.
-- [ ] Строить ROC curve.
-- [ ] Строить precision-recall curve.
-- [ ] Строить confusion matrix.
-- [ ] Строить feature importance.
-- [ ] Строить model comparison chart.
-- [ ] Строить score distribution.
-- [ ] Строить calibration plot если применимо.
-- [ ] Сохранять графики PNG.
-- [ ] Показывать графики в UI.
-- [ ] Генерировать training_report.html.
-- [ ] Добавить reports API.
+- [x] Строить loss curve для PyTorch.
+- [x] Строить learning curve где применимо.
+- [x] Строить ROC curve.
+- [x] Строить precision-recall curve.
+- [x] Строить confusion matrix.
+- [x] Строить feature importance.
+- [x] Строить model comparison chart.
+- [x] Строить score distribution.
+- [x] Строить calibration plot если применимо.
+- [x] Сохранять графики PNG.
+- [x] Показывать графики в UI.
+- [x] Генерировать training_report.html.
+- [x] Добавить reports API.
+- [x] Сохранять report_manifest.json.
+- [x] Добавить страницу Reports для training reports.
+- [x] Добавить pytest smoke test training reports.
 
 Файлы:
 
-```text
 sandbox_app/backend/reports/training_plots.py
 sandbox_app/backend/reports/training_report.py
 sandbox_app/backend/api/reports.py
-```
+sandbox_app/backend/training/torch_model.py
+sandbox_app/backend/training/train_session.py
+sandbox_app/frontend/js/pages/reports.js
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_training_reports.py
+
+Endpoints:
+
+GET /api/reports/training
+POST /api/reports/training/{session_id}/generate
+GET /api/reports/training/{session_id}
+GET /api/reports/training/{session_id}/html
 
 Результаты:
 
-```text
 loss_curve.png
 roc_curve.png
 precision_recall_curve.png
 confusion_matrix.png
 feature_importance.png
 model_comparison.png
+score_distribution.png
+calibration_plot.png
+learning_curve.png
 training_report.html
-```
+report_manifest.json
 
-**Ожидаемый результат:** после обучения остаются модели, метрики, predictions и понятные графики.
+Что сделано по факту:
+Training reports генерируются из сохранённой training session. Backend строит PNG-графики по predictions, metrics и model metadata. Для моделей сохраняются ROC curve, precision-recall curve, confusion matrix, score distribution, calibration plot, learning curve и feature importance proxy. Для PyTorch MLP дополнительно сохраняется loss curve. Для всей session сохраняется model comparison chart. Report manifest описывает созданные plots, artifacts, metrics и paths. HTML training report собирает summary, comparison metrics, графики и model metadata. Страница Reports показывает sessions, генерирует report, открывает manifest и даёт ссылку на HTML report.
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox training reports`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test training reports проходит.
+Pytest smoke tests training session и training artifacts проходят.
+Если Node.js установлен, reports.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена генерация smoke dataset.
+Проверена сборка features.
+Проверен запуск training session.
+Проверена генерация training report.
+Проверено создание PNG plots.
+Проверено создание training_report.html.
+Проверено создание report_manifest.json.
+Проверены reports endpoints.
+Проверена страница /reports.
+Smoke test проходит.
+
+Ожидаемый результат:
+после обучения остаются модели, метрики, predictions и понятные графики.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox training reports
 
 ---
 

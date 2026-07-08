@@ -19,6 +19,7 @@ class TorchMLPBundle:
     scaler: StandardScaler
     feature_names: list[str]
     config: dict[str, Any]
+    loss_history: list[float]
 
     def predict_score(self, features: pd.DataFrame) -> np.ndarray:
         try:
@@ -48,6 +49,7 @@ class TorchMLPBundle:
                 "state_dict": self.model.state_dict(),
                 "feature_names": self.feature_names,
                 "config": self.config,
+                "loss_history": self.loss_history,
                 "scaler_mean": self.scaler.mean_.tolist(),
                 "scaler_scale": self.scaler.scale_.tolist(),
             },
@@ -61,13 +63,15 @@ def build_mlp(input_dim: int, hidden_size: int, dropout: float):
     except ImportError as exc:
         raise TorchTrainingError("PyTorch is not installed") from exc
 
+    second_layer_size = max(4, hidden_size // 2)
+
     return nn.Sequential(
         nn.Linear(input_dim, hidden_size),
         nn.ReLU(),
         nn.Dropout(dropout),
-        nn.Linear(hidden_size, max(4, hidden_size // 2)),
+        nn.Linear(hidden_size, second_layer_size),
         nn.ReLU(),
-        nn.Linear(max(4, hidden_size // 2), 1),
+        nn.Linear(second_layer_size, 1),
     )
 
 
@@ -113,6 +117,7 @@ def train_torch_mlp(
         weight_decay=weight_decay,
     )
     criterion = nn.BCEWithLogitsLoss()
+    loss_history: list[float] = []
 
     model.train()
     for _ in range(epochs):
@@ -121,6 +126,7 @@ def train_torch_mlp(
         loss = criterion(logits, y_tensor)
         loss.backward()
         optimizer.step()
+        loss_history.append(float(loss.detach().cpu().item()))
 
     return TorchMLPBundle(
         model=model,
@@ -132,5 +138,7 @@ def train_torch_mlp(
             "epochs": epochs,
             "learning_rate": learning_rate,
             "weight_decay": weight_decay,
+            "loss_history": loss_history,
         },
+        loss_history=loss_history,
     )

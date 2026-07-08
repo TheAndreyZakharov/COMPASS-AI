@@ -109,4 +109,11 @@ export const api = {
         encodeURIComponent(modelName),
     ),
   
+  trainingReports: () => apiGet("/api/reports/training"),
+  generateTrainingReport: (sessionId) =>
+    apiPost(`/api/reports/training/${encodeURIComponent(sessionId)}/generate`, {}),
+  trainingReport: (sessionId) =>
+    apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
+
+
 };

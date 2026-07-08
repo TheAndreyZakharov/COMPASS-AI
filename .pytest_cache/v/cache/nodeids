@@ -7,6 +7,7 @@
   "sandbox_app/tests/test_importers.py::test_import_dataset_from_sources_saves_imported_dataset",
   "sandbox_app/tests/test_importers.py::test_preview_import_source_reads_csv",
   "sandbox_app/tests/test_task_generator.py::test_generate_tasks_dataset_custom_profile",
+  "sandbox_app/tests/test_training_reports.py::test_generate_training_report_for_session",
   "sandbox_app/tests/test_training_session.py::test_run_training_session_with_baseline_and_logistic_regression",
   "sandbox_app/tests/test_training_session_artifacts.py::test_training_session_artifact_contract",
   "tests/test_dataset.py::test_assignment_pair_dataloader_batch_shapes",
