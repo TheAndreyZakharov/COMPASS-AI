@@ -852,40 +852,70 @@ Smoke test проходит.
 
 ## 27.14. Реализовать импорт внешних datasets
 
-- [ ] Поддержать CSV import.
-- [ ] Поддержать JSON import.
-- [ ] Поддержать Parquet import.
-- [ ] Импортировать employees.
-- [ ] Импортировать tasks.
-- [ ] Импортировать assignment_history.
-- [ ] Импортировать training_pairs.
-- [ ] Проверять required fields по data contracts.
-- [ ] Показывать schema errors.
-- [ ] Показывать warnings.
-- [ ] Показывать preview.
-- [ ] Не перезаписывать imported dataset без подтверждения.
-- [ ] Сохранять imported dataset отдельно.
-- [ ] Разрешить использовать imported dataset в training.
+- [x] Поддержать CSV import.
+- [x] Поддержать JSON import.
+- [x] Поддержать Parquet import.
+- [x] Импортировать employees.
+- [x] Импортировать tasks.
+- [x] Импортировать assignment_history.
+- [x] Импортировать training_pairs.
+- [x] Проверять required fields по data contracts.
+- [x] Показывать schema errors.
+- [x] Показывать warnings.
+- [x] Показывать preview.
+- [x] Не перезаписывать imported dataset без подтверждения.
+- [x] Сохранять imported dataset отдельно.
+- [x] Разрешить использовать imported dataset в training.
+- [x] Добавить backend supported tables endpoint.
+- [x] Добавить frontend Import Data страницу.
+- [x] Подключить imported datasets к Data Viewer через существующий API.
+- [x] Добавить pytest smoke test importers.
 
 Файлы:
 
-```text
 sandbox_app/backend/api/import_data.py
 sandbox_app/backend/utils/importers.py
 sandbox_app/backend/utils/validation.py
 sandbox_app/frontend/js/pages/import_data.js
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/js/app.js
+sandbox_app/frontend/index.html
+sandbox_app/frontend/css/styles.css
+sandbox_app/tests/test_importers.py
 
 Папка:
 
-```text
 sandbox_app/data/imported
-```
 
-**Ожидаемый результат:** песочница работает не только с синтетикой, но и с внешними датасетами.
+Endpoints:
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox dataset import`
+GET /api/import-data/supported-tables
+POST /api/import-data/preview
+POST /api/import-data/datasets
+
+Что сделано по факту:
+Импорт внешних datasets поддерживает CSV, JSON и Parquet. Employees, tasks и assignment_history сохраняются как JSON и CSV. Training pairs сохраняются как Parquet. Перед сохранением records проходят required fields validation через data contracts с fallback validation. Preview показывает rows, columns, warnings, validation errors и первые records. Imported datasets сохраняются отдельно в sandbox_app/data/imported и видны через Data Viewer. Перезапись защищена overwrite=true. Frontend получил страницу Import Data с выбором файлов, preview, import result, schema errors, warnings и переходом в Data Viewer.
+
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Pytest smoke test importers проходит.
+Если Node.js установлен, import_data.js, api.js и app.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверен supported tables endpoint.
+Проверен preview endpoint.
+Проверен import dataset endpoint.
+Проверено сохранение imported dataset.
+Проверено чтение imported dataset через Data Viewer API.
+Проверены employees и training_pairs imported tables.
+Проверена страница /import-data.
+Smoke test проходит.
+
+Ожидаемый результат:
+песочница работает не только с синтетикой, но и с внешними датасетами.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox dataset import
 
 ---
 

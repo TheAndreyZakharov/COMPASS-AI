@@ -1,0 +1,138 @@
+{
+  "status": "completed",
+  "started_at": "2026-07-08T12:37:20.127896+00:00",
+  "finished_at": "2026-07-08T12:37:20.234472+00:00",
+  "duration_seconds": 0.107,
+  "dataset_id": "smoke_import_source",
+  "dataset_mode": "small_preview",
+  "domain_profile": "developers",
+  "counts": {
+    "employees": 10,
+    "tasks": 100,
+    "backlog": 43,
+    "assignment_history": 50,
+    "training_pairs": 1000
+  },
+  "files": {
+    "employees_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/employees.csv",
+    "employees_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/employees.json",
+    "tasks_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/tasks.csv",
+    "tasks_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/tasks.json",
+    "backlog_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/backlog.csv",
+    "backlog_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/backlog.json",
+    "assignment_history_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/assignment_history.csv",
+    "assignment_history_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/assignment_history.json",
+    "training_pairs_parquet": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/training_pairs.parquet",
+    "dataset_metadata_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/dataset_metadata.json",
+    "generation_report_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/generation_report.json"
+  },
+  "quality_summary": {
+    "team": {
+      "avg_availability_score": 0.2778,
+      "avg_current_workload": 0.3633,
+      "avg_fatigue_score": 0.3859,
+      "avg_quality_score": 0.4603,
+      "avg_deadline_reliability": 0.4043
+    },
+    "tasks": {
+      "total_tasks": 100,
+      "backlog_tasks": 43,
+      "status_counts": {
+        "todo": 43,
+        "in_progress": 15,
+        "review": 9,
+        "done": 20,
+        "blocked": 7,
+        "failed": 6
+      },
+      "priority_counts": {
+        "critical": 9,
+        "high": 19,
+        "low": 25,
+        "medium": 47
+      },
+      "backlog_priority_counts": {
+        "critical": 4,
+        "high": 13,
+        "low": 12,
+        "medium": 14
+      },
+      "project_status_counts": {
+        "project_001": {
+          "todo": 9,
+          "in_progress": 1,
+          "review": 1,
+          "done": 5,
+          "blocked": 1,
+          "failed": 1
+        },
+        "project_002": {
+          "todo": 10,
+          "in_progress": 4,
+          "review": 1,
+          "done": 6,
+          "blocked": 3,
+          "failed": 2
+        },
+        "project_003": {
+          "todo": 6,
+          "in_progress": 4,
+          "review": 2,
+          "done": 2,
+          "blocked": 2,
+          "failed": 1
+        },
+        "project_004": {
+          "todo": 6,
+          "in_progress": 4,
+          "review": 2,
+          "done": 3,
+          "blocked": 0,
+          "failed": 2
+        },
+        "project_005": {
+          "todo": 12,
+          "in_progress": 2,
+          "review": 3,
+          "done": 4,
+          "blocked": 1,
+          "failed": 0
+        }
+      }
+    },
+    "history": {
+      "avg_quality_score": 0.346,
+      "avg_feedback_score": 0.252,
+      "outcome_counts": {
+        "acceptable": 14,
+        "failed": 16,
+        "good": 1,
+        "late": 4,
+        "rework": 14,
+        "success": 1
+      },
+      "deadline_counts": {
+        "late": 15,
+        "missed": 9,
+        "on_time": 26
+      }
+    },
+    "training_pairs": {
+      "pairs": 1000,
+      "positive_examples": 500,
+      "negative_examples": 500,
+      "split_counts": {
+        "test": 100,
+        "train": 800,
+        "validation": 100
+      },
+      "avg_target_score": 0.4704
+    }
+  },
+  "next_steps": [
+    "open dataset in Data Viewer",
+    "build features",
+    "train models",
+    "run recommendations"
+  ]
+}

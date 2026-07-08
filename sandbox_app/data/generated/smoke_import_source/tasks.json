@@ -1,0 +1,2297 @@
+[
+  {
+    "task_id": "task_000001",
+    "title": "Documentation #0001 for project_001 [developers]",
+    "description": "Generated documentation task with high priority, complexity 4.759, and required skills: docker, javascript.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 4.759,
+    "estimated_hours": 12.07,
+    "deadline_days": 12,
+    "required_skills": [
+      "docker",
+      "javascript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-07-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000002",
+    "title": "Review #0002 for project_005 [developers]",
+    "description": "Generated review task with medium priority, complexity 6.903, and required skills: fastapi, react, sql, typescript.",
+    "project_id": "project_005",
+    "task_type": "review",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 6.903,
+    "estimated_hours": 62.214,
+    "deadline_days": 22,
+    "required_skills": [
+      "fastapi",
+      "react",
+      "sql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-06T12:37:20.133874+00:00",
+    "due_at": "2026-07-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000003",
+    "title": "Infra #0003 for project_003 [developers]",
+    "description": "Generated infra task with medium priority, complexity 8.731, and required skills: fastapi.",
+    "project_id": "project_003",
+    "task_type": "infra",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 8.731,
+    "estimated_hours": 17.649,
+    "deadline_days": 35,
+    "required_skills": [
+      "fastapi"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-05T12:37:20.133874+00:00",
+    "due_at": "2026-08-09T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000004",
+    "title": "Infra #0004 for project_003 [developers]",
+    "description": "Generated infra task with medium priority, complexity 3.567, and required skills: react.",
+    "project_id": "project_003",
+    "task_type": "infra",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 3.567,
+    "estimated_hours": 46.247,
+    "deadline_days": 26,
+    "required_skills": [
+      "react"
+    ],
+    "dependencies": [
+      "task_000003"
+    ],
+    "created_at": "2026-06-25T12:37:20.133874+00:00",
+    "due_at": "2026-07-21T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000005",
+    "title": "Refactor #0005 for project_001 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 8.086, and required skills: api_design.",
+    "project_id": "project_001",
+    "task_type": "refactor",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 8.086,
+    "estimated_hours": 42.587,
+    "deadline_days": 6,
+    "required_skills": [
+      "api_design"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-15T12:37:20.133874+00:00",
+    "due_at": "2026-06-21T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000006",
+    "title": "Test #0006 for project_001 [developers]",
+    "description": "Generated test task with medium priority, complexity 5.412, and required skills: api_design, ci_cd, ml, sql.",
+    "project_id": "project_001",
+    "task_type": "test",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 5.412,
+    "estimated_hours": 64.822,
+    "deadline_days": 5,
+    "required_skills": [
+      "api_design",
+      "ci_cd",
+      "ml",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-16T12:37:20.133874+00:00",
+    "due_at": "2026-06-21T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000007",
+    "title": "Infra #0007 for project_001 [developers]",
+    "description": "Generated infra task with medium priority, complexity 4.835, and required skills: react.",
+    "project_id": "project_001",
+    "task_type": "infra",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 4.835,
+    "estimated_hours": 10.216,
+    "deadline_days": 30,
+    "required_skills": [
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-07T12:37:20.133874+00:00",
+    "due_at": "2026-08-06T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000008",
+    "title": "Infra #0008 for project_004 [developers]",
+    "description": "Generated infra task with medium priority, complexity 5.836, and required skills: api_design, ml, python, typescript.",
+    "project_id": "project_004",
+    "task_type": "infra",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 5.836,
+    "estimated_hours": 69.166,
+    "deadline_days": 14,
+    "required_skills": [
+      "api_design",
+      "ml",
+      "python",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-07-06T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000009",
+    "title": "Bugfix #0009 for project_002 [developers]",
+    "description": "Generated bugfix task with medium priority, complexity 8.863, and required skills: debugging, sql, typescript.",
+    "project_id": "project_002",
+    "task_type": "bugfix",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 8.863,
+    "estimated_hours": 65.542,
+    "deadline_days": 8,
+    "required_skills": [
+      "debugging",
+      "sql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-07T12:37:20.133874+00:00",
+    "due_at": "2026-07-15T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000010",
+    "title": "Documentation #0010 for project_005 [developers]",
+    "description": "Generated documentation task with high priority, complexity 5.5, and required skills: debugging, postgresql, testing.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "review",
+    "priority": "high",
+    "complexity": 5.5,
+    "estimated_hours": 55.894,
+    "deadline_days": 8,
+    "required_skills": [
+      "debugging",
+      "postgresql",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-06-29T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000011",
+    "title": "Refactor #0011 for project_002 [developers]",
+    "description": "Generated refactor task with high priority, complexity 3.332, and required skills: ci_cd, ml, testing.",
+    "project_id": "project_002",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 3.332,
+    "estimated_hours": 69.073,
+    "deadline_days": 42,
+    "required_skills": [
+      "ci_cd",
+      "ml",
+      "testing"
+    ],
+    "dependencies": [
+      "task_000008"
+    ],
+    "created_at": "2026-06-10T12:37:20.133874+00:00",
+    "due_at": "2026-07-22T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000012",
+    "title": "Research #0012 for project_003 [developers]",
+    "description": "Generated research task with medium priority, complexity 2.2, and required skills: react.",
+    "project_id": "project_003",
+    "task_type": "research",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 2.2,
+    "estimated_hours": 37.783,
+    "deadline_days": 32,
+    "required_skills": [
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-28T12:37:20.133874+00:00",
+    "due_at": "2026-07-30T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000013",
+    "title": "Bugfix #0013 for project_004 [developers]",
+    "description": "Generated bugfix task with low priority, complexity 3.313, and required skills: ci_cd, data_processing, python, sql.",
+    "project_id": "project_004",
+    "task_type": "bugfix",
+    "status": "in_progress",
+    "priority": "low",
+    "complexity": 3.313,
+    "estimated_hours": 31.953,
+    "deadline_days": 23,
+    "required_skills": [
+      "ci_cd",
+      "data_processing",
+      "python",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-05T12:37:20.133874+00:00",
+    "due_at": "2026-07-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000014",
+    "title": "Review #0014 for project_002 [developers]",
+    "description": "Generated review task with medium priority, complexity 9.186, and required skills: testing.",
+    "project_id": "project_002",
+    "task_type": "review",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 9.186,
+    "estimated_hours": 31.879,
+    "deadline_days": 37,
+    "required_skills": [
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-17T12:37:20.133874+00:00",
+    "due_at": "2026-07-24T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000015",
+    "title": "Review #0015 for project_002 [developers]",
+    "description": "Generated review task with medium priority, complexity 3.05, and required skills: ml.",
+    "project_id": "project_002",
+    "task_type": "review",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 3.05,
+    "estimated_hours": 2.05,
+    "deadline_days": 14,
+    "required_skills": [
+      "ml"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-06T12:37:20.133874+00:00",
+    "due_at": "2026-07-20T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000016",
+    "title": "Infra #0016 for project_001 [developers]",
+    "description": "Generated infra task with medium priority, complexity 7.778, and required skills: postgresql.",
+    "project_id": "project_001",
+    "task_type": "infra",
+    "status": "blocked",
+    "priority": "medium",
+    "complexity": 7.778,
+    "estimated_hours": 11.139,
+    "deadline_days": 6,
+    "required_skills": [
+      "postgresql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-08T12:37:20.133874+00:00",
+    "due_at": "2026-07-14T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000017",
+    "title": "Bugfix #0017 for project_005 [developers]",
+    "description": "Generated bugfix task with critical priority, complexity 8.2, and required skills: ci_cd, javascript, ml, testing.",
+    "project_id": "project_005",
+    "task_type": "bugfix",
+    "status": "todo",
+    "priority": "critical",
+    "complexity": 8.2,
+    "estimated_hours": 66.365,
+    "deadline_days": 32,
+    "required_skills": [
+      "ci_cd",
+      "javascript",
+      "ml",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-17T12:37:20.133874+00:00",
+    "due_at": "2026-07-19T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000018",
+    "title": "Bugfix #0018 for project_004 [developers]",
+    "description": "Generated bugfix task with medium priority, complexity 3.48, and required skills: javascript.",
+    "project_id": "project_004",
+    "task_type": "bugfix",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 3.48,
+    "estimated_hours": 20.328,
+    "deadline_days": 40,
+    "required_skills": [
+      "javascript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-08T12:37:20.133874+00:00",
+    "due_at": "2026-08-17T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000019",
+    "title": "Documentation #0019 for project_001 [developers]",
+    "description": "Generated documentation task with high priority, complexity 3.624, and required skills: ci_cd, debugging, docker, sql.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 3.624,
+    "estimated_hours": 50.906,
+    "deadline_days": 8,
+    "required_skills": [
+      "ci_cd",
+      "debugging",
+      "docker",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-06-29T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000020",
+    "title": "Feature #0020 for project_003 [developers]",
+    "description": "Generated feature task with low priority, complexity 2.126, and required skills: data_processing, sql.",
+    "project_id": "project_003",
+    "task_type": "feature",
+    "status": "in_progress",
+    "priority": "low",
+    "complexity": 2.126,
+    "estimated_hours": 75.163,
+    "deadline_days": 19,
+    "required_skills": [
+      "data_processing",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-13T12:37:20.133874+00:00",
+    "due_at": "2026-07-02T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000021",
+    "title": "Refactor #0021 for project_004 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 4.46, and required skills: ci_cd, data_processing, debugging, sql.",
+    "project_id": "project_004",
+    "task_type": "refactor",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 4.46,
+    "estimated_hours": 75.494,
+    "deadline_days": 9,
+    "required_skills": [
+      "ci_cd",
+      "data_processing",
+      "debugging",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-13T12:37:20.133874+00:00",
+    "due_at": "2026-06-22T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000022",
+    "title": "Documentation #0022 for project_001 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 2.922, and required skills: debugging, fastapi, react.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "failed",
+    "priority": "medium",
+    "complexity": 2.922,
+    "estimated_hours": 79.295,
+    "deadline_days": 18,
+    "required_skills": [
+      "debugging",
+      "fastapi",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-19T12:37:20.133874+00:00",
+    "due_at": "2026-07-07T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000023",
+    "title": "Documentation #0023 for project_003 [developers]",
+    "description": "Generated documentation task with low priority, complexity 1.145, and required skills: postgresql, typescript.",
+    "project_id": "project_003",
+    "task_type": "documentation",
+    "status": "failed",
+    "priority": "low",
+    "complexity": 1.145,
+    "estimated_hours": 27.957,
+    "deadline_days": 32,
+    "required_skills": [
+      "postgresql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-05T12:37:20.133874+00:00",
+    "due_at": "2026-08-06T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000024",
+    "title": "Feature #0024 for project_004 [developers]",
+    "description": "Generated feature task with critical priority, complexity 3.803, and required skills: fastapi, react.",
+    "project_id": "project_004",
+    "task_type": "feature",
+    "status": "failed",
+    "priority": "critical",
+    "complexity": 3.803,
+    "estimated_hours": 69.928,
+    "deadline_days": 21,
+    "required_skills": [
+      "fastapi",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-07T12:37:20.133874+00:00",
+    "due_at": "2026-07-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000025",
+    "title": "Documentation #0025 for project_005 [developers]",
+    "description": "Generated documentation task with high priority, complexity 4.724, and required skills: testing.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 4.724,
+    "estimated_hours": 29.856,
+    "deadline_days": 5,
+    "required_skills": [
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-01T12:37:20.133874+00:00",
+    "due_at": "2026-07-06T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000026",
+    "title": "Bugfix #0026 for project_001 [developers]",
+    "description": "Generated bugfix task with critical priority, complexity 9.863, and required skills: testing.",
+    "project_id": "project_001",
+    "task_type": "bugfix",
+    "status": "todo",
+    "priority": "critical",
+    "complexity": 9.863,
+    "estimated_hours": 24.772,
+    "deadline_days": 33,
+    "required_skills": [
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-17T12:37:20.133874+00:00",
+    "due_at": "2026-07-20T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000027",
+    "title": "Refactor #0027 for project_002 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 2.941, and required skills: api_design, data_processing, python, testing.",
+    "project_id": "project_002",
+    "task_type": "refactor",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 2.941,
+    "estimated_hours": 30.379,
+    "deadline_days": 19,
+    "required_skills": [
+      "api_design",
+      "data_processing",
+      "python",
+      "testing"
+    ],
+    "dependencies": [
+      "task_000009",
+      "task_000011"
+    ],
+    "created_at": "2026-07-02T12:37:20.133874+00:00",
+    "due_at": "2026-07-21T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000028",
+    "title": "Documentation #0028 for project_005 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 4.244, and required skills: data_processing.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 4.244,
+    "estimated_hours": 75.66,
+    "deadline_days": 32,
+    "required_skills": [
+      "data_processing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-01T12:37:20.133874+00:00",
+    "due_at": "2026-08-02T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000029",
+    "title": "Research #0029 for project_005 [developers]",
+    "description": "Generated research task with high priority, complexity 7.653, and required skills: docker.",
+    "project_id": "project_005",
+    "task_type": "research",
+    "status": "done",
+    "priority": "high",
+    "complexity": 7.653,
+    "estimated_hours": 48.834,
+    "deadline_days": 11,
+    "required_skills": [
+      "docker"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-23T12:37:20.133874+00:00",
+    "due_at": "2026-07-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000030",
+    "title": "Research #0030 for project_004 [developers]",
+    "description": "Generated research task with critical priority, complexity 5.427, and required skills: api_design, docker, ml, react.",
+    "project_id": "project_004",
+    "task_type": "research",
+    "status": "done",
+    "priority": "critical",
+    "complexity": 5.427,
+    "estimated_hours": 56.494,
+    "deadline_days": 8,
+    "required_skills": [
+      "api_design",
+      "docker",
+      "ml",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-23T12:37:20.133874+00:00",
+    "due_at": "2026-07-01T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000031",
+    "title": "Infra #0031 for project_002 [developers]",
+    "description": "Generated infra task with low priority, complexity 1.746, and required skills: ci_cd, docker, fastapi, postgresql.",
+    "project_id": "project_002",
+    "task_type": "infra",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 1.746,
+    "estimated_hours": 51.048,
+    "deadline_days": 27,
+    "required_skills": [
+      "ci_cd",
+      "docker",
+      "fastapi",
+      "postgresql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-14T12:37:20.133874+00:00",
+    "due_at": "2026-07-11T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000032",
+    "title": "Review #0032 for project_002 [developers]",
+    "description": "Generated review task with medium priority, complexity 9.462, and required skills: ci_cd, ml, react.",
+    "project_id": "project_002",
+    "task_type": "review",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 9.462,
+    "estimated_hours": 30.899,
+    "deadline_days": 1,
+    "required_skills": [
+      "ci_cd",
+      "ml",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-06T12:37:20.133874+00:00",
+    "due_at": "2026-07-07T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000033",
+    "title": "Refactor #0033 for project_005 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 9.585, and required skills: ambiguous_requirement, data_processing, testing.",
+    "project_id": "project_005",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 9.585,
+    "estimated_hours": 27.148,
+    "deadline_days": 39,
+    "required_skills": [
+      "ambiguous_requirement",
+      "data_processing",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-26T12:37:20.133874+00:00",
+    "due_at": "2026-08-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000034",
+    "title": "Test #0034 for project_001 [developers]",
+    "description": "Generated test task with low priority, complexity 6.011, and required skills: fastapi, python, react, testing.",
+    "project_id": "project_001",
+    "task_type": "test",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 6.011,
+    "estimated_hours": 5.28,
+    "deadline_days": 20,
+    "required_skills": [
+      "fastapi",
+      "python",
+      "react",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-26T12:37:20.133874+00:00",
+    "due_at": "2026-07-16T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000035",
+    "title": "Test #0035 for project_005 [developers]",
+    "description": "Generated test task with medium priority, complexity 7.105, and required skills: ci_cd, javascript, ml.",
+    "project_id": "project_005",
+    "task_type": "test",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 7.105,
+    "estimated_hours": 1.988,
+    "deadline_days": 21,
+    "required_skills": [
+      "ci_cd",
+      "javascript",
+      "ml"
+    ],
+    "dependencies": [
+      "task_000006"
+    ],
+    "created_at": "2026-06-13T12:37:20.133874+00:00",
+    "due_at": "2026-07-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000036",
+    "title": "Refactor #0036 for project_003 [developers]",
+    "description": "Generated refactor task with high priority, complexity 8.173, and required skills: api_design, javascript.",
+    "project_id": "project_003",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 8.173,
+    "estimated_hours": 4.47,
+    "deadline_days": 34,
+    "required_skills": [
+      "api_design",
+      "javascript"
+    ],
+    "dependencies": [
+      "task_000024"
+    ],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-07-26T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000037",
+    "title": "Infra #0037 for project_002 [developers]",
+    "description": "Generated infra task with medium priority, complexity 9.767, and required skills: javascript, react, sql, typescript.",
+    "project_id": "project_002",
+    "task_type": "infra",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 9.767,
+    "estimated_hours": 78.215,
+    "deadline_days": 21,
+    "required_skills": [
+      "javascript",
+      "react",
+      "sql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-08T12:37:20.133874+00:00",
+    "due_at": "2026-06-29T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000038",
+    "title": "Test #0038 for project_005 [developers]",
+    "description": "Generated test task with high priority, complexity 4.54, and required skills: ci_cd, python, typescript.",
+    "project_id": "project_005",
+    "task_type": "test",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 4.54,
+    "estimated_hours": 9.984,
+    "deadline_days": 2,
+    "required_skills": [
+      "ci_cd",
+      "python",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-25T12:37:20.133874+00:00",
+    "due_at": "2026-06-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000039",
+    "title": "Bugfix #0039 for project_002 [developers]",
+    "description": "Generated bugfix task with medium priority, complexity 9.195, and required skills: debugging, missing_domain_context, postgresql, testing.",
+    "project_id": "project_002",
+    "task_type": "bugfix",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 9.195,
+    "estimated_hours": 2.311,
+    "deadline_days": 16,
+    "required_skills": [
+      "debugging",
+      "missing_domain_context",
+      "postgresql",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-12T12:37:20.133874+00:00",
+    "due_at": "2026-06-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000040",
+    "title": "Infra #0040 for project_002 [developers]",
+    "description": "Generated infra task with medium priority, complexity 5.677, and required skills: api_design, sql, testing.",
+    "project_id": "project_002",
+    "task_type": "infra",
+    "status": "failed",
+    "priority": "medium",
+    "complexity": 5.677,
+    "estimated_hours": 62.176,
+    "deadline_days": 13,
+    "required_skills": [
+      "api_design",
+      "sql",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-02T12:37:20.133874+00:00",
+    "due_at": "2026-07-15T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000041",
+    "title": "Review #0041 for project_003 [developers]",
+    "description": "Generated review task with critical priority, complexity 1.489, and required skills: data_processing.",
+    "project_id": "project_003",
+    "task_type": "review",
+    "status": "in_progress",
+    "priority": "critical",
+    "complexity": 1.489,
+    "estimated_hours": 36.476,
+    "deadline_days": 9,
+    "required_skills": [
+      "data_processing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-04T12:37:20.133874+00:00",
+    "due_at": "2026-07-13T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000042",
+    "title": "Documentation #0042 for project_002 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 4.092, and required skills: javascript.",
+    "project_id": "project_002",
+    "task_type": "documentation",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 4.092,
+    "estimated_hours": 12.094,
+    "deadline_days": 23,
+    "required_skills": [
+      "javascript"
+    ],
+    "dependencies": [
+      "task_000001",
+      "task_000036"
+    ],
+    "created_at": "2026-06-14T12:37:20.133874+00:00",
+    "due_at": "2026-07-07T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000043",
+    "title": "Feature #0043 for project_004 [developers]",
+    "description": "Generated feature task with high priority, complexity 2.706, and required skills: debugging.",
+    "project_id": "project_004",
+    "task_type": "feature",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 2.706,
+    "estimated_hours": 6.592,
+    "deadline_days": 14,
+    "required_skills": [
+      "debugging"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-07-05T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000044",
+    "title": "Research #0044 for project_004 [developers]",
+    "description": "Generated research task with medium priority, complexity 5.879, and required skills: react, sql.",
+    "project_id": "project_004",
+    "task_type": "research",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 5.879,
+    "estimated_hours": 79.992,
+    "deadline_days": 33,
+    "required_skills": [
+      "react",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-24T12:37:20.133874+00:00",
+    "due_at": "2026-07-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000045",
+    "title": "Refactor #0045 for project_001 [developers]",
+    "description": "Generated refactor task with low priority, complexity 1.539, and required skills: data_processing, fastapi, sql.",
+    "project_id": "project_001",
+    "task_type": "refactor",
+    "status": "done",
+    "priority": "low",
+    "complexity": 1.539,
+    "estimated_hours": 39.697,
+    "deadline_days": 31,
+    "required_skills": [
+      "data_processing",
+      "fastapi",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-08T12:37:20.133874+00:00",
+    "due_at": "2026-08-08T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000046",
+    "title": "Documentation #0046 for project_003 [developers]",
+    "description": "Generated documentation task with critical priority, complexity 7.034, and required skills: postgresql.",
+    "project_id": "project_003",
+    "task_type": "documentation",
+    "status": "in_progress",
+    "priority": "critical",
+    "complexity": 7.034,
+    "estimated_hours": 13.073,
+    "deadline_days": 28,
+    "required_skills": [
+      "postgresql"
+    ],
+    "dependencies": [
+      "task_000024",
+      "task_000039",
+      "task_000042"
+    ],
+    "created_at": "2026-06-28T12:37:20.133874+00:00",
+    "due_at": "2026-07-26T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000047",
+    "title": "Refactor #0047 for project_005 [developers]",
+    "description": "Generated refactor task with high priority, complexity 5.012, and required skills: debugging, docker, postgresql, react.",
+    "project_id": "project_005",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 5.012,
+    "estimated_hours": 39.104,
+    "deadline_days": 8,
+    "required_skills": [
+      "debugging",
+      "docker",
+      "postgresql",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-06-29T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000048",
+    "title": "Test #0048 for project_002 [developers]",
+    "description": "Generated test task with critical priority, complexity 3.789, and required skills: api_design, python, react, sql.",
+    "project_id": "project_002",
+    "task_type": "test",
+    "status": "todo",
+    "priority": "critical",
+    "complexity": 3.789,
+    "estimated_hours": 76.391,
+    "deadline_days": 31,
+    "required_skills": [
+      "api_design",
+      "python",
+      "react",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-30T12:37:20.133874+00:00",
+    "due_at": "2026-07-31T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000049",
+    "title": "Test #0049 for project_005 [developers]",
+    "description": "Generated test task with high priority, complexity 5.688, and required skills: python, react, testing, typescript.",
+    "project_id": "project_005",
+    "task_type": "test",
+    "status": "blocked",
+    "priority": "high",
+    "complexity": 5.688,
+    "estimated_hours": 13.704,
+    "deadline_days": 6,
+    "required_skills": [
+      "python",
+      "react",
+      "testing",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-06-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000050",
+    "title": "Refactor #0050 for project_002 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 9.757, and required skills: debugging.",
+    "project_id": "project_002",
+    "task_type": "refactor",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 9.757,
+    "estimated_hours": 28.089,
+    "deadline_days": 26,
+    "required_skills": [
+      "debugging"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-13T12:37:20.133874+00:00",
+    "due_at": "2026-07-09T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000051",
+    "title": "Bugfix #0051 for project_001 [developers]",
+    "description": "Generated bugfix task with low priority, complexity 3.002, and required skills: javascript, ml, react, testing.",
+    "project_id": "project_001",
+    "task_type": "bugfix",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 3.002,
+    "estimated_hours": 38.183,
+    "deadline_days": 7,
+    "required_skills": [
+      "javascript",
+      "ml",
+      "react",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-04T12:37:20.133874+00:00",
+    "due_at": "2026-07-11T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000052",
+    "title": "Review #0052 for project_005 [developers]",
+    "description": "Generated review task with medium priority, complexity 1.795, and required skills: data_processing, docker, fastapi, testing.",
+    "project_id": "project_005",
+    "task_type": "review",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 1.795,
+    "estimated_hours": 24.965,
+    "deadline_days": 45,
+    "required_skills": [
+      "data_processing",
+      "docker",
+      "fastapi",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-03T12:37:20.133874+00:00",
+    "due_at": "2026-08-17T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000053",
+    "title": "Bugfix #0053 for project_002 [developers]",
+    "description": "Generated bugfix task with medium priority, complexity 2.64, and required skills: ci_cd, postgresql, python.",
+    "project_id": "project_002",
+    "task_type": "bugfix",
+    "status": "failed",
+    "priority": "medium",
+    "complexity": 2.64,
+    "estimated_hours": 49.076,
+    "deadline_days": 24,
+    "required_skills": [
+      "ci_cd",
+      "postgresql",
+      "python"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-19T12:37:20.133874+00:00",
+    "due_at": "2026-07-13T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000054",
+    "title": "Feature #0054 for project_004 [developers]",
+    "description": "Generated feature task with low priority, complexity 7.018, and required skills: ci_cd.",
+    "project_id": "project_004",
+    "task_type": "feature",
+    "status": "done",
+    "priority": "low",
+    "complexity": 7.018,
+    "estimated_hours": 11.575,
+    "deadline_days": 3,
+    "required_skills": [
+      "ci_cd"
+    ],
+    "dependencies": [
+      "task_000005",
+      "task_000019"
+    ],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-06-25T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000055",
+    "title": "Feature #0055 for project_004 [developers]",
+    "description": "Generated feature task with medium priority, complexity 2.634, and required skills: ci_cd, debugging, docker, python.",
+    "project_id": "project_004",
+    "task_type": "feature",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 2.634,
+    "estimated_hours": 8.073,
+    "deadline_days": 35,
+    "required_skills": [
+      "ci_cd",
+      "debugging",
+      "docker",
+      "python"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-14T12:37:20.133874+00:00",
+    "due_at": "2026-07-19T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000056",
+    "title": "Review #0056 for project_005 [developers]",
+    "description": "Generated review task with medium priority, complexity 3.581, and required skills: docker, python, react, typescript.",
+    "project_id": "project_005",
+    "task_type": "review",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 3.581,
+    "estimated_hours": 44.821,
+    "deadline_days": 23,
+    "required_skills": [
+      "docker",
+      "python",
+      "react",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-09T12:37:20.133874+00:00",
+    "due_at": "2026-07-02T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000057",
+    "title": "Documentation #0057 for project_005 [developers]",
+    "description": "Generated documentation task with high priority, complexity 6.432, and required skills: docker, postgresql, react.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 6.432,
+    "estimated_hours": 69.667,
+    "deadline_days": 5,
+    "required_skills": [
+      "docker",
+      "postgresql",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-25T12:37:20.133874+00:00",
+    "due_at": "2026-06-30T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000058",
+    "title": "Bugfix #0058 for project_004 [developers]",
+    "description": "Generated bugfix task with low priority, complexity 4.798, and required skills: debugging, fastapi, missing_domain_context.",
+    "project_id": "project_004",
+    "task_type": "bugfix",
+    "status": "in_progress",
+    "priority": "low",
+    "complexity": 4.798,
+    "estimated_hours": 76.341,
+    "deadline_days": 38,
+    "required_skills": [
+      "debugging",
+      "fastapi",
+      "missing_domain_context"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-11T12:37:20.133874+00:00",
+    "due_at": "2026-07-19T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000059",
+    "title": "Documentation #0059 for project_005 [developers]",
+    "description": "Generated documentation task with low priority, complexity 7.384, and required skills: sql, testing.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "in_progress",
+    "priority": "low",
+    "complexity": 7.384,
+    "estimated_hours": 3.432,
+    "deadline_days": 34,
+    "required_skills": [
+      "sql",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-12T12:37:20.133874+00:00",
+    "due_at": "2026-07-16T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000060",
+    "title": "Review #0060 for project_002 [developers]",
+    "description": "Generated review task with medium priority, complexity 9.272, and required skills: api_design, ci_cd, javascript.",
+    "project_id": "project_002",
+    "task_type": "review",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 9.272,
+    "estimated_hours": 16.819,
+    "deadline_days": 30,
+    "required_skills": [
+      "api_design",
+      "ci_cd",
+      "javascript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-01T12:37:20.133874+00:00",
+    "due_at": "2026-07-31T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000061",
+    "title": "Refactor #0061 for project_001 [developers]",
+    "description": "Generated refactor task with critical priority, complexity 5.203, and required skills: ci_cd, fastapi, postgresql.",
+    "project_id": "project_001",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "critical",
+    "complexity": 5.203,
+    "estimated_hours": 3.594,
+    "deadline_days": 30,
+    "required_skills": [
+      "ci_cd",
+      "fastapi",
+      "postgresql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-25T12:37:20.133874+00:00",
+    "due_at": "2026-07-25T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000062",
+    "title": "Infra #0062 for project_003 [developers]",
+    "description": "Generated infra task with medium priority, complexity 8.861, and required skills: sql, typescript.",
+    "project_id": "project_003",
+    "task_type": "infra",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 8.861,
+    "estimated_hours": 51.489,
+    "deadline_days": 29,
+    "required_skills": [
+      "sql",
+      "typescript"
+    ],
+    "dependencies": [
+      "task_000018"
+    ],
+    "created_at": "2026-06-30T12:37:20.133874+00:00",
+    "due_at": "2026-07-29T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000063",
+    "title": "Refactor #0063 for project_004 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 1.229, and required skills: python.",
+    "project_id": "project_004",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 1.229,
+    "estimated_hours": 59.555,
+    "deadline_days": 9,
+    "required_skills": [
+      "python"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-18T12:37:20.133874+00:00",
+    "due_at": "2026-06-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000064",
+    "title": "Feature #0064 for project_005 [developers]",
+    "description": "Generated feature task with low priority, complexity 2.051, and required skills: fastapi.",
+    "project_id": "project_005",
+    "task_type": "feature",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 2.051,
+    "estimated_hours": 56.866,
+    "deadline_days": 34,
+    "required_skills": [
+      "fastapi"
+    ],
+    "dependencies": [
+      "task_000040"
+    ],
+    "created_at": "2026-06-30T12:37:20.133874+00:00",
+    "due_at": "2026-08-03T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000065",
+    "title": "Feature #0065 for project_002 [developers]",
+    "description": "Generated feature task with low priority, complexity 5.361, and required skills: ml.",
+    "project_id": "project_002",
+    "task_type": "feature",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 5.361,
+    "estimated_hours": 60.874,
+    "deadline_days": 41,
+    "required_skills": [
+      "ml"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-24T12:37:20.133874+00:00",
+    "due_at": "2026-08-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000066",
+    "title": "Research #0066 for project_001 [developers]",
+    "description": "Generated research task with low priority, complexity 2.087, and required skills: ambiguous_requirement, docker, javascript, python, react.",
+    "project_id": "project_001",
+    "task_type": "research",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 2.087,
+    "estimated_hours": 66.082,
+    "deadline_days": 31,
+    "required_skills": [
+      "ambiguous_requirement",
+      "docker",
+      "javascript",
+      "python",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-14T12:37:20.133874+00:00",
+    "due_at": "2026-07-15T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000067",
+    "title": "Infra #0067 for project_001 [developers]",
+    "description": "Generated infra task with medium priority, complexity 1.77, and required skills: python, react.",
+    "project_id": "project_001",
+    "task_type": "infra",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 1.77,
+    "estimated_hours": 36.451,
+    "deadline_days": 39,
+    "required_skills": [
+      "python",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-15T12:37:20.133874+00:00",
+    "due_at": "2026-07-24T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000068",
+    "title": "Research #0068 for project_005 [developers]",
+    "description": "Generated research task with low priority, complexity 9.546, and required skills: docker, postgresql, python, react.",
+    "project_id": "project_005",
+    "task_type": "research",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 9.546,
+    "estimated_hours": 55.837,
+    "deadline_days": 3,
+    "required_skills": [
+      "docker",
+      "postgresql",
+      "python",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-11T12:37:20.133874+00:00",
+    "due_at": "2026-06-14T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000069",
+    "title": "Research #0069 for project_002 [developers]",
+    "description": "Generated research task with medium priority, complexity 2.629, and required skills: ml, typescript.",
+    "project_id": "project_002",
+    "task_type": "research",
+    "status": "blocked",
+    "priority": "medium",
+    "complexity": 2.629,
+    "estimated_hours": 18.68,
+    "deadline_days": 15,
+    "required_skills": [
+      "ml",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-08T12:37:20.133874+00:00",
+    "due_at": "2026-06-23T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000070",
+    "title": "Refactor #0070 for project_004 [developers]",
+    "description": "Generated refactor task with high priority, complexity 3.507, and required skills: debugging, ml.",
+    "project_id": "project_004",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 3.507,
+    "estimated_hours": 43.376,
+    "deadline_days": 7,
+    "required_skills": [
+      "debugging",
+      "ml"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-06-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000071",
+    "title": "Test #0071 for project_003 [developers]",
+    "description": "Generated test task with medium priority, complexity 6.713, and required skills: fastapi, python, react.",
+    "project_id": "project_003",
+    "task_type": "test",
+    "status": "blocked",
+    "priority": "medium",
+    "complexity": 6.713,
+    "estimated_hours": 46.695,
+    "deadline_days": 36,
+    "required_skills": [
+      "fastapi",
+      "python",
+      "react"
+    ],
+    "dependencies": [
+      "task_000022"
+    ],
+    "created_at": "2026-06-30T12:37:20.133874+00:00",
+    "due_at": "2026-08-05T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000072",
+    "title": "Bugfix #0072 for project_005 [developers]",
+    "description": "Generated bugfix task with low priority, complexity 9.649, and required skills: ml.",
+    "project_id": "project_005",
+    "task_type": "bugfix",
+    "status": "done",
+    "priority": "low",
+    "complexity": 9.649,
+    "estimated_hours": 79.86,
+    "deadline_days": 20,
+    "required_skills": [
+      "ml"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-27T12:37:20.133874+00:00",
+    "due_at": "2026-07-17T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000073",
+    "title": "Review #0073 for project_003 [developers]",
+    "description": "Generated review task with low priority, complexity 5.776, and required skills: debugging, typescript.",
+    "project_id": "project_003",
+    "task_type": "review",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 5.776,
+    "estimated_hours": 44.179,
+    "deadline_days": 28,
+    "required_skills": [
+      "debugging",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-09T12:37:20.133874+00:00",
+    "due_at": "2026-07-07T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000074",
+    "title": "Infra #0074 for project_003 [developers]",
+    "description": "Generated infra task with low priority, complexity 1.992, and required skills: api_design, fastapi, python.",
+    "project_id": "project_003",
+    "task_type": "infra",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 1.992,
+    "estimated_hours": 35.326,
+    "deadline_days": 14,
+    "required_skills": [
+      "api_design",
+      "fastapi",
+      "python"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-23T12:37:20.133874+00:00",
+    "due_at": "2026-07-07T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000075",
+    "title": "Bugfix #0075 for project_002 [developers]",
+    "description": "Generated bugfix task with low priority, complexity 1.555, and required skills: testing.",
+    "project_id": "project_002",
+    "task_type": "bugfix",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 1.555,
+    "estimated_hours": 75.454,
+    "deadline_days": 16,
+    "required_skills": [
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-15T12:37:20.133874+00:00",
+    "due_at": "2026-07-01T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000076",
+    "title": "Documentation #0076 for project_001 [developers]",
+    "description": "Generated documentation task with low priority, complexity 5.998, and required skills: postgresql, python, react, sql.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 5.998,
+    "estimated_hours": 48.56,
+    "deadline_days": 38,
+    "required_skills": [
+      "postgresql",
+      "python",
+      "react",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-18T12:37:20.133874+00:00",
+    "due_at": "2026-07-26T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000077",
+    "title": "Documentation #0077 for project_001 [developers]",
+    "description": "Generated documentation task with critical priority, complexity 9.343, and required skills: ci_cd, data_processing, javascript, ml.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "done",
+    "priority": "critical",
+    "complexity": 9.343,
+    "estimated_hours": 70.762,
+    "deadline_days": 11,
+    "required_skills": [
+      "ci_cd",
+      "data_processing",
+      "javascript",
+      "ml"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-22T12:37:20.133874+00:00",
+    "due_at": "2026-07-03T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000078",
+    "title": "Infra #0078 for project_002 [developers]",
+    "description": "Generated infra task with low priority, complexity 8.498, and required skills: data_processing, python, testing.",
+    "project_id": "project_002",
+    "task_type": "infra",
+    "status": "done",
+    "priority": "low",
+    "complexity": 8.498,
+    "estimated_hours": 71.864,
+    "deadline_days": 14,
+    "required_skills": [
+      "data_processing",
+      "python",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-21T12:37:20.133874+00:00",
+    "due_at": "2026-07-05T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000079",
+    "title": "Infra #0079 for project_002 [developers]",
+    "description": "Generated infra task with high priority, complexity 5.227, and required skills: api_design, sql.",
+    "project_id": "project_002",
+    "task_type": "infra",
+    "status": "blocked",
+    "priority": "high",
+    "complexity": 5.227,
+    "estimated_hours": 72.372,
+    "deadline_days": 24,
+    "required_skills": [
+      "api_design",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-10T12:37:20.133874+00:00",
+    "due_at": "2026-07-04T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000080",
+    "title": "Feature #0080 for project_005 [developers]",
+    "description": "Generated feature task with medium priority, complexity 3.306, and required skills: data_processing, fastapi, sql.",
+    "project_id": "project_005",
+    "task_type": "feature",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 3.306,
+    "estimated_hours": 74.652,
+    "deadline_days": 29,
+    "required_skills": [
+      "data_processing",
+      "fastapi",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-28T12:37:20.133874+00:00",
+    "due_at": "2026-07-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000081",
+    "title": "Refactor #0081 for project_005 [developers]",
+    "description": "Generated refactor task with high priority, complexity 3.074, and required skills: debugging, testing.",
+    "project_id": "project_005",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 3.074,
+    "estimated_hours": 17.393,
+    "deadline_days": 18,
+    "required_skills": [
+      "debugging",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-25T12:37:20.133874+00:00",
+    "due_at": "2026-07-13T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000082",
+    "title": "Infra #0082 for project_003 [developers]",
+    "description": "Generated infra task with medium priority, complexity 7.069, and required skills: javascript, sql.",
+    "project_id": "project_003",
+    "task_type": "infra",
+    "status": "blocked",
+    "priority": "medium",
+    "complexity": 7.069,
+    "estimated_hours": 6.598,
+    "deadline_days": 22,
+    "required_skills": [
+      "javascript",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-04T12:37:20.133874+00:00",
+    "due_at": "2026-07-26T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000083",
+    "title": "Test #0083 for project_002 [developers]",
+    "description": "Generated test task with high priority, complexity 8.911, and required skills: api_design, external_vendor_dependency, javascript, sql.",
+    "project_id": "project_002",
+    "task_type": "test",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 8.911,
+    "estimated_hours": 32.684,
+    "deadline_days": 41,
+    "required_skills": [
+      "api_design",
+      "external_vendor_dependency",
+      "javascript",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-16T12:37:20.133874+00:00",
+    "due_at": "2026-07-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000084",
+    "title": "Infra #0084 for project_005 [developers]",
+    "description": "Generated infra task with medium priority, complexity 3.721, and required skills: ci_cd, data_processing, missing_domain_context.",
+    "project_id": "project_005",
+    "task_type": "infra",
+    "status": "review",
+    "priority": "medium",
+    "complexity": 3.721,
+    "estimated_hours": 23.999,
+    "deadline_days": 4,
+    "required_skills": [
+      "ci_cd",
+      "data_processing",
+      "missing_domain_context"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-02T12:37:20.133874+00:00",
+    "due_at": "2026-07-06T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000085",
+    "title": "Documentation #0085 for project_003 [developers]",
+    "description": "Generated documentation task with high priority, complexity 6.071, and required skills: javascript.",
+    "project_id": "project_003",
+    "task_type": "documentation",
+    "status": "done",
+    "priority": "high",
+    "complexity": 6.071,
+    "estimated_hours": 66.455,
+    "deadline_days": 44,
+    "required_skills": [
+      "javascript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-26T12:37:20.133874+00:00",
+    "due_at": "2026-08-09T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000086",
+    "title": "Bugfix #0086 for project_004 [developers]",
+    "description": "Generated bugfix task with medium priority, complexity 5.075, and required skills: fastapi, javascript.",
+    "project_id": "project_004",
+    "task_type": "bugfix",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 5.075,
+    "estimated_hours": 4.85,
+    "deadline_days": 19,
+    "required_skills": [
+      "fastapi",
+      "javascript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-14T12:37:20.133874+00:00",
+    "due_at": "2026-07-03T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000087",
+    "title": "Feature #0087 for project_001 [developers]",
+    "description": "Generated feature task with high priority, complexity 2.971, and required skills: debugging, postgresql, sql.",
+    "project_id": "project_001",
+    "task_type": "feature",
+    "status": "todo",
+    "priority": "high",
+    "complexity": 2.971,
+    "estimated_hours": 2.873,
+    "deadline_days": 13,
+    "required_skills": [
+      "debugging",
+      "postgresql",
+      "sql"
+    ],
+    "dependencies": [
+      "task_000009",
+      "task_000019",
+      "task_000048"
+    ],
+    "created_at": "2026-06-10T12:37:20.133874+00:00",
+    "due_at": "2026-06-23T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000088",
+    "title": "Documentation #0088 for project_003 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 7.547, and required skills: javascript, react, typescript.",
+    "project_id": "project_003",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 7.547,
+    "estimated_hours": 6.3,
+    "deadline_days": 15,
+    "required_skills": [
+      "javascript",
+      "react",
+      "typescript"
+    ],
+    "dependencies": [
+      "task_000004",
+      "task_000057"
+    ],
+    "created_at": "2026-06-12T12:37:20.133874+00:00",
+    "due_at": "2026-06-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000089",
+    "title": "Review #0089 for project_004 [developers]",
+    "description": "Generated review task with low priority, complexity 9.56, and required skills: debugging, fastapi.",
+    "project_id": "project_004",
+    "task_type": "review",
+    "status": "failed",
+    "priority": "low",
+    "complexity": 9.56,
+    "estimated_hours": 62.171,
+    "deadline_days": 2,
+    "required_skills": [
+      "debugging",
+      "fastapi"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-24T12:37:20.133874+00:00",
+    "due_at": "2026-06-26T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000090",
+    "title": "Documentation #0090 for project_002 [developers]",
+    "description": "Generated documentation task with low priority, complexity 4.099, and required skills: data_processing, docker, ml, react.",
+    "project_id": "project_002",
+    "task_type": "documentation",
+    "status": "done",
+    "priority": "low",
+    "complexity": 4.099,
+    "estimated_hours": 10.143,
+    "deadline_days": 8,
+    "required_skills": [
+      "data_processing",
+      "docker",
+      "ml",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-07T12:37:20.133874+00:00",
+    "due_at": "2026-07-15T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000091",
+    "title": "Feature #0091 for project_002 [developers]",
+    "description": "Generated feature task with medium priority, complexity 2.849, and required skills: ci_cd, react.",
+    "project_id": "project_002",
+    "task_type": "feature",
+    "status": "blocked",
+    "priority": "medium",
+    "complexity": 2.849,
+    "estimated_hours": 55.501,
+    "deadline_days": 8,
+    "required_skills": [
+      "ci_cd",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-19T12:37:20.133874+00:00",
+    "due_at": "2026-06-27T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000092",
+    "title": "Documentation #0092 for project_001 [developers]",
+    "description": "Generated documentation task with low priority, complexity 2.024, and required skills: ci_cd, docker, fastapi, testing.",
+    "project_id": "project_001",
+    "task_type": "documentation",
+    "status": "done",
+    "priority": "low",
+    "complexity": 2.024,
+    "estimated_hours": 3.441,
+    "deadline_days": 1,
+    "required_skills": [
+      "ci_cd",
+      "docker",
+      "fastapi",
+      "testing"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-27T12:37:20.133874+00:00",
+    "due_at": "2026-06-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000093",
+    "title": "Feature #0093 for project_004 [developers]",
+    "description": "Generated feature task with medium priority, complexity 4.521, and required skills: data_processing, docker, javascript, missing_domain_context, sql.",
+    "project_id": "project_004",
+    "task_type": "feature",
+    "status": "in_progress",
+    "priority": "medium",
+    "complexity": 4.521,
+    "estimated_hours": 49.588,
+    "deadline_days": 25,
+    "required_skills": [
+      "data_processing",
+      "docker",
+      "javascript",
+      "missing_domain_context",
+      "sql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-03T12:37:20.133874+00:00",
+    "due_at": "2026-07-28T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000094",
+    "title": "Feature #0094 for project_003 [developers]",
+    "description": "Generated feature task with high priority, complexity 3.714, and required skills: fastapi.",
+    "project_id": "project_003",
+    "task_type": "feature",
+    "status": "review",
+    "priority": "high",
+    "complexity": 3.714,
+    "estimated_hours": 40.061,
+    "deadline_days": 25,
+    "required_skills": [
+      "fastapi"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-30T12:37:20.133874+00:00",
+    "due_at": "2026-07-25T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000095",
+    "title": "Documentation #0095 for project_005 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 4.403, and required skills: docker, fastapi, testing, typescript.",
+    "project_id": "project_005",
+    "task_type": "documentation",
+    "status": "done",
+    "priority": "medium",
+    "complexity": 4.403,
+    "estimated_hours": 37.922,
+    "deadline_days": 31,
+    "required_skills": [
+      "docker",
+      "fastapi",
+      "testing",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-10T12:37:20.133874+00:00",
+    "due_at": "2026-07-11T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000096",
+    "title": "Refactor #0096 for project_002 [developers]",
+    "description": "Generated refactor task with medium priority, complexity 3.439, and required skills: fastapi, python, sql, typescript.",
+    "project_id": "project_002",
+    "task_type": "refactor",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 3.439,
+    "estimated_hours": 64.702,
+    "deadline_days": 18,
+    "required_skills": [
+      "fastapi",
+      "python",
+      "sql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-29T12:37:20.133874+00:00",
+    "due_at": "2026-07-17T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000097",
+    "title": "Documentation #0097 for project_002 [developers]",
+    "description": "Generated documentation task with low priority, complexity 3.266, and required skills: data_processing, postgresql.",
+    "project_id": "project_002",
+    "task_type": "documentation",
+    "status": "review",
+    "priority": "low",
+    "complexity": 3.266,
+    "estimated_hours": 13.572,
+    "deadline_days": 30,
+    "required_skills": [
+      "data_processing",
+      "postgresql"
+    ],
+    "dependencies": [],
+    "created_at": "2026-07-02T12:37:20.133874+00:00",
+    "due_at": "2026-08-01T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000098",
+    "title": "Feature #0098 for project_003 [developers]",
+    "description": "Generated feature task with medium priority, complexity 8.469, and required skills: data_processing, fastapi, postgresql, typescript.",
+    "project_id": "project_003",
+    "task_type": "feature",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 8.469,
+    "estimated_hours": 37.803,
+    "deadline_days": 32,
+    "required_skills": [
+      "data_processing",
+      "fastapi",
+      "postgresql",
+      "typescript"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-10T12:37:20.133874+00:00",
+    "due_at": "2026-07-12T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": true
+    }
+  },
+  {
+    "task_id": "task_000099",
+    "title": "Documentation #0099 for project_002 [developers]",
+    "description": "Generated documentation task with medium priority, complexity 4.98, and required skills: debugging.",
+    "project_id": "project_002",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "medium",
+    "complexity": 4.98,
+    "estimated_hours": 72.1,
+    "deadline_days": 6,
+    "required_skills": [
+      "debugging"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-12T12:37:20.133874+00:00",
+    "due_at": "2026-06-18T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  },
+  {
+    "task_id": "task_000100",
+    "title": "Documentation #0100 for project_004 [developers]",
+    "description": "Generated documentation task with low priority, complexity 3.554, and required skills: api_design, ci_cd, ml, react.",
+    "project_id": "project_004",
+    "task_type": "documentation",
+    "status": "todo",
+    "priority": "low",
+    "complexity": 3.554,
+    "estimated_hours": 77.456,
+    "deadline_days": 23,
+    "required_skills": [
+      "api_design",
+      "ci_cd",
+      "ml",
+      "react"
+    ],
+    "dependencies": [],
+    "created_at": "2026-06-15T12:37:20.133874+00:00",
+    "due_at": "2026-07-08T12:37:20.133874+00:00",
+    "custom_features": {
+      "requires_mentor": false
+    }
+  }
+]

@@ -7,6 +7,7 @@ import { renderReports } from "./pages/reports.js";
 import { renderSettings } from "./pages/settings.js";
 import { renderTraining } from "./pages/training.js";
 import { renderViewer } from "./pages/viewer.js";
+import { renderImportData } from "./pages/import_data.js";
 
 const routes = {
   "/": {
@@ -48,6 +49,11 @@ const routes = {
     title: "Settings",
     eyebrow: "Configuration",
     render: renderSettings,
+  },
+  "/import-data": {
+    title: "Import Data",
+    eyebrow: "External datasets",
+    render: renderImportData,
   },
 };
 

@@ -1,0 +1,268 @@
+[
+  {
+    "employee_id": "emp_000001",
+    "name": "Alex Volkov",
+    "role": "fullstack_engineer",
+    "grade": "senior",
+    "skills": [
+      "docker",
+      "fastapi",
+      "javascript",
+      "ml",
+      "postgresql"
+    ],
+    "availability_score": 0.0725,
+    "current_workload": 0.6979,
+    "fatigue_score": 0.3633,
+    "avg_completion_speed": 0.4104,
+    "avg_quality_score": 0.4392,
+    "deadline_reliability": 0.2408,
+    "mentor_level": 0.5645,
+    "learning_goals": [
+      "react"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000002",
+    "name": "Maria Volkov",
+    "role": "devops_engineer",
+    "grade": "senior",
+    "skills": [
+      "api_design",
+      "fastapi",
+      "ml",
+      "postgresql"
+    ],
+    "availability_score": 0.09,
+    "current_workload": 0.118,
+    "fatigue_score": 0.1319,
+    "avg_completion_speed": 0.4053,
+    "avg_quality_score": 0.5787,
+    "deadline_reliability": 0.3815,
+    "mentor_level": 0.6342,
+    "learning_goals": [
+      "data_processing",
+      "debugging"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000003",
+    "name": "Dmitry Volkov",
+    "role": "devops_engineer",
+    "grade": "middle",
+    "skills": [
+      "ci_cd",
+      "data_processing",
+      "fastapi",
+      "javascript",
+      "sql",
+      "typescript"
+    ],
+    "availability_score": 0.1152,
+    "current_workload": 0.1803,
+    "fatigue_score": 0.5777,
+    "avg_completion_speed": 0.4125,
+    "avg_quality_score": 0.3346,
+    "deadline_reliability": 0.349,
+    "mentor_level": 0.5168,
+    "learning_goals": [
+      "api_design",
+      "react"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000004",
+    "name": "Anna Volkov",
+    "role": "ml_engineer",
+    "grade": "senior",
+    "skills": [
+      "docker",
+      "fastapi",
+      "python",
+      "sql",
+      "testing"
+    ],
+    "availability_score": 0.886,
+    "current_workload": 0.4555,
+    "fatigue_score": 0.3606,
+    "avg_completion_speed": 0.5406,
+    "avg_quality_score": 0.5254,
+    "deadline_reliability": 0.5807,
+    "mentor_level": 0.6506,
+    "learning_goals": [
+      "javascript",
+      "ml",
+      "typescript"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000005",
+    "name": "Ivan Volkov",
+    "role": "fullstack_engineer",
+    "grade": "lead",
+    "skills": [
+      "ci_cd",
+      "data_processing",
+      "sql"
+    ],
+    "availability_score": 0.4635,
+    "current_workload": 0.123,
+    "fatigue_score": 0.2452,
+    "avg_completion_speed": 0.6492,
+    "avg_quality_score": 0.5266,
+    "deadline_reliability": 0.5604,
+    "mentor_level": 0.7908,
+    "learning_goals": [
+      "ml"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000006",
+    "name": "Elena Volkov",
+    "role": "backend_engineer",
+    "grade": "senior",
+    "skills": [
+      "fastapi",
+      "ml",
+      "python",
+      "react"
+    ],
+    "availability_score": 0.1267,
+    "current_workload": 0.1328,
+    "fatigue_score": 0.109,
+    "avg_completion_speed": 0.4333,
+    "avg_quality_score": 0.4829,
+    "deadline_reliability": 0.4377,
+    "mentor_level": 0.633,
+    "learning_goals": [
+      "ci_cd",
+      "debugging",
+      "sql"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000007",
+    "name": "Nikita Volkov",
+    "role": "ml_engineer",
+    "grade": "senior",
+    "skills": [
+      "debugging",
+      "python",
+      "react",
+      "sql",
+      "testing"
+    ],
+    "availability_score": 0.2708,
+    "current_workload": 0.2782,
+    "fatigue_score": 0.2554,
+    "avg_completion_speed": 0.4511,
+    "avg_quality_score": 0.5285,
+    "deadline_reliability": 0.4978,
+    "mentor_level": 0.7372,
+    "learning_goals": [
+      "api_design",
+      "data_processing",
+      "ml"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000008",
+    "name": "Sofia Volkov",
+    "role": "ml_engineer",
+    "grade": "middle",
+    "skills": [
+      "api_design",
+      "ci_cd",
+      "docker"
+    ],
+    "availability_score": 0.0,
+    "current_workload": 0.5598,
+    "fatigue_score": 0.5809,
+    "avg_completion_speed": 0.2285,
+    "avg_quality_score": 0.3861,
+    "deadline_reliability": 0.1799,
+    "mentor_level": 0.397,
+    "learning_goals": [
+      "debugging",
+      "python",
+      "react"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000009",
+    "name": "Mikhail Volkov",
+    "role": "ml_engineer",
+    "grade": "middle",
+    "skills": [
+      "api_design",
+      "fastapi",
+      "python",
+      "testing"
+    ],
+    "availability_score": 0.4265,
+    "current_workload": 0.6146,
+    "fatigue_score": 0.6265,
+    "avg_completion_speed": 0.4103,
+    "avg_quality_score": 0.4025,
+    "deadline_reliability": 0.4345,
+    "mentor_level": 0.4964,
+    "learning_goals": [
+      "data_processing",
+      "docker",
+      "javascript"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  },
+  {
+    "employee_id": "emp_000010",
+    "name": "Daria Volkov",
+    "role": "frontend_engineer",
+    "grade": "middle",
+    "skills": [
+      "api_design",
+      "docker",
+      "sql"
+    ],
+    "availability_score": 0.3269,
+    "current_workload": 0.4731,
+    "fatigue_score": 0.6088,
+    "avg_completion_speed": 0.2637,
+    "avg_quality_score": 0.3982,
+    "deadline_reliability": 0.3806,
+    "mentor_level": 0.4109,
+    "learning_goals": [
+      "data_processing",
+      "testing",
+      "typescript"
+    ],
+    "timezone": "UTC",
+    "team_id": "sandbox_team",
+    "custom_features": {}
+  }
+]

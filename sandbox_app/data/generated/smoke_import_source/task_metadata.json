@@ -1,0 +1,182 @@
+{
+  "dataset_id": "smoke_import_source",
+  "domain_profile": "developers",
+  "seed": 14002,
+  "created_at": "2026-07-08T12:37:20.137165+00:00",
+  "generator": "sandbox_app.backend.data_generation.tasks",
+  "schema_preview": {
+    "profile_id": "developers",
+    "name": "Developers",
+    "system": true,
+    "version": "1.0.0",
+    "roles_count": 7,
+    "grades_count": 4,
+    "skills_count": 14,
+    "task_types_count": 8,
+    "feature_counts": {
+      "employee": 8,
+      "outcome": 7,
+      "task": 6
+    },
+    "feature_names": {
+      "employee": [
+        "availability_score",
+        "current_workload",
+        "fatigue_score",
+        "avg_completion_speed",
+        "avg_quality_score",
+        "deadline_reliability",
+        "mentor_level",
+        "learning_goals"
+      ],
+      "outcome": [
+        "planned_hours",
+        "actual_hours",
+        "quality_score",
+        "deadline_status",
+        "outcome_label",
+        "was_rework_needed",
+        "feedback_score"
+      ],
+      "task": [
+        "priority",
+        "complexity",
+        "estimated_hours",
+        "deadline_days",
+        "required_skills",
+        "requires_mentor"
+      ]
+    },
+    "supported_feature_types": [
+      "boolean",
+      "categorical",
+      "numeric",
+      "skill_list",
+      "text"
+    ],
+    "editable": false
+  },
+  "settings": {
+    "tasks_count": 100,
+    "projects_count": 5,
+    "task_types": [
+      "feature",
+      "bugfix",
+      "refactor",
+      "test",
+      "infra",
+      "research",
+      "documentation",
+      "review"
+    ],
+    "priorities": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "required_skills_min": 1,
+    "required_skills_max": 4,
+    "complexity_min": 1.0,
+    "complexity_max": 10.0,
+    "estimated_hours_min": 1.0,
+    "estimated_hours_max": 80.0,
+    "deadline_days_min": 1.0,
+    "deadline_days_max": 45.0,
+    "dependencies_probability": 0.18,
+    "max_dependencies_per_task": 3,
+    "skill_mismatch_probability": 0.08,
+    "status_distribution": {
+      "todo": 0.42,
+      "in_progress": 0.16,
+      "review": 0.1,
+      "done": 0.18,
+      "blocked": 0.08,
+      "failed": 0.06
+    },
+    "priority_distribution": {
+      "low": 0.22,
+      "medium": 0.46,
+      "high": 0.24,
+      "critical": 0.08
+    }
+  },
+  "counts": {
+    "tasks": 100,
+    "backlog": 43,
+    "projects": 5
+  },
+  "kanban_summary": {
+    "total_tasks": 100,
+    "backlog_tasks": 43,
+    "status_counts": {
+      "todo": 43,
+      "in_progress": 15,
+      "review": 9,
+      "done": 20,
+      "blocked": 7,
+      "failed": 6
+    },
+    "priority_counts": {
+      "critical": 9,
+      "high": 19,
+      "low": 25,
+      "medium": 47
+    },
+    "backlog_priority_counts": {
+      "critical": 4,
+      "high": 13,
+      "low": 12,
+      "medium": 14
+    },
+    "project_status_counts": {
+      "project_001": {
+        "todo": 9,
+        "in_progress": 1,
+        "review": 1,
+        "done": 5,
+        "blocked": 1,
+        "failed": 1
+      },
+      "project_002": {
+        "todo": 10,
+        "in_progress": 4,
+        "review": 1,
+        "done": 6,
+        "blocked": 3,
+        "failed": 2
+      },
+      "project_003": {
+        "todo": 6,
+        "in_progress": 4,
+        "review": 2,
+        "done": 2,
+        "blocked": 2,
+        "failed": 1
+      },
+      "project_004": {
+        "todo": 6,
+        "in_progress": 4,
+        "review": 2,
+        "done": 3,
+        "blocked": 0,
+        "failed": 2
+      },
+      "project_005": {
+        "todo": 12,
+        "in_progress": 2,
+        "review": 3,
+        "done": 4,
+        "blocked": 1,
+        "failed": 0
+      }
+    }
+  },
+  "files": {
+    "tasks_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/tasks.json",
+    "tasks_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/tasks.csv",
+    "backlog_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/backlog.json",
+    "backlog_csv": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/backlog.csv",
+    "task_metadata_json": "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/data/generated/smoke_import_source/task_metadata.json"
+  }
+}

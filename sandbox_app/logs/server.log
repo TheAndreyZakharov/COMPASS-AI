@@ -1,0 +1,174 @@
+INFO:     Started server process [64331]
+INFO:     Waiting for application startup.
+2026-07-08 15:30:30,551 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-08 15:30:30,551 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55666 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55669 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55678 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /css/styles.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /js/app.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55678 - "GET /js/api.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55697 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55684 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55684 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /js/pages/import_data.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55678 - "GET /js/components/kanban.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55684 - "GET /js/components/charts.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55698 - "GET /js/components/table.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55678 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55697 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55697 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55698 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55709 - "POST /api/import-data/preview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55786 - "POST /api/import-data/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55806 - "GET /api/data-viewer/datasets/smoke_imported_dataset/employees?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:55816 - "GET /api/data-viewer/datasets/smoke_imported_dataset/training_pairs?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:55819 - "GET /import-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55823 - "GET /js/pages/import_data.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55830 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55831 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/config/settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55851 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55851 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55851 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55851 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55866 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56362 - "POST /api/import-data/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56367 - "POST /api/generate/dataset HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56372 - "POST /api/import-data/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56373 - "GET /api/data-viewer/datasets/smoke_imported_dataset/summary?dataset_kind=imported HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56376 - "GET /api/data-viewer/datasets/smoke_imported_dataset/employees?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56380 - "GET /api/data-viewer/datasets/smoke_imported_dataset/tasks?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56385 - "GET /api/data-viewer/datasets/smoke_imported_dataset/assignment_history?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56386 - "GET /api/data-viewer/datasets/smoke_imported_dataset/training_pairs?dataset_kind=imported&page=1&page_size=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56387 - "GET /import-data HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56388 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56389 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56527 - "GET /api/data-viewer/datasets/smoke_imported_dataset/summary?dataset_kind=imported HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56840 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56841 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-08 15:44:46,687 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-08 15:44:46,687 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [64331]
+INFO:     Started server process [75675]
+INFO:     Waiting for application startup.
+2026-07-08 15:46:52,756 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-08 15:46:52,756 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57013 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/api.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/pages/viewer.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /js/pages/import_data.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57053 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /js/components/charts.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57054 - "GET /js/components/kanban.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57047 - "GET /js/components/table.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57054 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57054 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57056 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57057 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57055 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57058 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57053 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57053 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57054 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57047 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57056 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config/settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57074 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57073 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-08 15:47:38,298 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-08 15:47:38,298 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [75675]

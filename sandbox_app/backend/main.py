@@ -17,6 +17,7 @@ from sandbox_app.backend.api import (
     generate_history,
     generate_tasks,
     generate_team,
+    import_data,
     sessions,
     status,
 )
@@ -85,7 +86,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(generate_history.router, prefix=api_prefix)
     app.include_router(generate_dataset.router, prefix=api_prefix)
     app.include_router(data_viewer.router, prefix=api_prefix)
-
+    app.include_router(import_data.router, prefix=api_prefix)
 
 def register_frontend_routes(app: FastAPI) -> None:
     PATHS.frontend_css_dir.mkdir(parents=True, exist_ok=True)

@@ -623,3 +623,29 @@ button:disabled {
     text-align: left;
   }
 }
+
+.import-file-list {
+  display: grid;
+  gap: 12px;
+}
+
+.import-file-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: rgba(5, 9, 22, 0.42);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.import-file-row p {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 980px) {
+  .import-file-row {
+    grid-template-columns: 1fr;
+  }
+}

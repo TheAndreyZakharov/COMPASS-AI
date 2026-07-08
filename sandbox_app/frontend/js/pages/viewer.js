@@ -1,6 +1,16 @@
 import { api } from "../api.js";
-import { getLastDatasetId, htmlEscape, prettyJson, setLastDatasetId, toast } from "../app.js";
-import { countByField, renderBarChart, renderSummaryCards } from "../components/charts.js";
+import {
+  getLastDatasetId,
+  htmlEscape,
+  prettyJson,
+  setLastDatasetId,
+  toast,
+} from "../app.js";
+import {
+  countByField,
+  renderBarChart,
+  renderSummaryCards,
+} from "../components/charts.js";
 import { renderKanbanBoard } from "../components/kanban.js";
 import {
   preferredColumnsForTable,
@@ -13,6 +23,7 @@ const TABLES = ["employees", "tasks", "assignment_history", "training_pairs"];
 const state = {
   datasets: null,
   datasetId: "",
+  datasetKind: "generated",
   tableName: "employees",
   page: 1,
   pageSize: 25,
@@ -28,9 +39,29 @@ const state = {
 
 function allDatasets(datasetsPayload) {
   return [
-    ...(datasetsPayload?.generated || []).map((item) => ({ ...item, dataset_kind: "generated" })),
-    ...(datasetsPayload?.imported || []).map((item) => ({ ...item, dataset_kind: "imported" })),
+    ...(datasetsPayload?.generated || []).map((item) => ({
+      ...item,
+      dataset_kind: "generated",
+    })),
+    ...(datasetsPayload?.imported || []).map((item) => ({
+      ...item,
+      dataset_kind: "imported",
+    })),
   ];
+}
+
+function datasetOptionValue(dataset) {
+  return `${dataset.dataset_kind}:${dataset.dataset_id}`;
+}
+
+function parseDatasetOptionValue(value) {
+  const [datasetKind, ...datasetIdParts] = value.split(":");
+  const datasetId = datasetIdParts.join(":");
+
+  return {
+    datasetId,
+    datasetKind: datasetKind || "generated",
+  };
 }
 
 function datasetOptions(datasetsPayload) {
@@ -42,11 +73,14 @@ function datasetOptions(datasetsPayload) {
 
   return datasets
     .map((dataset) => {
-      const selected = dataset.dataset_id === state.datasetId ? "selected" : "";
+      const isSelected =
+        dataset.dataset_id === state.datasetId &&
+        dataset.dataset_kind === state.datasetKind;
+      const selected = isSelected ? "selected" : "";
       const kind = dataset.dataset_kind || dataset.dataset_type || "dataset";
 
       return `
-        <option value="${htmlEscape(dataset.dataset_id)}" ${selected}>
+        <option value="${htmlEscape(datasetOptionValue(dataset))}" ${selected}>
           ${htmlEscape(dataset.dataset_id)} · ${htmlEscape(kind)}
         </option>
       `;
@@ -61,8 +95,31 @@ function tableOptions() {
   }).join("");
 }
 
+function selectedDatasetDescriptor() {
+  const datasets = allDatasets(state.datasets);
+
+  return (
+    datasets.find(
+      (dataset) =>
+        dataset.dataset_id === state.datasetId &&
+        dataset.dataset_kind === state.datasetKind,
+    ) ||
+    datasets.find((dataset) => dataset.dataset_id === state.datasetId) ||
+    null
+  );
+}
+
+function selectedDatasetKind() {
+  return selectedDatasetDescriptor()?.dataset_kind || state.datasetKind || "generated";
+}
+
+function datasetKindQuery() {
+  return `?dataset_kind=${encodeURIComponent(selectedDatasetKind())}`;
+}
+
 function buildQuery() {
   const params = new URLSearchParams();
+  params.set("dataset_kind", selectedDatasetKind());
   params.set("page", String(state.page));
   params.set("page_size", String(state.pageSize));
 
@@ -79,12 +136,44 @@ function buildQuery() {
   return `?${params.toString()}`;
 }
 
-function selectedDatasetDescriptor() {
-  return allDatasets(state.datasets).find((dataset) => dataset.dataset_id === state.datasetId) || null;
+function setSelectedDataset(dataset) {
+  if (!dataset) {
+    state.datasetId = "";
+    state.datasetKind = "generated";
+    return;
+  }
+
+  state.datasetId = dataset.dataset_id;
+  state.datasetKind = dataset.dataset_kind || dataset.dataset_type || "generated";
+}
+
+function selectInitialDataset() {
+  const datasets = allDatasets(state.datasets);
+  const lastDatasetId = getLastDatasetId();
+
+  if (state.datasetId) {
+    const existing = datasets.find(
+      (dataset) =>
+        dataset.dataset_id === state.datasetId &&
+        dataset.dataset_kind === state.datasetKind,
+    );
+
+    if (existing) {
+      setSelectedDataset(existing);
+      return;
+    }
+  }
+
+  const lastDataset = datasets.find((dataset) => dataset.dataset_id === lastDatasetId);
+  setSelectedDataset(lastDataset || datasets[0] || null);
 }
 
 function readControls() {
-  state.datasetId = document.querySelector("#viewerDataset").value;
+  const datasetValue = document.querySelector("#viewerDataset").value;
+  const parsedDataset = parseDatasetOptionValue(datasetValue);
+
+  state.datasetId = parsedDataset.datasetId;
+  state.datasetKind = parsedDataset.datasetKind;
   state.tableName = document.querySelector("#viewerTable").value;
   state.pageSize = Number.parseInt(document.querySelector("#viewerPageSize").value, 10) || 25;
   state.search = document.querySelector("#viewerSearch").value.trim();
@@ -99,6 +188,8 @@ function readControls() {
   if (state.datasetId) {
     setLastDatasetId(state.datasetId);
   }
+
+  renderSelectedDatasetCard();
 }
 
 function setViewerLoading(isLoading, label = "Загрузка...") {
@@ -126,6 +217,21 @@ function renderOutput(html) {
   document.querySelector("#viewerOutput").innerHTML = html;
 }
 
+function renderSelectedDatasetCard() {
+  const element = document.querySelector("#viewerSelectedDatasetJson");
+
+  if (!element) {
+    return;
+  }
+
+  element.textContent = prettyJson(
+    selectedDatasetDescriptor() || {
+      dataset_id: state.datasetId || null,
+      dataset_kind: state.datasetKind || null,
+    },
+  );
+}
+
 function renderError(error) {
   renderOutput(`
     <article class="card">
@@ -138,17 +244,13 @@ function renderError(error) {
 
 async function loadDatasets() {
   setViewerLoading(true, "Datasets...");
+
   try {
     state.datasets = await api.datasets();
-
-    if (!state.datasetId) {
-      const lastDatasetId = getLastDatasetId();
-      const datasets = allDatasets(state.datasets);
-      const hasLast = datasets.some((dataset) => dataset.dataset_id === lastDatasetId);
-      state.datasetId = hasLast ? lastDatasetId : datasets[0]?.dataset_id || "";
-    }
+    selectInitialDataset();
 
     document.querySelector("#viewerDataset").innerHTML = datasetOptions(state.datasets);
+    renderSelectedDatasetCard();
     renderDatasetList();
   } catch (error) {
     renderError(error);
@@ -207,7 +309,7 @@ async function loadSummary() {
   setViewerLoading(true, "Summary...");
 
   try {
-    const summary = await api.datasetSummary(state.datasetId);
+    const summary = await api.datasetSummary(state.datasetId, datasetKindQuery());
     const counts = summary.summary_counts || summary.dataset?.counts || {};
     const metadata = summary.metadata || {};
 
@@ -276,7 +378,7 @@ async function loadKanban() {
   setViewerLoading(true, "Kanban...");
 
   try {
-    const kanban = await api.kanban(state.datasetId);
+    const kanban = await api.kanban(state.datasetId, datasetKindQuery());
     const counts = kanban.counts || {};
 
     renderOutput(`
@@ -308,16 +410,11 @@ async function loadCharts() {
   setViewerLoading(true, "Charts...");
 
   try {
-    const tasks = await api.datasetTable(
-      state.datasetId,
-      "tasks",
-      "?page=1&page_size=500",
-    );
-    const employees = await api.datasetTable(
-      state.datasetId,
-      "employees",
-      "?page=1&page_size=500",
-    );
+    const chartQuery =
+      `?dataset_kind=${encodeURIComponent(selectedDatasetKind())}` +
+      "&page=1&page_size=500";
+    const tasks = await api.datasetTable(state.datasetId, "tasks", chartQuery);
+    const employees = await api.datasetTable(state.datasetId, "employees", chartQuery);
     const taskRows = tasks.items || [];
     const employeeRows = employees.items || [];
 
@@ -398,10 +495,16 @@ function bindViewerEvents() {
   });
 
   document.querySelector("#viewerClearFilters").addEventListener("click", () => {
-    ["viewerSearch", "viewerStatus", "viewerRole", "viewerGrade", "viewerProject", "viewerPriority"]
-      .forEach((id) => {
-        document.querySelector(`#${id}`).value = "";
-      });
+    [
+      "viewerSearch",
+      "viewerStatus",
+      "viewerRole",
+      "viewerGrade",
+      "viewerProject",
+      "viewerPriority",
+    ].forEach((id) => {
+      document.querySelector(`#${id}`).value = "";
+    });
 
     state.page = 1;
     readControls();
@@ -409,19 +512,12 @@ function bindViewerEvents() {
 }
 
 export async function renderViewer() {
-  const lastDatasetId = getLastDatasetId();
-  state.datasetId = lastDatasetId || state.datasetId;
   state.datasets = await api.datasets();
-
-  if (!state.datasetId) {
-    const datasets = allDatasets(state.datasets);
-    state.datasetId = datasets[0]?.dataset_id || "";
-  }
-
-  const selected = selectedDatasetDescriptor();
+  selectInitialDataset();
 
   window.setTimeout(() => {
     bindViewerEvents();
+    renderSelectedDatasetCard();
     renderDatasetList();
   }, 0);
 
@@ -456,7 +552,14 @@ export async function renderViewer() {
 
           <div class="form-row">
             <label for="viewerPageSize">Page size</label>
-            <input class="input" id="viewerPageSize" min="1" max="500" type="number" value="25" />
+            <input
+              class="input"
+              id="viewerPageSize"
+              min="1"
+              max="500"
+              type="number"
+              value="25"
+            />
           </div>
 
           <div class="form-row">
@@ -519,7 +622,12 @@ export async function renderViewer() {
 
       <article class="card">
         <h2>Selected dataset</h2>
-        <pre class="code">${prettyJson(selected || { dataset_id: state.datasetId || null })}</pre>
+        <pre class="code" id="viewerSelectedDatasetJson">${prettyJson(
+          selectedDatasetDescriptor() || {
+            dataset_id: state.datasetId || null,
+            dataset_kind: state.datasetKind || null,
+          },
+        )}</pre>
       </article>
     </section>
 

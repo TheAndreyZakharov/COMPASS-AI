@@ -21,6 +21,7 @@ async function parseResponse(response) {
       typeof payload === "object"
         ? payload.error || payload.detail || JSON.stringify(payload)
         : payload;
+
     throw new ApiError(message || "API request failed", response.status, payload);
   }
 
@@ -31,6 +32,7 @@ export async function apiGet(path) {
   const response = await fetch(path, {
     headers: JSON_HEADERS,
   });
+
   return parseResponse(response);
 }
 
@@ -40,6 +42,16 @@ export async function apiPost(path, payload) {
     headers: JSON_HEADERS,
     body: JSON.stringify(payload),
   });
+
+  return parseResponse(response);
+}
+
+export async function apiUpload(path, formData) {
+  const response = await fetch(path, {
+    method: "POST",
+    body: formData,
+  });
+
   return parseResponse(response);
 }
 
@@ -52,12 +64,29 @@ export const api = {
   contractsSummary: () => apiGet("/api/contracts/summary"),
   featureSchemas: () => apiGet("/api/feature-schemas?preview=true"),
   datasets: () => apiGet("/api/data-viewer/datasets"),
-  datasetSummary: (datasetId) => apiGet(`/api/data-viewer/datasets/${datasetId}/summary`),
+
+  datasetSummary: (datasetId, query = "") =>
+    apiGet(
+      `/api/data-viewer/datasets/${encodeURIComponent(datasetId)}/summary${query}`,
+    ),
+
   datasetTable: (datasetId, tableName, query = "") =>
-    apiGet(`/api/data-viewer/datasets/${datasetId}/${tableName}${query}`),
-  kanban: (datasetId) => apiGet(`/api/data-viewer/datasets/${datasetId}/kanban`),
+    apiGet(
+      `/api/data-viewer/datasets/${encodeURIComponent(datasetId)}/` +
+        `${encodeURIComponent(tableName)}${query}`,
+    ),
+
+  kanban: (datasetId, query = "") =>
+    apiGet(
+      `/api/data-viewer/datasets/${encodeURIComponent(datasetId)}/kanban${query}`,
+    ),
+
   generateTeam: (payload) => apiPost("/api/generate/team", payload),
   generateTasks: (payload) => apiPost("/api/generate/tasks", payload),
   generateHistory: (payload) => apiPost("/api/generate/history", payload),
   generateDataset: (payload) => apiPost("/api/generate/dataset", payload),
+
+  importSupportedTables: () => apiGet("/api/import-data/supported-tables"),
+  importPreview: (formData) => apiUpload("/api/import-data/preview", formData),
+  importDataset: (formData) => apiUpload("/api/import-data/datasets", formData),
 };
