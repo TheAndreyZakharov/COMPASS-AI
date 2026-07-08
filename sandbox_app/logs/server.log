@@ -221,3 +221,58 @@ INFO:     Waiting for application shutdown.
 2026-07-08 16:03:11,810 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
 INFO:     Finished server process [80909]
+INFO:     Started server process [90244]
+INFO:     Waiting for application startup.
+2026-07-08 16:23:30,509 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-08 16:23:30,509 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:60599 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60614 - "POST /api/generate/dataset HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60618 - "POST /api/features/build HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60632 - "POST /api/training/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60660 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60703 - "GET /api/training/sessions/2026-07-08_13-23-50_111f75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60708 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60709 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60715 - "GET /models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60716 - "GET /js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/api.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60716 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60716 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60716 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/pages/import_data.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60717 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /js/components/charts.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /js/components/table.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60716 - "GET /js/components/kanban.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60715 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60717 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60717 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60715 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60715 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60715 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60715 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60716 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60723 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60723 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60723 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60723 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60726 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-08 16:26:09,979 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-08 16:26:09,979 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [90244]

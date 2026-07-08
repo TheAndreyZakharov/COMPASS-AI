@@ -994,50 +994,56 @@ Smoke test проходит.
 
 ## 27.16. Реализовать multi-model training backend
 
-- [ ] Реализовать baseline rule-based model.
-- [ ] Реализовать SGD Classifier.
-- [ ] Реализовать Logistic Regression.
-- [ ] Реализовать Random Forest.
-- [ ] Реализовать HistGradientBoosting.
-- [ ] Реализовать PyTorch MLP.
-- [ ] Настраивать train/validation/test split.
-- [ ] Настраивать random seed.
-- [ ] Настраивать model params.
-- [ ] Настраивать target mode.
-- [ ] Обучать одну или несколько моделей за запуск.
-- [ ] Считать metrics.
-- [ ] Сохранять predictions.
-- [ ] Сохранять model artifacts.
-- [ ] Сохранять общий training session.
-- [ ] Добавить endpoint запуска обучения.
-- [ ] Добавить endpoint списка training sessions.
-- [ ] Добавить endpoint деталей training session.
+- [x] Реализовать baseline rule-based model.
+- [x] Реализовать SGD Classifier.
+- [x] Реализовать Logistic Regression.
+- [x] Реализовать Random Forest.
+- [x] Реализовать HistGradientBoosting.
+- [x] Реализовать PyTorch MLP.
+- [x] Настраивать train/validation/test split.
+- [x] Настраивать random seed.
+- [x] Настраивать model params.
+- [x] Настраивать target mode.
+- [x] Обучать одну или несколько моделей за запуск.
+- [x] Считать metrics.
+- [x] Сохранять predictions.
+- [x] Сохранять model artifacts.
+- [x] Сохранять общий training session.
+- [x] Добавить endpoint запуска обучения.
+- [x] Добавить endpoint списка training sessions.
+- [x] Добавить endpoint деталей training session.
+- [x] Добавить auto build features при запуске training.
+- [x] Добавить comparison metrics JSON и CSV.
+- [x] Добавить pytest smoke test training session.
 
 Файлы:
 
-```text
 sandbox_app/backend/training/train_session.py
 sandbox_app/backend/training/sklearn_models.py
 sandbox_app/backend/training/torch_model.py
 sandbox_app/backend/training/baseline.py
 sandbox_app/backend/training/evaluate.py
 sandbox_app/backend/api/training.py
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_training_session.py
+
+Endpoints:
+
+POST /api/training/run
+GET /api/training/sessions
+GET /api/training/sessions/{session_id}
 
 Модели:
 
-```text
 baseline_rule_based
 sgd_classifier
 logistic_regression
 random_forest
 hist_gradient_boosting
 torch_mlp
-```
 
 Метрики:
 
-```text
 roc_auc
 f1
 precision
@@ -1047,12 +1053,31 @@ log_loss
 mae_for_score
 top_1_accuracy
 top_3_accuracy
-```
 
-**Ожидаемый результат:** можно обучить несколько разных моделей на одном dataset и сравнить их качество.
+Что сделано по факту:
+Multi-model training backend обучает одну или несколько моделей на features.parquet и targets.parquet. Поддержаны baseline rule-based, SGD Classifier, Logistic Regression, Random Forest, HistGradientBoosting и PyTorch MLP. Training session создаётся в sandbox_app/training_sessions. Для каждой модели сохраняются artifact, predictions.parquet и metrics.json. Общая session сохраняет session_config.json, feature_metadata.json, dataset_metadata.json, session_summary.json, comparison_metrics.json и comparison_metrics.csv. API позволяет запускать обучение, смотреть список sessions и открывать детали session.
 
-**Примерное время:** 14–24 часа.  
-**Коммит:** `Add sandbox multi-model training`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test training session проходит.
+Если Node.js установлен, api.js проходит node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена генерация smoke dataset.
+Проверена сборка features.
+Проверен endpoint POST /api/training/run.
+Проверено создание training session.
+Проверено сохранение model artifacts.
+Проверено сохранение predictions.parquet.
+Проверено сохранение metrics.json.
+Проверено сохранение comparison metrics.
+Проверены endpoints списка и деталей training sessions.
+Smoke test проходит.
+
+Ожидаемый результат:
+можно обучить несколько разных моделей на одном dataset и сравнить их качество.
+
+Примерное время: 14–24 часа.
+Коммит: Add sandbox multi-model training
 
 ---
 

@@ -21,6 +21,7 @@ from sandbox_app.backend.api import (
     import_data,
     sessions,
     status,
+    training,
 )
 from sandbox_app.backend.core.logging import logger
 from sandbox_app.backend.core.paths import PATHS, ensure_runtime_dirs
@@ -89,6 +90,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(data_viewer.router, prefix=api_prefix)
     app.include_router(import_data.router, prefix=api_prefix)
     app.include_router(features.router, prefix=api_prefix)
+    app.include_router(training.router, prefix=api_prefix)
 
 def register_frontend_routes(app: FastAPI) -> None:
     PATHS.frontend_css_dir.mkdir(parents=True, exist_ok=True)

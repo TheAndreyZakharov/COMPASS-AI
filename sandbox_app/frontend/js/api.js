@@ -95,5 +95,11 @@ export const api = {
     apiGet(
       `/api/features/datasets/${encodeURIComponent(datasetId)}/metadata${query}`,
     ),
-    
+
+  runTraining: (payload) => apiPost("/api/training/run", payload),
+  trainingSessions: () => apiGet("/api/training/sessions"),
+  trainingSession: (sessionId) =>
+    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
+
+  
 };
