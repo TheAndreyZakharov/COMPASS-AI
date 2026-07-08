@@ -188,48 +188,59 @@ backend автономно работает, отдаёт API и frontend без
 
 ## 27.4. Зафиксировать data contracts песочницы
 
-- [ ] Определить формат employees.
-- [ ] Определить формат tasks.
-- [ ] Определить формат assignment_history.
-- [ ] Определить формат training_pairs.
-- [ ] Определить формат current_team.
-- [ ] Определить формат current_backlog.
-- [ ] Определить формат recommendations.
-- [ ] Определить формат training_session.
-- [ ] Определить формат assignment_session.
-- [ ] Определить формат dataset_metadata.
-- [ ] Поддержать CSV для простых таблиц.
-- [ ] Поддержать JSON для вложенных структур.
-- [ ] Поддержать Parquet для больших training datasets.
-- [ ] Зафиксировать required и optional поля.
-- [ ] Зафиксировать allowed statuses.
-- [ ] Зафиксировать outcome labels.
-- [ ] Зафиксировать recommendation candidates.
-- [ ] Добавить backend loader contracts.
-- [ ] Добавить API для просмотра contracts.
-- [ ] Добавить документацию contracts.
-- [ ] Проверить JSON и endpoints.
+- [x] Определить формат employees.
+- [x] Определить формат tasks.
+- [x] Определить формат assignment_history.
+- [x] Определить формат training_pairs.
+- [x] Определить формат current_team.
+- [x] Определить формат current_backlog.
+- [x] Определить формат recommendations.
+- [x] Определить формат training_session.
+- [x] Определить формат assignment_session.
+- [x] Определить формат dataset_metadata.
+- [x] Поддержать CSV для простых таблиц.
+- [x] Поддержать JSON для вложенных структур.
+- [x] Поддержать Parquet для больших training datasets.
+- [x] Зафиксировать required и optional поля.
+- [x] Зафиксировать allowed statuses.
+- [x] Зафиксировать outcome labels.
+- [x] Зафиксировать recommendation candidates.
+- [x] Добавить backend loader contracts.
+- [x] Добавить API для просмотра contracts.
+- [x] Добавить документацию contracts.
+- [x] Проверить JSON и endpoints.
+- [x] Добавить contracts summary endpoint.
+- [x] Добавить backend validation для структуры data_contracts.json.
+- [x] Добавить helper для проверки required fields у records.
 
 Файлы:
 
-```text
 sandbox_app/config/data_contracts/data_contracts.json
 sandbox_app/backend/core/data_contracts.py
 sandbox_app/backend/api/contracts.py
 sandbox_app/docs/data_contracts.md
-```
 
 Endpoints:
 
-```text
 GET /api/contracts
+GET /api/contracts/summary
 GET /api/contracts/{contract_name}
-```
 
-**Ожидаемый результат:** до генерации и обучения понятно, какие данные живут в системе и как они связаны.
+Что сделано по факту:
+Data contracts зафиксированы в одном JSON-файле. Описаны employees, tasks, assignment_history, training_pairs, current_team, current_backlog, recommendations, training_session, assignment_session и dataset_metadata. Для простых таблиц предусмотрены CSV и JSON. Для больших training datasets предусмотрен Parquet. Зафиксированы task statuses, deadline statuses, outcome labels, recommendation modes, target modes и session statuses. Backend loader валидирует структуру contracts и отдаёт contracts через API. Документация добавлена в sandbox_app/docs/data_contracts.md.
 
-**Примерное время:** 3–5 часов.  
-**Коммит:** `Define sandbox data contracts`
+Проверки:
+data_contracts.json проходит python -m json.tool.
+Backend проходит python -m compileall.
+Проверены /api/contracts, /api/contracts/summary, /api/contracts/employees, /api/contracts/training_pairs.
+Проверен JSON error handler для неизвестного contract.
+Smoke test проходит.
+
+Ожидаемый результат:
+до генерации и обучения понятно, какие данные живут в системе и как они связаны.
+
+Примерное время: 3–5 часов.
+Коммит: Define sandbox data contracts
 
 ---
 

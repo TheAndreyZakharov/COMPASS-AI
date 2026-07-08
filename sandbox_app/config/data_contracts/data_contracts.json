@@ -1,0 +1,650 @@
+{
+  "version": "1.0.0",
+  "description": "Canonical data contracts for COMPASS AI Sandbox datasets, sessions, recommendations, reports, and exports.",
+  "formats": {
+    "csv": {
+      "description": "Flat tabular files for humans and lightweight processing.",
+      "allowed_for": [
+        "employees",
+        "tasks",
+        "assignment_history",
+        "current_team",
+        "current_backlog",
+        "recommendations",
+        "assignment_session_tables",
+        "training_session_metrics"
+      ]
+    },
+    "json": {
+      "description": "Nested structures, metadata, sessions, recommendations, reports, configs, and API payloads.",
+      "allowed_for": [
+        "employees",
+        "tasks",
+        "assignment_history",
+        "current_team",
+        "current_backlog",
+        "recommendations",
+        "training_session",
+        "assignment_session",
+        "dataset_metadata",
+        "reports"
+      ]
+    },
+    "parquet": {
+      "description": "Large training datasets and feature matrices.",
+      "allowed_for": [
+        "training_pairs",
+        "features",
+        "targets",
+        "predictions"
+      ]
+    }
+  },
+  "shared_enums": {
+    "task_statuses": [
+      "todo",
+      "in_progress",
+      "review",
+      "done",
+      "blocked",
+      "failed"
+    ],
+    "deadline_statuses": [
+      "early",
+      "on_time",
+      "late",
+      "missed"
+    ],
+    "outcome_labels": [
+      "success",
+      "good",
+      "acceptable",
+      "late",
+      "failed",
+      "rework"
+    ],
+    "priorities": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "grades": [
+      "junior",
+      "middle",
+      "senior",
+      "lead"
+    ],
+    "recommendation_modes": [
+      "best_quality",
+      "fastest_delivery",
+      "best_learning",
+      "balanced",
+      "risk_aware"
+    ],
+    "target_modes": [
+      "quality",
+      "speed",
+      "balanced",
+      "learning",
+      "risk_aware"
+    ],
+    "session_statuses": [
+      "created",
+      "running",
+      "completed",
+      "failed",
+      "cancelled"
+    ]
+  },
+  "contracts": {
+    "employees": {
+      "description": "Generated or imported team members used for history generation, feature building, training, and recommendations.",
+      "primary_key": "employee_id",
+      "storage": {
+        "csv": "employees.csv",
+        "json": "employees.json"
+      },
+      "required_fields": {
+        "employee_id": {
+          "type": "string",
+          "description": "Stable unique employee identifier within a dataset."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name."
+        },
+        "role": {
+          "type": "string",
+          "description": "Domain-specific role from selected feature schema."
+        },
+        "grade": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.grades"
+        },
+        "skills": {
+          "type": "array[string]",
+          "description": "Employee skill list."
+        },
+        "availability_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "current_workload": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fatigue_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "avg_completion_speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "avg_quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "deadline_reliability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mentor_level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "optional_fields": {
+        "learning_goals": {
+          "type": "array[string]"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "team_id": {
+          "type": "string"
+        },
+        "custom_features": {
+          "type": "object",
+          "description": "Domain-specific employee features defined by feature schema."
+        }
+      }
+    },
+    "tasks": {
+      "description": "Generated or imported tasks used as historical work items, backlog items, and recommendation inputs.",
+      "primary_key": "task_id",
+      "storage": {
+        "csv": "tasks.csv",
+        "json": "tasks.json"
+      },
+      "required_fields": {
+        "task_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "project_id": {
+          "type": "string"
+        },
+        "task_type": {
+          "type": "string",
+          "description": "Domain-specific task type from selected feature schema."
+        },
+        "status": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.task_statuses"
+        },
+        "priority": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.priorities"
+        },
+        "complexity": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "estimated_hours": {
+          "type": "number",
+          "minimum": 0.5
+        },
+        "deadline_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required_skills": {
+          "type": "array[string]"
+        }
+      },
+      "optional_fields": {
+        "description": {
+          "type": "string"
+        },
+        "dependencies": {
+          "type": "array[string]",
+          "description": "Task ids that should be completed before this task."
+        },
+        "created_at": {
+          "type": "datetime"
+        },
+        "due_at": {
+          "type": "datetime"
+        },
+        "assignee_id": {
+          "type": "string"
+        },
+        "custom_features": {
+          "type": "object",
+          "description": "Domain-specific task features defined by feature schema."
+        }
+      }
+    },
+    "assignment_history": {
+      "description": "Historical task assignments and outcomes used to learn task-employee fit.",
+      "primary_key": "assignment_id",
+      "storage": {
+        "csv": "assignment_history.csv",
+        "json": "assignment_history.json"
+      },
+      "required_fields": {
+        "assignment_id": {
+          "type": "string"
+        },
+        "employee_id": {
+          "type": "string",
+          "foreign_key": "employees.employee_id"
+        },
+        "task_id": {
+          "type": "string",
+          "foreign_key": "tasks.task_id"
+        },
+        "assigned_at": {
+          "type": "datetime"
+        },
+        "completed_at": {
+          "type": "datetime"
+        },
+        "planned_hours": {
+          "type": "number",
+          "minimum": 0.5
+        },
+        "actual_hours": {
+          "type": "number",
+          "minimum": 0.5
+        },
+        "quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "deadline_status": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.deadline_statuses"
+        },
+        "outcome_label": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.outcome_labels"
+        },
+        "was_rework_needed": {
+          "type": "boolean"
+        },
+        "feedback_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "optional_fields": {
+        "reviewer_id": {
+          "type": "string"
+        },
+        "skill_match_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "overload_score_at_assignment": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fatigue_score_at_assignment": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "custom_outcome_features": {
+          "type": "object"
+        }
+      }
+    },
+    "training_pairs": {
+      "description": "Task-employee candidate pairs with labels or scores used for model training.",
+      "primary_key": "pair_id",
+      "storage": {
+        "parquet": "training_pairs.parquet"
+      },
+      "required_fields": {
+        "pair_id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string",
+          "foreign_key": "tasks.task_id"
+        },
+        "employee_id": {
+          "type": "string",
+          "foreign_key": "employees.employee_id"
+        },
+        "label": {
+          "type": "integer",
+          "allowed_values": [
+            0,
+            1
+          ],
+          "description": "Binary supervised target where 1 means suitable assignment candidate."
+        },
+        "target_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "target_mode": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.target_modes"
+        }
+      },
+      "optional_fields": {
+        "source_assignment_id": {
+          "type": "string"
+        },
+        "negative_sampling_reason": {
+          "type": "string"
+        },
+        "candidate_rank_hint": {
+          "type": "integer"
+        }
+      }
+    },
+    "current_team": {
+      "description": "Current team snapshot used for recommendation and assignment lab test cases.",
+      "primary_key": "employee_id",
+      "storage": {
+        "csv": "team.csv",
+        "json": "team.json"
+      },
+      "required_fields_ref": "contracts.employees.required_fields",
+      "optional_fields": {
+        "active_task_ids": {
+          "type": "array[string]"
+        },
+        "weekly_capacity_hours": {
+          "type": "number"
+        },
+        "available_from": {
+          "type": "datetime"
+        }
+      }
+    },
+    "current_backlog": {
+      "description": "Current todo backlog used for single recommendation and bulk assignment simulation.",
+      "primary_key": "task_id",
+      "storage": {
+        "csv": "backlog.csv",
+        "json": "backlog.json"
+      },
+      "required_fields_ref": "contracts.tasks.required_fields",
+      "constraints": {
+        "status": [
+          "todo"
+        ]
+      },
+      "optional_fields": {
+        "assignment_window_days": {
+          "type": "integer"
+        },
+        "business_value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "recommendations": {
+      "description": "Single-task recommendation output and candidate ranking explanation inputs.",
+      "primary_key": "recommendation_id",
+      "storage": {
+        "csv": "recommendations.csv",
+        "json": "recommendations.json"
+      },
+      "required_fields": {
+        "recommendation_id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "recommendation_mode": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.recommendation_modes"
+        },
+        "generated_at": {
+          "type": "datetime"
+        },
+        "candidates": {
+          "type": "array[object]",
+          "description": "Ordered recommendation candidates."
+        }
+      },
+      "recommendation_candidate": {
+        "required_fields": {
+          "employee_id": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "factors": {
+            "type": "object"
+          },
+          "risks": {
+            "type": "array[object]"
+          }
+        },
+        "optional_fields": {
+          "explanation_ru": {
+            "type": "string",
+            "description": "Russian explanation from fallback or Qwen. Must not change ranking."
+          }
+        }
+      },
+      "optional_fields": {
+        "top_1_employee_id": {
+          "type": "string"
+        },
+        "top_3_employee_ids": {
+          "type": "array[string]"
+        },
+        "llm_explanation_enabled": {
+          "type": "boolean"
+        },
+        "llm_validation": {
+          "type": "object"
+        }
+      }
+    },
+    "training_session": {
+      "description": "Reproducible model training run.",
+      "primary_key": "session_id",
+      "storage": {
+        "json": "session_summary.json"
+      },
+      "required_fields": {
+        "session_id": {
+          "type": "string"
+        },
+        "dataset_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.session_statuses"
+        },
+        "started_at": {
+          "type": "datetime"
+        },
+        "target_mode": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.target_modes"
+        },
+        "models": {
+          "type": "array[string]"
+        },
+        "metrics": {
+          "type": "object"
+        },
+        "artifacts_dir": {
+          "type": "string"
+        }
+      },
+      "optional_fields": {
+        "finished_at": {
+          "type": "datetime"
+        },
+        "error": {
+          "type": "string"
+        },
+        "feature_metadata_path": {
+          "type": "string"
+        },
+        "comparison_metrics_path": {
+          "type": "string"
+        }
+      }
+    },
+    "assignment_session": {
+      "description": "Bulk assignment simulation run.",
+      "primary_key": "session_id",
+      "storage": {
+        "json": "assignment_config.json"
+      },
+      "required_fields": {
+        "session_id": {
+          "type": "string"
+        },
+        "test_case_id": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.session_statuses"
+        },
+        "assignment_mode": {
+          "type": "categorical",
+          "allowed_values_ref": "shared_enums.recommendation_modes"
+        },
+        "started_at": {
+          "type": "datetime"
+        },
+        "assigned_tasks_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unassigned_tasks_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifacts_dir": {
+          "type": "string"
+        }
+      },
+      "optional_fields": {
+        "finished_at": {
+          "type": "datetime"
+        },
+        "fairness_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "dataset_metadata": {
+      "description": "Dataset-level metadata for generated or imported datasets.",
+      "primary_key": "dataset_id",
+      "storage": {
+        "json": "dataset_metadata.json"
+      },
+      "required_fields": {
+        "dataset_id": {
+          "type": "string"
+        },
+        "dataset_type": {
+          "type": "categorical",
+          "allowed_values": [
+            "generated",
+            "imported"
+          ]
+        },
+        "domain_profile": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "datetime"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "counts": {
+          "type": "object",
+          "required_keys": [
+            "employees",
+            "tasks",
+            "assignment_history",
+            "training_pairs"
+          ]
+        },
+        "files": {
+          "type": "object"
+        }
+      },
+      "optional_fields": {
+        "source_files": {
+          "type": "array[string]"
+        },
+        "generation_mode": {
+          "type": "string"
+        },
+        "quality_warnings": {
+          "type": "array[string]"
+        },
+        "schema_versions": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
