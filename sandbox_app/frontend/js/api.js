@@ -55,6 +55,14 @@ export async function apiUpload(path, formData) {
   return parseResponse(response);
 }
 
+async function apiDelete(path) {
+  const response = await fetch(path, {
+    method: "DELETE",
+  });
+
+  return parseResponse(response);
+}
+
 export const api = {
   health: () => apiGet("/api/health"),
   status: () => apiGet("/api/status"),
@@ -156,7 +164,27 @@ export const api = {
   trainingReport: (sessionId) =>
     apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
 
-
+  testCases: () => apiGet("/api/test-cases"),
+  generateTestCase: (payload) => apiPost("/api/test-cases/generate", payload),
+  importTestCase: (payload) => apiPost("/api/test-cases/import", payload),
+  testCase: (testCaseId) =>
+    apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
+  testCaseSummary: (testCaseId) =>
+    apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}/summary`),
+  testCaseTable: (testCaseId, tableName) =>
+    apiGet(
+      `/api/test-cases/${encodeURIComponent(testCaseId)}/tables/` +
+        encodeURIComponent(tableName),
+    ),
+  testCasePendingTasks: (testCaseId) =>
+    apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}/pending-tasks`),
+  testCaseRecommendationContext: (testCaseId) =>
+    apiGet(
+      `/api/test-cases/${encodeURIComponent(testCaseId)}/` +
+        "recommendation-context",
+    ),
+  deleteTestCase: (testCaseId) =>
+    apiDelete(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
 
 
 };

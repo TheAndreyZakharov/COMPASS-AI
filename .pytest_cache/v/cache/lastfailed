@@ -1,5 +1,6 @@
 {
   "tests/test_skill_vectorizer.py::test_employee_skill_vector_from_json_string": true,
   "tests/test_skill_vectorizer.py::test_task_required_skill_vector_prefers_required_skills": true,
-  "tests/test_skill_vectorizer.py::test_task_required_skill_vector_falls_back_to_stack": true
+  "tests/test_skill_vectorizer.py::test_task_required_skill_vector_falls_back_to_stack": true,
+  "sandbox_app/tests/test_test_team_generator.py::test_case_summary": true
 }

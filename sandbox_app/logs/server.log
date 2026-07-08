@@ -426,3 +426,27 @@ INFO:     Waiting for application shutdown.
 2026-07-08 19:04:47,725 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
 INFO:     Finished server process [63845]
+INFO:     Started server process [76012]
+INFO:     Waiting for application startup.
+2026-07-08 19:30:07,815 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-08 19:30:07,815 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59499 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59504 - "GET /assignment-lab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59509 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59514 - "POST /api/test-cases/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59515 - "GET /api/test-cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59520 - "GET /api/test-cases/smoke_test_case_27_21/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59525 - "GET /api/test-cases/smoke_test_case_27_21/tables/team HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59526 - "GET /api/test-cases/smoke_test_case_27_21/tables/active_tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59527 - "GET /api/test-cases/smoke_test_case_27_21/tables/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59528 - "GET /api/test-cases/smoke_test_case_27_21/recommendation-context HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59530 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59531 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-08 19:31:49,967 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-08 19:31:49,967 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [76012]

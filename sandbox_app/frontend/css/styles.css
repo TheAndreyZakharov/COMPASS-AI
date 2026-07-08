@@ -272,8 +272,13 @@ button {
 }
 
 .button-danger {
-  color: #18040a;
-  background: var(--danger);
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.button-danger:hover {
+  background: #fecaca;
 }
 
 .form {

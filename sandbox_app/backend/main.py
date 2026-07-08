@@ -23,6 +23,7 @@ from sandbox_app.backend.api import (
     reports,
     sessions,
     status,
+    test_cases,
     training,
 )
 from sandbox_app.backend.core.logging import logger
@@ -95,6 +96,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(training.router, prefix=api_prefix)
     app.include_router(reports.router, prefix=api_prefix)
     app.include_router(models.router, prefix=api_prefix)
+    app.include_router(test_cases.router, prefix=api_prefix)
 
 
 def register_frontend_routes(app: FastAPI) -> None:

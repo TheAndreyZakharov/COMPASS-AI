@@ -1382,42 +1382,74 @@ Smoke test проходит.
 
 ## 27.21. Реализовать test team generator
 
-- [ ] Создать generator отдельной текущей команды.
-- [ ] Генерировать team.json.
-- [ ] Генерировать active_tasks.json.
-- [ ] Генерировать history.json.
-- [ ] Генерировать metadata.json.
-- [ ] Настраивать people count.
-- [ ] Настраивать roles.
-- [ ] Настраивать grades.
-- [ ] Настраивать current workload.
-- [ ] Настраивать fatigue.
-- [ ] Настраивать availability.
-- [ ] Настраивать history depth.
-- [ ] Настраивать learning goals.
-- [ ] Настраивать current active tasks.
-- [ ] Сохранять test case.
-- [ ] Загружать test case из файла.
-- [ ] Показывать test case в UI.
+- [x] Создать generator отдельной текущей команды.
+- [x] Генерировать team.json.
+- [x] Генерировать active_tasks.json.
+- [x] Генерировать history.json.
+- [x] Генерировать metadata.json.
+- [x] Настраивать people count.
+- [x] Настраивать roles.
+- [x] Настраивать grades.
+- [x] Настраивать current workload.
+- [x] Настраивать fatigue.
+- [x] Настраивать availability.
+- [x] Настраивать history depth.
+- [x] Настраивать learning goals.
+- [x] Настраивать current active tasks.
+- [x] Сохранять test case.
+- [x] Загружать test case из файла.
+- [x] Показывать test case в UI.
+- [x] Добавить Test Cases API.
+- [x] Добавить recommendation context endpoint для следующих этапов.
+- [x] Добавить pending tasks endpoint для bulk assignment.
+- [x] Добавить backend smoke test генератора.
+- [x] Добавить frontend smoke test Assignment Lab assets.
 
 Файлы:
 
-```text
 sandbox_app/backend/data_generation/test_team.py
 sandbox_app/backend/api/test_cases.py
 sandbox_app/frontend/js/pages/assignment_lab.js
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/css/styles.css
+sandbox_app/tests/test_test_team_generator.py
+sandbox_app/tests/test_assignment_lab_ui_assets.py
 
 Папка:
 
-```text
 sandbox_app/data/test_cases
-```
 
-**Ожидаемый результат:** можно создать отдельную реалистичную команду для проверки обученных моделей.
+Endpoints:
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox test team generator`
+GET /api/test-cases
+POST /api/test-cases/generate
+POST /api/test-cases/import
+GET /api/test-cases/{test_case_id}
+GET /api/test-cases/{test_case_id}/summary
+GET /api/test-cases/{test_case_id}/tables/{table_name}
+GET /api/test-cases/{test_case_id}/pending-tasks
+GET /api/test-cases/{test_case_id}/recommendation-context
+DELETE /api/test-cases/{test_case_id}
+
+Что сделано по факту:
+Test team generator создаёт отдельный test case для проверки обученных моделей. Генерируются текущая команда, active tasks, история выполненных задач и metadata. Настраиваются people_count, roles, grades, skills, workload, fatigue, availability, learning goals, history_depth и active_tasks_count. Test case сохраняется в sandbox_app/data/test_cases. API позволяет сгенерировать test case, импортировать готовый payload, получить список, детали, summary, tables, pending tasks и recommendation context. Assignment Lab показывает форму генерации, список test cases, summary, team, active tasks, history и context для следующих этапов.
+
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test test team generator проходит.
+Pytest smoke test Assignment Lab assets проходит.
+Если Node.js установлен, assignment_lab.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена страница /assignment-lab.
+Проверен endpoint генерации test case.
+Проверены endpoints list, summary, tables, pending tasks и recommendation context.
+Smoke test проходит.
+
+Ожидаемый результат:
+можно создать отдельную реалистичную команду для проверки обученных моделей.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox test team generator
 
 ---
 
