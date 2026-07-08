@@ -539,54 +539,52 @@ Smoke test проходит.
 
 ## 27.9. Реализовать backend full dataset generator одной кнопкой
 
-- [ ] Сделать режим small_preview.
-- [ ] Сделать режим medium_validation.
-- [ ] Сделать режим large_training.
-- [ ] Сделать режим huge_training.
-- [ ] Настраивать employees_count.
-- [ ] Настраивать tasks_count.
-- [ ] Настраивать history_depth_per_employee.
-- [ ] Настраивать target_pairs.
-- [ ] Настраивать candidates_per_task.
-- [ ] Генерировать employees.
-- [ ] Генерировать tasks.
-- [ ] Генерировать assignment_history.
-- [ ] Генерировать training pairs task-employee.
-- [ ] Добавлять positive examples.
-- [ ] Добавлять negative examples.
-- [ ] Балансировать классы.
-- [ ] Сохранять training_pairs.parquet.
-- [ ] Сохранять dataset_metadata.json.
-- [ ] Сохранять generation_report.json.
-- [ ] Добавить защиту huge generation через confirm_huge_generation.
-- [ ] Поддержать custom domain profiles.
-- [ ] Добавить endpoint генерации полного dataset.
+- [x] Сделать режим small_preview.
+- [x] Сделать режим medium_validation.
+- [x] Сделать режим large_training.
+- [x] Сделать режим huge_training.
+- [x] Настраивать employees_count.
+- [x] Настраивать tasks_count.
+- [x] Настраивать history_depth_per_employee.
+- [x] Настраивать target_pairs.
+- [x] Настраивать candidates_per_task.
+- [x] Генерировать employees.
+- [x] Генерировать tasks.
+- [x] Генерировать assignment_history.
+- [x] Генерировать training pairs task-employee.
+- [x] Добавлять positive examples.
+- [x] Добавлять negative examples.
+- [x] Балансировать классы.
+- [x] Сохранять training_pairs.parquet.
+- [x] Сохранять dataset_metadata.json.
+- [x] Сохранять generation_report.json.
+- [x] Добавить защиту huge generation через confirm_huge_generation.
+- [x] Поддержать custom domain profiles.
+- [x] Добавить endpoint генерации полного dataset.
+- [x] Добавить scoring engine для task-employee pairs.
+- [x] Добавить train, validation и test split для training_pairs.
+- [x] Добавить pytest smoke test полного dataset generator.
 
 Файлы:
 
-```text
 sandbox_app/backend/data_generation/training_pairs.py
+sandbox_app/backend/data_generation/dataset.py
 sandbox_app/backend/api/generate_dataset.py
-```
+sandbox_app/tests/test_full_dataset_generator.py
 
 Endpoint:
 
-```text
 POST /api/generate/dataset
-```
 
 Режимы:
 
-```text
 small_preview: 10 people, 100 tasks, 1 000 pairs
 medium_validation: 30 people, 1 000 tasks, 30 000 pairs
 large_training: 100 people, 10 000 tasks, 1 000 000 pairs
 huge_training: custom limits with explicit confirmation
-```
 
 Результаты:
 
-```text
 sandbox_app/data/generated/<dataset_id>/employees.csv
 sandbox_app/data/generated/<dataset_id>/employees.json
 sandbox_app/data/generated/<dataset_id>/tasks.csv
@@ -596,12 +594,28 @@ sandbox_app/data/generated/<dataset_id>/assignment_history.json
 sandbox_app/data/generated/<dataset_id>/training_pairs.parquet
 sandbox_app/data/generated/<dataset_id>/dataset_metadata.json
 sandbox_app/data/generated/<dataset_id>/generation_report.json
-```
 
-**Ожидаемый результат:** одной кнопкой можно создать полный training dataset любого нужного размера.
+Что сделано по факту:
+Full dataset generator одной командой запускает генерацию команды, задач, backlog, истории выполненных задач и training pairs. Поддержаны режимы small_preview, medium_validation, large_training и huge_training. Huge generation защищён обязательным confirm_huge_generation. Training pairs строятся как task-employee candidates, содержат positive и negative examples, target_score, target_mode, candidate_rank_hint и split. Классы балансируются. Training pairs сохраняются в Parquet. Dataset metadata и generation report сохраняются рядом с dataset.
 
-**Примерное время:** 8–14 часов.  
-**Коммит:** `Add sandbox training dataset generator`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Pytest smoke test полного dataset generator проходит.
+Проверен endpoint POST /api/generate/dataset.
+Проверено создание employees, tasks, assignment_history, training_pairs.parquet, dataset_metadata.json и generation_report.json.
+Проверены metadata counts.
+Проверено чтение training_pairs.parquet.
+Проверено наличие positive и negative labels.
+Проверена защита huge generation.
+Проверена защита overwrite.
+Smoke test проходит.
+
+Ожидаемый результат:
+одной кнопкой можно создать полный training dataset любого нужного размера.
+
+Примерное время: 8–14 часов.
+Коммит: Add sandbox training dataset generator
 
 ---
 
