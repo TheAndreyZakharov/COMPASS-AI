@@ -8,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sandbox_app.backend.api import config, contracts, sessions, status
+from sandbox_app.backend.api import config, contracts, feature_schemas, sessions, status
 from sandbox_app.backend.core.logging import logger
 from sandbox_app.backend.core.paths import PATHS, ensure_runtime_dirs
 from sandbox_app.backend.core.settings import load_settings
@@ -67,6 +67,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(status.router, prefix=api_prefix)
     app.include_router(config.router, prefix=api_prefix)
     app.include_router(contracts.router, prefix=api_prefix)
+    app.include_router(feature_schemas.router, prefix=api_prefix)
     app.include_router(sessions.router, prefix=api_prefix)
 
 

@@ -246,59 +246,75 @@ Smoke test проходит.
 
 ## 27.5. Реализовать настраиваемые feature schemas
 
-- [ ] Сделать системный профиль developers.
-- [ ] Сделать системный профиль designers.
-- [ ] Сделать полностью свободный профиль custom.
-- [ ] Поддержать любые domain profiles: медицина, право, продажи, дизайн, разработка, образование, операции.
-- [ ] Дать возможность создать профиль через API.
-- [ ] Дать возможность обновить профиль через API.
-- [ ] Дать возможность удалить несистемный профиль.
-- [ ] Защитить системные профили от удаления.
-- [ ] Дать возможность добавить employee feature.
-- [ ] Дать возможность добавить task feature.
-- [ ] Дать возможность добавить outcome feature.
-- [ ] Дать возможность переименовать feature.
-- [ ] Дать возможность удалить feature.
-- [ ] Поддержать numeric feature.
-- [ ] Поддержать categorical feature.
-- [ ] Поддержать boolean feature.
-- [ ] Поддержать text feature.
-- [ ] Поддержать skill_list feature.
-- [ ] Валидировать profile_id.
-- [ ] Валидировать feature names.
-- [ ] Валидировать feature types.
-- [ ] Показывать preview схемы через API.
-- [ ] Сохранять schemas в JSON.
-- [ ] Добавить документацию feature schemas.
+- [x] Сделать системный профиль developers.
+- [x] Сделать системный профиль designers.
+- [x] Сделать полностью свободный профиль custom.
+- [x] Поддержать любые domain profiles: медицина, право, продажи, дизайн, разработка, образование, операции.
+- [x] Дать возможность создать профиль через API.
+- [x] Дать возможность обновить профиль через API.
+- [x] Дать возможность удалить несистемный профиль.
+- [x] Защитить системные профили от удаления.
+- [x] Дать возможность добавить employee feature.
+- [x] Дать возможность добавить task feature.
+- [x] Дать возможность добавить outcome feature.
+- [x] Дать возможность переименовать feature.
+- [x] Дать возможность удалить feature.
+- [x] Поддержать numeric feature.
+- [x] Поддержать categorical feature.
+- [x] Поддержать boolean feature.
+- [x] Поддержать text feature.
+- [x] Поддержать skill_list feature.
+- [x] Валидировать profile_id.
+- [x] Валидировать feature names.
+- [x] Валидировать feature types.
+- [x] Показывать preview схемы через API.
+- [x] Сохранять schemas в JSON.
+- [x] Добавить документацию feature schemas.
+- [x] Добавить template endpoint для быстрого создания новых domain profiles.
+- [x] Добавить backend validation для feature groups.
+- [x] Добавить защиту system=true только для built-in profiles developers и designers.
 
 Файлы:
 
-```text
 sandbox_app/config/feature_schemas/developers.json
 sandbox_app/config/feature_schemas/designers.json
 sandbox_app/config/feature_schemas/custom.json
 sandbox_app/backend/features/schema.py
 sandbox_app/backend/api/feature_schemas.py
 sandbox_app/docs/feature_schemas.md
-```
 
 Endpoints:
 
-```text
 GET /api/feature-schemas
+GET /api/feature-schemas?preview=true
+GET /api/feature-schemas/template
 GET /api/feature-schemas/{profile_id}
+GET /api/feature-schemas/{profile_id}?preview=true
 POST /api/feature-schemas
 PUT /api/feature-schemas/{profile_id}
 DELETE /api/feature-schemas/{profile_id}
 POST /api/feature-schemas/{profile_id}/features/{group}
 PATCH /api/feature-schemas/{profile_id}/features/{group}/{feature_name}
 DELETE /api/feature-schemas/{profile_id}/features/{group}/{feature_name}
-```
 
-**Ожидаемый результат:** пользователь может настроить признаки под любую команду и домен, а генерация данных использует выбранную схему.
+Что сделано по факту:
+Feature schemas стали полноценной backend-сущностью. Developers и designers являются системными профилями и защищены от удаления. Custom является свободным редактируемым профилем. Можно создавать новые domain profiles для медицины, права, продаж, дизайна, разработки, образования, операций и любых других доменов. API поддерживает создание, обновление, удаление несистемных профилей, добавление, переименование, изменение и удаление features в группах employee, task и outcome. Поддержаны numeric, categorical, boolean, text и skill_list features. Все schemas сохраняются как JSON.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add configurable sandbox feature schemas`
+Проверки:
+JSON feature schemas проходят python -m json.tool.
+Backend проходит python -m compileall.
+Проверены list, preview, get, template endpoints.
+Проверено создание medicine profile через API.
+Проверено добавление, переименование и удаление feature.
+Проверена защита developers от удаления.
+Проверено удаление несистемного medicine profile.
+Smoke test проходит.
+
+Ожидаемый результат:
+пользователь может настроить признаки под любую команду и домен, а генерация данных использует выбранную схему.
+
+Примерное время: 6–10 часов.
+Коммит: Add configurable sandbox feature schemas
 
 ---
 

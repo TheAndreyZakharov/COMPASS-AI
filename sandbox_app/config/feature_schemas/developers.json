@@ -3,7 +3,14 @@
   "name": "Developers",
   "system": true,
   "version": "1.0.0",
-  "description": "Developers domain profile for COMPASS AI Sandbox.",
+  "description": "System domain profile for software development teams.",
+  "domain_examples": [
+    "development",
+    "engineering",
+    "software",
+    "platform",
+    "data"
+  ],
   "roles": [
     "backend_engineer",
     "frontend_engineer",

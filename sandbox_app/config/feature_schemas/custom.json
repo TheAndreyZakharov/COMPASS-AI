@@ -3,7 +3,16 @@
   "name": "Custom",
   "system": false,
   "version": "1.0.0",
-  "description": "Custom domain profile for COMPASS AI Sandbox.",
+  "description": "Editable free-form profile for medicine, law, sales, design, development, education, operations, and any custom domain.",
+  "domain_examples": [
+    "medicine",
+    "law",
+    "sales",
+    "design",
+    "development",
+    "education",
+    "operations"
+  ],
   "roles": [
     "specialist",
     "operator",
@@ -57,36 +66,13 @@
         "max": 1
       },
       {
-        "name": "avg_completion_speed",
-        "type": "numeric",
-        "required": true,
-        "min": 0,
-        "max": 1
-      },
-      {
-        "name": "avg_quality_score",
-        "type": "numeric",
-        "required": true,
-        "min": 0,
-        "max": 1
-      },
-      {
-        "name": "deadline_reliability",
-        "type": "numeric",
-        "required": true,
-        "min": 0,
-        "max": 1
-      },
-      {
-        "name": "mentor_level",
-        "type": "numeric",
-        "required": true,
-        "min": 0,
-        "max": 1
-      },
-      {
         "name": "learning_goals",
         "type": "skill_list",
+        "required": false
+      },
+      {
+        "name": "notes",
+        "type": "text",
         "required": false
       }
     ],
@@ -117,38 +103,17 @@
         "max": 240
       },
       {
-        "name": "deadline_days",
-        "type": "numeric",
-        "required": true,
-        "min": 0,
-        "max": 365
-      },
-      {
         "name": "required_skills",
         "type": "skill_list",
         "required": true
       },
       {
-        "name": "requires_mentor",
+        "name": "is_learning_task",
         "type": "boolean",
         "required": false
       }
     ],
     "outcome": [
-      {
-        "name": "planned_hours",
-        "type": "numeric",
-        "required": true,
-        "min": 0.5,
-        "max": 240
-      },
-      {
-        "name": "actual_hours",
-        "type": "numeric",
-        "required": true,
-        "min": 0.5,
-        "max": 400
-      },
       {
         "name": "quality_score",
         "type": "numeric",
@@ -184,13 +149,6 @@
         "name": "was_rework_needed",
         "type": "boolean",
         "required": true
-      },
-      {
-        "name": "feedback_score",
-        "type": "numeric",
-        "required": false,
-        "min": 0,
-        "max": 1
       }
     ]
   }
