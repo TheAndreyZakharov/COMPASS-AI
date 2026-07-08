@@ -9,6 +9,7 @@ from sandbox_app.backend.training.train_session import (
     TrainingSessionConfig,
     TrainingSessionError,
     list_training_sessions,
+    read_training_model_artifact,
     read_training_session,
     run_training_session,
 )
@@ -80,5 +81,29 @@ def get_training_sessions() -> dict[str, object]:
 def get_training_session(session_id: str) -> dict[str, object]:
     try:
         return read_training_session(session_id)
+    except TrainingSessionError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get("/sessions/{session_id}/artifacts")
+def get_training_session_artifacts(session_id: str) -> dict[str, object]:
+    try:
+        details = read_training_session(session_id)
+        return {
+            "session_id": session_id,
+            "artifacts": details["artifacts"],
+            "summary": details["summary"],
+        }
+    except TrainingSessionError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get("/sessions/{session_id}/models/{model_name}")
+def get_training_model_artifact(
+    session_id: str,
+    model_name: str,
+) -> dict[str, object]:
+    try:
+        return read_training_model_artifact(session_id=session_id, model_name=model_name)
     except TrainingSessionError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

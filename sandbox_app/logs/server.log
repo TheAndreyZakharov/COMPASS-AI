@@ -276,3 +276,27 @@ INFO:     Waiting for application shutdown.
 2026-07-08 16:26:09,979 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
 INFO:     Finished server process [90244]
+INFO:     Started server process [1159]
+INFO:     Waiting for application startup.
+2026-07-08 16:45:28,617 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-08 16:45:28,617 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:62286 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62295 - "POST /api/generate/dataset HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62298 - "POST /api/features/build HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62302 - "POST /api/training/run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62324 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62331 - "GET /api/training/sessions/2026-07-08_13-45-53_abcd24 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62336 - "GET /api/training/sessions/2026-07-08_13-45-53_abcd24/artifacts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62341 - "GET /api/training/sessions/2026-07-08_13-45-53_abcd24/models/baseline_rule_based HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62348 - "GET /models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62353 - "GET /js/pages/models.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62355 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62356 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-08 16:47:11,460 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-08 16:47:11,460 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1159]

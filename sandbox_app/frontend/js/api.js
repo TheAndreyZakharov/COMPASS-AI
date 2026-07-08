@@ -101,5 +101,12 @@ export const api = {
   trainingSession: (sessionId) =>
     apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
 
+  trainingSessionArtifacts: (sessionId) =>
+    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
+  trainingModelArtifact: (sessionId, modelName) =>
+    apiGet(
+      `/api/training/sessions/${encodeURIComponent(sessionId)}/models/` +
+        encodeURIComponent(modelName),
+    ),
   
 };

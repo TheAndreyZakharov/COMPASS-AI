@@ -1083,25 +1083,28 @@ Smoke test проходит.
 
 ## 27.17. Сделать формат training sessions и model artifacts
 
-- [ ] При каждом обучении создавать отдельную training session.
-- [ ] Называть session по времени и short id.
-- [ ] Сохранять session_config.json.
-- [ ] Сохранять dataset_metadata.json.
-- [ ] Сохранять feature_metadata.json.
-- [ ] Сохранять session_summary.json.
-- [ ] Сохранять comparison_metrics.csv.
-- [ ] Сохранять comparison_metrics.json.
-- [ ] Для каждой модели создавать отдельную подпапку.
-- [ ] Сохранять sklearn models в joblib.
-- [ ] Сохранять PyTorch model в pt.
-- [ ] Сохранять predictions.parquet.
-- [ ] Сохранять metrics.json.
-- [ ] Сохранять export_validation.json.
-- [ ] Показывать training sessions в UI.
+- [x] При каждом обучении создавать отдельную training session.
+- [x] Называть session по времени и short id.
+- [x] Сохранять session_config.json.
+- [x] Сохранять dataset_metadata.json.
+- [x] Сохранять feature_metadata.json.
+- [x] Сохранять session_summary.json.
+- [x] Сохранять comparison_metrics.csv.
+- [x] Сохранять comparison_metrics.json.
+- [x] Для каждой модели создавать отдельную подпапку.
+- [x] Сохранять sklearn models в joblib.
+- [x] Сохранять PyTorch model в pt.
+- [x] Сохранять predictions.parquet.
+- [x] Сохранять metrics.json.
+- [x] Сохранять export_validation.json.
+- [x] Показывать training sessions в UI.
+- [x] Сохранять model_metadata.json для каждой модели.
+- [x] Добавить artifacts endpoint для training session.
+- [x] Добавить model artifact endpoint.
+- [x] Добавить pytest smoke test training artifacts.
 
 Структура:
 
-```text
 sandbox_app/training_sessions/
 └── 2026-07-06_14-30-22_ab12cd/
     ├── session_config.json
@@ -1112,14 +1115,58 @@ sandbox_app/training_sessions/
     ├── comparison_metrics.json
     └── models/
         ├── random_forest/
+        │   ├── model.joblib
+        │   ├── predictions.parquet
+        │   ├── metrics.json
+        │   ├── model_metadata.json
+        │   └── export_validation.json
         ├── sgd_classifier/
         └── torch_mlp/
-```
+            ├── model.pt
+            ├── predictions.parquet
+            ├── metrics.json
+            ├── model_metadata.json
+            └── export_validation.json
 
-**Ожидаемый результат:** каждое обучение воспроизводимо и сохраняется как отдельная session.
+Файлы:
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox training sessions`
+sandbox_app/backend/training/train_session.py
+sandbox_app/backend/api/training.py
+sandbox_app/frontend/js/pages/models.js
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_training_session_artifacts.py
+
+Endpoints:
+
+GET /api/training/sessions
+GET /api/training/sessions/{session_id}
+GET /api/training/sessions/{session_id}/artifacts
+GET /api/training/sessions/{session_id}/models/{model_name}
+
+Что сделано по факту:
+Training session теперь имеет стабильную воспроизводимую структуру. Каждое обучение создаёт отдельную папку с session_config, dataset_metadata, feature_metadata, session_summary и comparison metrics. Для каждой модели создаётся отдельная подпапка с native artifact, predictions.parquet, metrics.json, model_metadata.json и export_validation.json. Export validation проверяет наличие artifact, predictions, metrics, model metadata, читаемость predictions и совпадение количества prediction rows. Страница Models показывает training sessions, session details, comparison metrics, model artifacts, export validation и predictions preview.
+
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test training artifacts проходит.
+Pytest smoke test training session проходит.
+Если Node.js установлен, models.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена генерация smoke dataset.
+Проверена сборка features.
+Проверен запуск training session.
+Проверена структура session.
+Проверены model artifacts.
+Проверен export_validation.json.
+Проверены sessions, details, artifacts и model artifact endpoints.
+Проверена страница /models.
+Smoke test проходит.
+
+Ожидаемый результат:
+каждое обучение воспроизводимо и сохраняется как отдельная session.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox training sessions
 
 ---
 
