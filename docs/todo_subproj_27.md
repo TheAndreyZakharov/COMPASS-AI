@@ -320,56 +320,68 @@ Smoke test проходит.
 
 ## 27.6. Реализовать backend generator команды
 
-- [ ] Создать генератор сотрудников.
-- [ ] Использовать выбранный domain_profile.
-- [ ] Настраивать employees_count.
-- [ ] Настраивать roles.
-- [ ] Настраивать grades.
-- [ ] Настраивать skills.
-- [ ] Настраивать skill_count_per_person_min.
-- [ ] Настраивать skill_count_per_person_max.
-- [ ] Настраивать seniority distribution.
-- [ ] Настраивать workload.
-- [ ] Настраивать fatigue.
-- [ ] Настраивать learning goals.
-- [ ] Генерировать availability_score.
-- [ ] Генерировать avg_completion_speed.
-- [ ] Генерировать avg_quality_score.
-- [ ] Генерировать deadline_reliability.
-- [ ] Генерировать mentor_level.
-- [ ] Генерировать custom employee features из schema.
-- [ ] Поддержать seed.
-- [ ] Сохранять employees.json.
-- [ ] Сохранять employees.csv.
-- [ ] Сохранять team_metadata.json.
-- [ ] Добавить endpoint генерации команды.
-- [ ] Проверить developers, designers и custom domain.
+- [x] Создать генератор сотрудников.
+- [x] Использовать выбранный domain_profile.
+- [x] Настраивать employees_count.
+- [x] Настраивать roles.
+- [x] Настраивать grades.
+- [x] Настраивать skills.
+- [x] Настраивать skill_count_per_person_min.
+- [x] Настраивать skill_count_per_person_max.
+- [x] Настраивать seniority distribution.
+- [x] Настраивать workload.
+- [x] Настраивать fatigue.
+- [x] Настраивать learning goals.
+- [x] Генерировать availability_score.
+- [x] Генерировать avg_completion_speed.
+- [x] Генерировать avg_quality_score.
+- [x] Генерировать deadline_reliability.
+- [x] Генерировать mentor_level.
+- [x] Генерировать custom employee features из schema.
+- [x] Поддержать seed.
+- [x] Сохранять employees.json.
+- [x] Сохранять employees.csv.
+- [x] Сохранять team_metadata.json.
+- [x] Добавить endpoint генерации команды.
+- [x] Проверить developers, designers и custom domain.
+- [x] Добавить validation generated employees через data contracts.
+- [x] Добавить защиту от случайного overwrite dataset_id.
+- [x] Добавить игнорирование generated runtime datasets в gitignore.
 
 Файлы:
 
-```text
 sandbox_app/backend/data_generation/employees.py
 sandbox_app/backend/api/generate_team.py
-```
 
 Endpoint:
 
-```text
 POST /api/generate/team
-```
 
 Результаты:
 
-```text
 sandbox_app/data/generated/<dataset_id>/employees.csv
 sandbox_app/data/generated/<dataset_id>/employees.json
 sandbox_app/data/generated/<dataset_id>/team_metadata.json
-```
 
-**Ожидаемый результат:** можно сгенерировать реалистичную команду с ролями, навыками, загрузкой, усталостью и характеристиками.
+Что сделано по факту:
+Генератор команды создаёт реалистичных сотрудников по выбранному domain_profile. Используются roles, grades, skills и employee feature definitions из feature schema. Настраиваются employees_count, seed, роли, грейды, навыки, распределение seniority, диапазоны workload, fatigue и availability, а также learning goals. Генерируются availability_score, current_workload, fatigue_score, avg_completion_speed, avg_quality_score, deadline_reliability, mentor_level и custom_features. Результаты сохраняются в employees.json, employees.csv и team_metadata.json. Endpoint возвращает dataset_id, paths, metadata и preview.
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox team generator`
+Проверки:
+Backend проходит python -m compileall.
+JSON-конфиги проходят python -m json.tool.
+Проверена генерация developers.
+Проверена генерация designers.
+Проверена генерация custom.
+Проверено сохранение employees.json, employees.csv и team_metadata.json.
+Проверено наличие domain_profile в metadata.
+Проверено наличие custom_features в employees.json.
+Smoke test проходит.
+
+Ожидаемый результат:
+можно сгенерировать реалистичную команду с ролями, навыками, загрузкой, усталостью и характеристиками.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox team generator
 
 ---
 
