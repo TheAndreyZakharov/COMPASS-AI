@@ -1455,34 +1455,69 @@ Smoke test проходит.
 
 ## 27.22. Реализовать single task recommendation
 
-- [ ] Выбирать saved model.
-- [ ] Выбирать test case.
-- [ ] Выбирать task.
-- [ ] Выбирать recommendation mode.
-- [ ] Строить пары task-employee.
-- [ ] Прогонять пары через выбранную модель.
-- [ ] Получать top candidates.
-- [ ] Показывать top-1.
-- [ ] Показывать top-3.
-- [ ] Показывать score.
-- [ ] Показывать factors.
-- [ ] Показывать risks.
-- [ ] Поддержать режимы best_quality, fastest_delivery, best_learning, balanced, risk_aware.
-- [ ] Сохранять recommendation result.
+- [x] Выбирать saved model.
+- [x] Выбирать test case.
+- [x] Выбирать task.
+- [x] Выбирать recommendation mode.
+- [x] Строить пары task-employee.
+- [x] Прогонять пары через выбранную модель.
+- [x] Получать top candidates.
+- [x] Показывать top-1.
+- [x] Показывать top-3.
+- [x] Показывать score.
+- [x] Показывать factors.
+- [x] Показывать risks.
+- [x] Поддержать режимы best_quality, fastest_delivery, best_learning, balanced, risk_aware.
+- [x] Сохранять recommendation result.
+- [x] Добавить Recommendations API.
+- [x] Добавить endpoint recommendation modes.
+- [x] Добавить endpoint recommendable tasks.
+- [x] Добавить сохранение recommendations внутри test case.
+- [x] Добавить pytest smoke test single recommendation.
+- [x] Добавить frontend API methods для recommendations.
 
 Файлы:
 
-```text
 sandbox_app/backend/inference/recommend.py
 sandbox_app/backend/inference/scoring.py
 sandbox_app/backend/inference/risk_factors.py
 sandbox_app/backend/api/recommendations.py
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_single_recommendation.py
+sandbox_app/tests/test_recommendations_api_assets.py
 
-**Ожидаемый результат:** можно проверить, кому модель отдаст конкретную задачу и почему.
+Endpoints:
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox single task recommendation`
+GET /api/recommendations/modes
+GET /api/recommendations/test-cases/{test_case_id}/tasks
+POST /api/recommendations/single
+GET /api/recommendations/test-cases/{test_case_id}
+GET /api/recommendations/test-cases/{test_case_id}/{recommendation_id}
+
+Что сделано по факту:
+Single task recommendation работает поверх сохранённых моделей и test cases. Backend выбирает task из test case, строит пары task-employee, собирает inference features, прогоняет их через выбранную saved model и пересчитывает итоговый score под recommendation mode. Для каждого кандидата возвращаются model_score, adjusted score, factors, matched skills, missing skills, risks и risk summary. Поддержаны режимы best_quality, fastest_delivery, best_learning, balanced и risk_aware. Результат сохраняется в sandbox_app/data/test_cases/<test_case_id>/recommendations.
+
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test single recommendation проходит.
+Pytest smoke test recommendations API assets проходит.
+Pytest smoke tests model export и test team generator проходят.
+Если Node.js установлен, api.js проходит node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверен endpoint recommendation modes.
+Проверена генерация smoke dataset.
+Проверен запуск training session.
+Проверена генерация test case.
+Проверен endpoint recommendable tasks.
+Проверен endpoint single recommendation.
+Проверено сохранение recommendation result.
+Smoke test проходит.
+
+Ожидаемый результат:
+можно проверить, кому модель отдаст конкретную задачу и почему.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox single task recommendation
 
 ---
 

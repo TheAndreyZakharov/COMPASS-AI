@@ -186,5 +186,19 @@ export const api = {
   deleteTestCase: (testCaseId) =>
     apiDelete(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
 
-
+  recommendationModes: () => apiGet("/api/recommendations/modes"),
+  recommendableTasks: (testCaseId) =>
+    apiGet(
+      `/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}/tasks`,
+    ),
+  singleRecommendation: (payload) =>
+    apiPost("/api/recommendations/single", payload),
+  savedRecommendations: (testCaseId) =>
+    apiGet(`/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}`),
+  savedRecommendation: (testCaseId, recommendationId) =>
+    apiGet(
+      `/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}/` +
+        encodeURIComponent(recommendationId),
+    ),
+    
 };
