@@ -210,7 +210,18 @@ export const api = {
       `/api/assignment-sessions/${encodeURIComponent(assignmentSessionId)}`,
     ),
 
-
+  llmStatus: () => apiGet("/api/llm/status"),
+  explainRecommendation: (payload) =>
+    apiPost("/api/llm/explain/recommendation", payload),
+  explainAssignment: (payload) =>
+    apiPost("/api/llm/explain/assignment", payload),
+  explainSavedAssignmentSession: (assignmentSessionId, useLlm = true) =>
+    apiPost(
+      `/api/llm/explain/assignment-sessions/${encodeURIComponent(
+        assignmentSessionId,
+      )}?use_llm=${encodeURIComponent(useLlm)}`,
+      {},
+    ),
 
 
 };

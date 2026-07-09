@@ -32,6 +32,10 @@ const state = {
     project: "",
     risk: "",
   },
+  useLlmExplanations: false,
+  llmStatus: null,
+  singleExplanation: null,
+  bulkExplanation: null,
 };
 
 function numberInput(id, label, value, attrs = "") {
@@ -294,6 +298,14 @@ function renderSelectionPanel() {
           0.18,
           "min='0' max='2' step='0.01'",
         )}
+        <label class="checkbox-label">
+          <input
+            id="useLlmExplanations"
+            type="checkbox"
+            ${state.useLlmExplanations ? "checked" : ""}
+          >
+          <span>LLM explanations через Qwen/Ollama</span>
+        </label>
       </div>
 
       <div class="actions-row">
@@ -344,6 +356,96 @@ function renderTestCasesPanel() {
   `;
 }
 
+function renderExplanationPanel(title, explanation) {
+  if (!explanation) {
+    return "";
+  }
+
+  const candidateExplanations = Array.isArray(explanation.candidate_explanations)
+    ? explanation.candidate_explanations
+    : [];
+
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>${htmlEscape(title)}</h3>
+          <p class="muted">
+            ${explanation.llm_used ? "Qwen/Ollama" : "Fallback"}
+            · ranking source: ${htmlEscape(
+              explanation.ranking_source || "model_output_unchanged",
+            )}
+          </p>
+        </div>
+        <span class="pill">${htmlEscape(explanation.status || "ok")}</span>
+      </div>
+
+      <p>${htmlEscape(explanation.summary || "")}</p>
+
+      ${
+        candidateExplanations.length
+          ? `
+            <div class="explanation-list">
+              ${candidateExplanations
+                .map(
+                  (item) => `
+                    <article class="explanation-card">
+                      <strong>${htmlEscape(item.employee_id || "")}</strong>
+                      <p>${htmlEscape(item.explanation || "")}</p>
+                      <p class="muted">
+                        Strengths: ${htmlEscape(
+                          Array.isArray(item.strengths)
+                            ? item.strengths.join(", ")
+                            : item.strengths || "",
+                        )}
+                      </p>
+                      <p class="muted">
+                        Concerns: ${htmlEscape(
+                          Array.isArray(item.concerns)
+                            ? item.concerns.join(", ")
+                            : item.concerns || "",
+                        )}
+                      </p>
+                    </article>
+                  `,
+                )
+                .join("")}
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        explanation.fairness_note ||
+        explanation.workload_note ||
+        explanation.unassigned_note ||
+        explanation.risks_note
+          ? `
+            <div class="explanation-list">
+              <article class="explanation-card">
+                <strong>Fairness</strong>
+                <p>${htmlEscape(explanation.fairness_note || "")}</p>
+              </article>
+              <article class="explanation-card">
+                <strong>Workload</strong>
+                <p>${htmlEscape(explanation.workload_note || "")}</p>
+              </article>
+              <article class="explanation-card">
+                <strong>Unassigned</strong>
+                <p>${htmlEscape(explanation.unassigned_note || "")}</p>
+              </article>
+              <article class="explanation-card">
+                <strong>Risks</strong>
+                <p>${htmlEscape(explanation.risks_note || "")}</p>
+              </article>
+            </div>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
+
 function renderSingleResult() {
   if (!state.singleResult) {
     return `
@@ -363,6 +465,7 @@ function renderSingleResult() {
   return `
     ${renderRecommendationCards(result, { title: "Single recommendation top candidates" })}
     ${renderCandidateComparison(filteredCandidates, { title: "Single candidate comparison" })}
+    ${renderExplanationPanel("Qwen explanation", state.singleExplanation)}
     <section class="panel">
       <h3>Single recommendation raw JSON</h3>
       <pre>${prettyJson(state.singleResult)}</pre>
@@ -477,6 +580,7 @@ function renderBulkResult() {
     ${renderBulkKanban(assigned, unassigned)}
     ${renderWorkloadChart(workloadRows)}
     ${renderFairnessChart(state.bulkResult.fairness_report, workloadRows)}
+    ${renderExplanationPanel("Qwen bulk assignment explanation", state.bulkExplanation)}
     ${renderExportLinks(state.bulkResult)}
     <section class="panel">
       <h3>Bulk assignment raw JSON</h3>
@@ -602,6 +706,41 @@ async function generateTestCase() {
   toast("Test case generated", "success");
 }
 
+function syncLlmCheckbox() {
+  const checkbox = document.getElementById("useLlmExplanations");
+  state.useLlmExplanations = Boolean(checkbox?.checked);
+}
+
+async function maybeExplainSingleRecommendation() {
+  state.singleExplanation = null;
+
+  if (!state.singleResult) {
+    return;
+  }
+
+  const payload = {
+    recommendation: state.singleResult,
+    use_llm: state.useLlmExplanations,
+  };
+
+  state.singleExplanation = await api.explainRecommendation(payload);
+}
+
+async function maybeExplainBulkAssignment() {
+  state.bulkExplanation = null;
+
+  if (!state.bulkResult) {
+    return;
+  }
+
+  const payload = {
+    assignment_session: state.bulkResult,
+    use_llm: state.useLlmExplanations,
+  };
+
+  state.bulkExplanation = await api.explainAssignment(payload);
+}
+
 async function runSingleRecommendation() {
   state.selectedTrainingSessionId = selectedValue("trainingSessionId");
   state.selectedModelName = selectedValue("modelName");
@@ -619,6 +758,8 @@ async function runSingleRecommendation() {
   };
 
   state.singleResult = await api.singleRecommendation(payload);
+  syncLlmCheckbox();
+  await maybeExplainSingleRecommendation();
   toast("Single recommendation completed", "success");
 }
 
@@ -644,6 +785,8 @@ async function runBulkAssignment() {
   };
 
   state.bulkResult = await api.runBulkAssignment(payload);
+  syncLlmCheckbox();
+  await maybeExplainBulkAssignment();
   await refreshAll();
   toast("Bulk assignment completed", "success");
 }
@@ -724,6 +867,8 @@ function bindEvents(root) {
     button.addEventListener("click", async () => {
       const sessionId = button.dataset.assignmentSessionId || "";
       state.bulkResult = await api.assignmentSession(sessionId);
+      syncLlmCheckbox();
+      await maybeExplainBulkAssignment();
       root.innerHTML = render();
       bindEvents(root);
     });

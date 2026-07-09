@@ -852,3 +852,29 @@ button:disabled {
 .list-card.active {
   border-color: currentColor;
 }
+
+.checkbox-label {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+.explanation-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.explanation-card {
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.explanation-card p {
+  margin: 6px 0 0;
+}

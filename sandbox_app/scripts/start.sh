@@ -39,6 +39,9 @@ PY
 )"
 echo "${PYTHON_CHECK}"
 
+echo "Starting Ollama for sandbox LLM explanations"
+bash "${SCRIPT_DIR}/start_ollama.sh"
+
 if [[ -f "${PID_FILE}" ]]; then
   EXISTING_PID="$(cat "${PID_FILE}")"
   if [[ -n "${EXISTING_PID}" ]] && kill -0 "${EXISTING_PID}" 2>/dev/null; then
@@ -66,12 +69,14 @@ echo "${APP_PID}" >"${PID_FILE}"
 for _ in $(seq 1 30); do
   if "${PYTHON_BIN}" - <<PY >/dev/null 2>&1
 from urllib.request import urlopen
+
 with urlopen("http://${HOST}:${PORT}/api/health", timeout=1) as response:
     raise SystemExit(0 if response.status == 200 else 1)
 PY
   then
     echo "Sandbox app started with PID ${APP_PID}"
     echo "URL: http://${HOST}:${PORT}"
+    echo "LLM status: http://${HOST}:${PORT}/api/llm/status"
     exit 0
   fi
 

@@ -1656,45 +1656,87 @@ Smoke test проходит.
 
 ## 27.25. Подключить Qwen/Ollama explanations
 
-- [ ] Создать отдельный Ollama client внутри sandbox_app.
-- [ ] Не использовать src/llm/ollama_client.py напрямую.
-- [ ] Добавить settings для Ollama base URL.
-- [ ] Добавить settings для model name.
-- [ ] Добавить settings для timeout.
-- [ ] Проверять доступность Ollama.
-- [ ] Использовать Qwen только для объяснения.
-- [ ] Запретить Qwen менять ranking.
-- [ ] Запретить Qwen придумывать кандидатов.
-- [ ] Запретить Qwen придумывать навыки.
-- [ ] Передавать Qwen только готовый top-k и factors.
-- [ ] Валидировать, что explanation упоминает только разрешённых кандидатов.
-- [ ] Сделать fallback explanation без LLM.
-- [ ] Добавить checkbox LLM explanations в UI.
-- [ ] Объяснять на русском языке.
-- [ ] Проверить сценарий Ollama unavailable.
-- [ ] Проверить сценарий Qwen available.
+- [x] Создать отдельный Ollama client внутри sandbox_app.
+- [x] Не использовать src/llm/ollama_client.py напрямую.
+- [x] Добавить settings для Ollama base URL.
+- [x] Добавить settings для model name.
+- [x] Добавить settings для timeout.
+- [x] Проверять доступность Ollama.
+- [x] Использовать Qwen только для объяснения.
+- [x] Запретить Qwen менять ranking.
+- [x] Запретить Qwen придумывать кандидатов.
+- [x] Запретить Qwen придумывать навыки.
+- [x] Передавать Qwen только готовый top-k и factors.
+- [x] Валидировать, что explanation упоминает только разрешённых кандидатов.
+- [x] Сделать fallback explanation без LLM.
+- [x] Добавить checkbox LLM explanations в UI.
+- [x] Объяснять на русском языке.
+- [x] Проверить сценарий Ollama unavailable.
+- [x] Проверить сценарий Qwen available.
+- [x] Добавить LLM API.
+- [x] Добавить explanations для single recommendation.
+- [x] Добавить explanations для bulk assignment.
+- [x] Добавить sandbox scripts для запуска и остановки Ollama.
+- [x] Подключить запуск Ollama к sandbox_app/scripts/start.sh.
+- [x] Подключить остановку Ollama к sandbox_app/scripts/stop.sh.
+- [x] Добавить auto pull модели Qwen через ollama CLI.
+- [x] Усилить stop_ollama.sh против автоматического перезапуска Ollama.app.
+- [x] Добавить backend tests для fallback и validation.
+- [x] Добавить frontend wiring для Assignment Lab.
 
 Файлы:
 
-```text
 sandbox_app/backend/llm/ollama_client.py
 sandbox_app/backend/llm/qwen_explainer.py
 sandbox_app/backend/api/llm.py
 sandbox_app/frontend/js/pages/assignment_lab.js
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/css/styles.css
+sandbox_app/scripts/start_ollama.sh
+sandbox_app/scripts/stop_ollama.sh
+sandbox_app/scripts/start.sh
+sandbox_app/scripts/stop.sh
+sandbox_app/tests/test_qwen_explainer.py
+sandbox_app/tests/test_llm_api_assets.py
 
 Настройки:
 
-```text
 SANDBOX_OLLAMA_BASE_URL=http://localhost:11434
 SANDBOX_OLLAMA_MODEL=qwen2.5:1.5b-instruct
 SANDBOX_LLM_TIMEOUT_SECONDS=30
-```
+SANDBOX_OLLAMA_AUTO_PULL=1
 
-**Ожидаемый результат:** по checkbox можно включить русские Qwen explanations, но Qwen не влияет на ranking.
+Endpoints:
 
-**Примерное время:** 6–10 часов.  
-**Коммит:** `Add sandbox Qwen explanations`
+GET /api/llm/status
+POST /api/llm/explain/recommendation
+POST /api/llm/explain/assignment
+POST /api/llm/explain/assignment-sessions/{assignment_session_id}
+
+Что сделано по факту:
+Sandbox получил отдельный Ollama client и Qwen explainer без использования основного src/llm. Qwen получает только готовые candidates, factors, risks, assignments и fairness metrics. Ranking, scores, candidates и assignments не меняются. LLM response валидируется: candidate_explanations могут ссылаться только на разрешённые employee_id. Если Ollama недоступен, модель не найдена, ответ пустой или JSON невалидный, backend возвращает fallback explanation на русском языке. В Assignment Lab добавлен checkbox LLM explanations через Qwen/Ollama для single recommendation и bulk assignment. Sandbox start сначала поднимает Ollama, проверяет модель и при необходимости делает ollama pull. Sandbox stop останавливает backend и Ollama вместе, включая повторные попытки на случай автоматического перезапуска Ollama.app.
+
+Проверки:
+Backend проходит python -m compileall.
+Shell scripts проходят bash -n.
+Pytest tests Qwen explainer и LLM API assets проходят.
+Pytest smoke tests single recommendation, bulk assignment и recommendation UI assets проходят.
+Если Node.js установлен, assignment_lab.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверен endpoint LLM status.
+Проверен fallback explanation для recommendation.
+Проверен fallback explanation для assignment.
+Проверен реальный LLM explanation через use_llm true.
+Проверено, что start.sh поднимает Ollama и sandbox backend.
+Проверено, что stop.sh останавливает sandbox backend и Ollama.
+Проверена страница /assignment-lab.
+Smoke test проходит.
+
+Ожидаемый результат:
+по checkbox можно включить русские Qwen explanations, но Qwen не влияет на ranking.
+
+Примерное время: 6–10 часов.
+Коммит: Add sandbox Qwen explanations
 
 ---
 

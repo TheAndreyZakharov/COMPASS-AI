@@ -20,6 +20,7 @@ from sandbox_app.backend.api import (
     generate_tasks,
     generate_team,
     import_data,
+    llm,
     models,
     recommendations,
     reports,
@@ -101,6 +102,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(test_cases.router, prefix=api_prefix)
     app.include_router(recommendations.router, prefix=api_prefix)
     app.include_router(assignment_sessions.router, prefix=api_prefix)
+    app.include_router(llm.router, prefix=api_prefix)
 
 
 def register_frontend_routes(app: FastAPI) -> None:

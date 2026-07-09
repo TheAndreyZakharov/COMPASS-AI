@@ -633,3 +633,74 @@ INFO:     Waiting for application shutdown.
 2026-07-09 10:34:59,058 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
 INFO:     Finished server process [96035]
+INFO:     Started server process [18087]
+INFO:     Waiting for application startup.
+2026-07-09 11:57:06,310 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 11:57:06,310 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53361 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53364 - "GET /api/llm/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53367 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53370 - "POST /api/llm/explain/assignment HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53374 - "GET /assignment-lab HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53377 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53378 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53379 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-09 11:57:41,241 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 11:57:41,241 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [18087]
+INFO:     Started server process [24151]
+INFO:     Waiting for application startup.
+2026-07-09 12:11:41,486 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 12:11:41,486 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54678 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54707 - "GET /api/llm/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54715 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54749 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54750 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-09 12:13:17,558 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 12:13:17,558 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [24151]
+INFO:     Started server process [26160]
+INFO:     Waiting for application startup.
+2026-07-09 12:13:55,104 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 12:13:55,104 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55023 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55100 - "GET /api/llm/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55169 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55199 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55200 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-09 12:14:41,904 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 12:14:41,904 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [26160]
+INFO:     Started server process [29316]
+INFO:     Waiting for application startup.
+2026-07-09 12:17:31,978 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 12:17:31,978 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55359 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55360 - "GET /api/llm/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55363 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55380 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55381 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-09 12:18:04,062 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 12:18:04,062 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [29316]
