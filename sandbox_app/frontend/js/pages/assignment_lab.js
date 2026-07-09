@@ -1,5 +1,4 @@
 import { api } from "../api.js";
-import { htmlEscape, prettyJson, toast } from "../app.js";
 import { renderCandidateComparison } from "../components/candidate_comparison.js";
 import { renderFairnessChart } from "../components/fairness_chart.js";
 import { renderRecommendationCards } from "../components/recommendation_cards.js";
@@ -16,6 +15,8 @@ const MODEL_NAMES = [
 
 const state = {
   testCases: [],
+  testCaseSummaries: {},
+  recommendationContexts: {},
   trainingSessions: [],
   assignmentSessions: [],
   selectedTestCaseId: "",
@@ -37,6 +38,31 @@ const state = {
   singleExplanation: null,
   bulkExplanation: null,
 };
+
+function htmlEscape(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function prettyJson(value) {
+  return htmlEscape(JSON.stringify(value ?? {}, null, 2));
+}
+
+function toast(message, type = "info") {
+  window.dispatchEvent(
+    new CustomEvent("sandbox-toast", {
+      detail: {
+        title: type === "error" ? "Assignment Lab error" : "Assignment Lab",
+        message,
+        type,
+      },
+    }),
+  );
+}
 
 function numberInput(id, label, value, attrs = "") {
   return `
@@ -63,12 +89,12 @@ function selectInput(id, label, options, selected) {
       <select id="${id}">
         ${options
           .map(
-            (option) => `
+            (optionItem) => `
               <option
-                value="${htmlEscape(option.value)}"
-                ${option.value === selected ? "selected" : ""}
+                value="${htmlEscape(optionItem.value)}"
+                ${optionItem.value === selected ? "selected" : ""}
               >
-                ${htmlEscape(option.label)}
+                ${htmlEscape(optionItem.label)}
               </option>
             `,
           )
@@ -102,11 +128,23 @@ function modelOptions() {
   }));
 }
 
+function testCaseSummary(testCaseId) {
+  return state.testCaseSummaries[testCaseId] || {};
+}
+
+function recommendationContext(testCaseId) {
+  return state.recommendationContexts[testCaseId] || {};
+}
+
 function testCaseOptions() {
-  return state.testCases.map((item) => ({
-    label: `${item.test_case_id} · ${item.people_count || 0} people`,
-    value: item.test_case_id,
-  }));
+  return state.testCases.map((item) => {
+    const summary = testCaseSummary(item.test_case_id);
+
+    return {
+      label: `${item.test_case_id} · ${summary.people_count ?? item.people_count ?? 0} people`,
+      value: item.test_case_id,
+    };
+  });
 }
 
 function trainingSessionOptions() {
@@ -155,7 +193,7 @@ function renderFilters() {
           <h3>Filters</h3>
           <p class="muted">Фильтры по результатам single и bulk assignment.</p>
         </div>
-        <button id="clearAssignmentFilters" class="button-secondary">
+        <button id="clearAssignmentFilters" class="button-secondary" type="button">
           Clear filters
         </button>
       </div>
@@ -180,7 +218,9 @@ function renderGeneratorPanel() {
             Создание отдельной команды для проверки recommendations.
           </p>
         </div>
-        <button id="refreshAssignmentData" class="button-secondary">Refresh</button>
+        <button id="refreshAssignmentData" class="button-secondary" type="button">
+          Refresh
+        </button>
       </div>
 
       <div class="form-grid">
@@ -205,7 +245,7 @@ function renderGeneratorPanel() {
       </div>
 
       <div class="actions-row">
-        <button id="generateTestCase">Generate test case</button>
+        <button id="generateTestCase" type="button">Generate test case</button>
       </div>
     </section>
   `;
@@ -230,12 +270,7 @@ function renderSelectionPanel() {
           trainingSessionOptions(),
           state.selectedTrainingSessionId,
         )}
-        ${selectInput(
-          "modelName",
-          "Model",
-          modelOptions(),
-          state.selectedModelName,
-        )}
+        ${selectInput("modelName", "Model", modelOptions(), state.selectedModelName)}
         ${selectInput(
           "testCaseSelect",
           "Test case",
@@ -309,11 +344,13 @@ function renderSelectionPanel() {
       </div>
 
       <div class="actions-row">
-        <button id="loadRecommendableTasks" class="button-secondary">
+        <button id="loadRecommendableTasks" class="button-secondary" type="button">
           Load tasks
         </button>
-        <button id="runSingleRecommendation">Run single recommendation</button>
-        <button id="runBulkAssignment">Run bulk assignment</button>
+        <button id="runSingleRecommendation" type="button">
+          Run single recommendation
+        </button>
+        <button id="runBulkAssignment" type="button">Run bulk assignment</button>
       </div>
     </section>
   `;
@@ -334,22 +371,33 @@ function renderTestCasesPanel() {
       <h3>Test cases</h3>
       <div class="list-grid">
         ${state.testCases
-          .map(
-            (item) => `
+          .map((item) => {
+            const summary = testCaseSummary(item.test_case_id);
+            const context = recommendationContext(item.test_case_id);
+            const peopleCount = summary.people_count ?? item.people_count ?? 0;
+            const tasksCount =
+              summary.active_tasks_count ?? item.active_tasks_count ?? 0;
+            const historyCount = summary.history_count ?? item.history_count ?? 0;
+            const contextTasks = context.pending_tasks_count ?? context.tasks_count ?? 0;
+
+            return `
               <button
                 class="list-card ${
                   item.test_case_id === state.selectedTestCaseId ? "active" : ""
                 }"
                 data-test-case-id="${htmlEscape(item.test_case_id)}"
+                type="button"
               >
                 <strong>${htmlEscape(item.test_case_id)}</strong>
                 <span>
-                  people: ${htmlEscape(item.people_count ?? 0)}
-                  · tasks: ${htmlEscape(item.active_tasks_count ?? 0)}
+                  people: ${htmlEscape(peopleCount)}
+                  · tasks: ${htmlEscape(tasksCount)}
+                  · history: ${htmlEscape(historyCount)}
+                  · context tasks: ${htmlEscape(contextTasks)}
                 </span>
               </button>
-            `,
-          )
+            `;
+          })
           .join("")}
       </div>
     </section>
@@ -611,6 +659,7 @@ function renderAssignmentSessionsPanel() {
                 data-assignment-session-id="${htmlEscape(
                   item.assignment_session_id,
                 )}"
+                type="button"
               >
                 <strong>${htmlEscape(item.assignment_session_id)}</strong>
                 <span>
@@ -651,6 +700,36 @@ function render() {
   `;
 }
 
+async function loadTestCaseSummaries() {
+  const summaryResults = await Promise.allSettled(
+    state.testCases.slice(0, 30).map(async (item) => {
+      const summary = await api.testCaseSummary(item.test_case_id);
+      return [item.test_case_id, summary];
+    }),
+  );
+
+  state.testCaseSummaries = Object.fromEntries(
+    summaryResults
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => result.value),
+  );
+}
+
+async function loadRecommendationContexts() {
+  const contextResults = await Promise.allSettled(
+    state.testCases.slice(0, 30).map(async (item) => {
+      const context = await api.testCaseRecommendationContext(item.test_case_id);
+      return [item.test_case_id, context];
+    }),
+  );
+
+  state.recommendationContexts = Object.fromEntries(
+    contextResults
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => result.value),
+  );
+}
+
 async function refreshAll() {
   const [testCases, trainingSessions, assignmentSessions] = await Promise.all([
     api.testCases(),
@@ -669,6 +748,11 @@ async function refreshAll() {
   if (!state.selectedTrainingSessionId && state.trainingSessions.length) {
     state.selectedTrainingSessionId = state.trainingSessions[0].session_id;
   }
+
+  await Promise.all([
+    loadTestCaseSummaries(),
+    loadRecommendationContexts(),
+  ]);
 }
 
 async function loadTasks() {
@@ -801,9 +885,11 @@ function syncFilters() {
 function bindEvents(root) {
   root.querySelector("#refreshAssignmentData")?.addEventListener("click", async () => {
     await refreshAll();
+
     if (state.selectedTestCaseId) {
       await loadTasks();
     }
+
     root.innerHTML = render();
     bindEvents(root);
   });
@@ -885,3 +971,13 @@ export async function renderAssignmentLabPage(root) {
   root.innerHTML = render();
   bindEvents(root);
 }
+
+export async function renderAssignmentLab(root) {
+  await renderAssignmentLabPage(root);
+}
+
+export async function renderPage(root) {
+  await renderAssignmentLabPage(root);
+}
+
+export default renderAssignmentLabPage;

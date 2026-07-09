@@ -4,6 +4,17 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse as ExportFileResponse
+from pydantic import BaseModel as ExportBaseModel
+from sandbox_app.backend.reports.assignment_report import generate_assignment_report
+from sandbox_app.backend.reports.dataset_report import generate_dataset_report
+from sandbox_app.backend.reports.html_export import (
+    ExportError,
+    list_export_reports,
+    read_json,
+    safe_report_file,
+)
+from sandbox_app.backend.reports.model_report import generate_model_report
 from sandbox_app.backend.reports.training_report import (
     generate_training_report,
     list_training_reports,
@@ -105,3 +116,90 @@ def get_training_report_file(session_id: str, relative_path: str) -> FileRespons
         raise HTTPException(status_code=404, detail="Report file not found")
 
     return FileResponse(requested_path)
+
+
+
+
+class DatasetExportRequest(ExportBaseModel):
+    dataset_kind: str | None = None
+
+
+@router.get("/exports")
+def list_reports_exports() -> dict[str, object]:
+    return {
+        "reports": list_export_reports(),
+    }
+
+
+@router.get("/exports/{report_id}")
+def get_reports_export(report_id: str) -> dict[str, object]:
+    try:
+        manifest_path = safe_report_file(report_id, "report_manifest.json")
+        report_path = safe_report_file(report_id, "report.json")
+    except ExportError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    return {
+        "manifest": read_json(manifest_path, default={}),
+        "report": read_json(report_path, default={}),
+    }
+
+
+@router.get("/exports/{report_id}/files/{file_name}")
+def get_reports_export_file(report_id: str, file_name: str) -> ExportFileResponse:
+    try:
+        path = safe_report_file(report_id, file_name)
+    except ExportError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    return ExportFileResponse(path)
+
+
+@router.post("/exports/datasets/{dataset_id}")
+def create_dataset_export(
+    dataset_id: str,
+    payload: DatasetExportRequest,
+) -> dict[str, object]:
+    try:
+        return generate_dataset_report(
+            dataset_id=dataset_id,
+            dataset_kind=payload.dataset_kind,
+        )
+    except ExportError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/exports/dataset/{dataset_id}")
+def create_dataset_export_alias(
+    dataset_id: str,
+    payload: DatasetExportRequest,
+) -> dict[str, object]:
+    return create_dataset_export(dataset_id=dataset_id, payload=payload)
+
+
+@router.post("/exports/models/{session_id}")
+def create_model_export(session_id: str) -> dict[str, object]:
+    try:
+        return generate_model_report(session_id=session_id)
+    except ExportError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/exports/model/{session_id}")
+def create_model_export_alias(session_id: str) -> dict[str, object]:
+    return create_model_export(session_id=session_id)
+
+
+@router.post("/exports/assignments/{assignment_session_id}")
+def create_assignment_export(assignment_session_id: str) -> dict[str, object]:
+    try:
+        return generate_assignment_report(
+            assignment_session_id=assignment_session_id,
+        )
+    except ExportError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/exports/assignment/{assignment_session_id}")
+def create_assignment_export_alias(assignment_session_id: str) -> dict[str, object]:
+    return create_assignment_export(assignment_session_id=assignment_session_id)

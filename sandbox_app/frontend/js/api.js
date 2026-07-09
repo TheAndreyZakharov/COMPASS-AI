@@ -36,7 +36,7 @@ export async function apiGet(path) {
   return parseResponse(response);
 }
 
-export async function apiPost(path, payload) {
+export async function apiPost(path, payload = {}) {
   const response = await fetch(path, {
     method: "POST",
     headers: JSON_HEADERS,
@@ -69,9 +69,12 @@ export const api = {
   config: () => apiGet("/api/config"),
   settings: () => apiGet("/api/config/settings"),
   sessions: () => apiGet("/api/sessions"),
+
   contractsSummary: () => apiGet("/api/contracts/summary"),
   featureSchemas: () => apiGet("/api/feature-schemas?preview=true"),
+
   datasets: () => apiGet("/api/data-viewer/datasets"),
+  dataViewerDatasets: () => apiGet("/api/data-viewer/datasets"),
 
   datasetSummary: (datasetId, query = "") =>
     apiGet(
@@ -99,6 +102,7 @@ export const api = {
   importDataset: (formData) => apiUpload("/api/import-data/datasets", formData),
 
   buildFeatures: (payload) => apiPost("/api/features/build", payload),
+
   featureMetadata: (datasetId, query = "") =>
     apiGet(
       `/api/features/datasets/${encodeURIComponent(datasetId)}/metadata${query}`,
@@ -106,40 +110,51 @@ export const api = {
 
   runTraining: (payload) => apiPost("/api/training/run", payload),
   trainingSessions: () => apiGet("/api/training/sessions"),
+
   trainingSession: (sessionId) =>
     apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
 
+  trainingArtifacts: (sessionId) =>
+    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
+
   trainingSessionArtifacts: (sessionId) =>
     apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
+
   trainingModelArtifact: (sessionId, modelName) =>
     apiGet(
       `/api/training/sessions/${encodeURIComponent(sessionId)}/models/` +
         encodeURIComponent(modelName),
     ),
-  
+
   trainingReports: () => apiGet("/api/reports/training"),
+
   generateTrainingReport: (sessionId) =>
     apiPost(`/api/reports/training/${encodeURIComponent(sessionId)}/generate`, {}),
+
   trainingReport: (sessionId) =>
     apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
 
   modelsList: () => apiGet("/api/models"),
+
   modelMetadata: (sessionId, modelName) =>
     apiGet(
       `/api/models/${encodeURIComponent(sessionId)}/` +
         encodeURIComponent(modelName),
     ),
+
   modelValidation: (sessionId, modelName) =>
     apiGet(
       `/api/models/${encodeURIComponent(sessionId)}/` +
         `${encodeURIComponent(modelName)}/validation`,
     ),
+
   validateModel: (sessionId, modelName, payload) =>
     apiPost(
       `/api/models/${encodeURIComponent(sessionId)}/` +
         `${encodeURIComponent(modelName)}/validate`,
       payload,
     ),
+
   exportModel: (sessionId, modelName, payload) =>
     apiPost(
       `/api/models/${encodeURIComponent(sessionId)}/` +
@@ -147,54 +162,47 @@ export const api = {
       payload,
     ),
 
-  runTraining: (payload) => apiPost("/api/training/run", payload),
-  trainingSessions: () => apiGet("/api/training/sessions"),
-  trainingSession: (sessionId) =>
-    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
-  trainingArtifacts: (sessionId) =>
-    apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
-  trainingModelArtifact: (sessionId, modelName) =>
-    apiGet(
-      `/api/training/sessions/${encodeURIComponent(sessionId)}/models/` +
-        encodeURIComponent(modelName),
-    ),
-  trainingReports: () => apiGet("/api/reports/training"),
-  generateTrainingReport: (sessionId) =>
-    apiPost(`/api/reports/training/${encodeURIComponent(sessionId)}/generate`, {}),
-  trainingReport: (sessionId) =>
-    apiGet(`/api/reports/training/${encodeURIComponent(sessionId)}`),
-
   testCases: () => apiGet("/api/test-cases"),
   generateTestCase: (payload) => apiPost("/api/test-cases/generate", payload),
   importTestCase: (payload) => apiPost("/api/test-cases/import", payload),
+
   testCase: (testCaseId) =>
     apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
+
   testCaseSummary: (testCaseId) =>
     apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}/summary`),
+
   testCaseTable: (testCaseId, tableName) =>
     apiGet(
       `/api/test-cases/${encodeURIComponent(testCaseId)}/tables/` +
         encodeURIComponent(tableName),
     ),
+
   testCasePendingTasks: (testCaseId) =>
     apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}/pending-tasks`),
+
   testCaseRecommendationContext: (testCaseId) =>
     apiGet(
       `/api/test-cases/${encodeURIComponent(testCaseId)}/` +
         "recommendation-context",
     ),
+
   deleteTestCase: (testCaseId) =>
     apiDelete(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
 
   recommendationModes: () => apiGet("/api/recommendations/modes"),
+
   recommendableTasks: (testCaseId) =>
     apiGet(
       `/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}/tasks`,
     ),
+
   singleRecommendation: (payload) =>
     apiPost("/api/recommendations/single", payload),
+
   savedRecommendations: (testCaseId) =>
     apiGet(`/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}`),
+
   savedRecommendation: (testCaseId, recommendationId) =>
     apiGet(
       `/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}/` +
@@ -202,19 +210,25 @@ export const api = {
     ),
 
   assignmentModes: () => apiGet("/api/assignment-sessions/modes"),
+
   runBulkAssignment: (payload) =>
     apiPost("/api/assignment-sessions/run", payload),
+
   assignmentSessions: () => apiGet("/api/assignment-sessions"),
+
   assignmentSession: (assignmentSessionId) =>
     apiGet(
       `/api/assignment-sessions/${encodeURIComponent(assignmentSessionId)}`,
     ),
 
   llmStatus: () => apiGet("/api/llm/status"),
+
   explainRecommendation: (payload) =>
     apiPost("/api/llm/explain/recommendation", payload),
+
   explainAssignment: (payload) =>
     apiPost("/api/llm/explain/assignment", payload),
+
   explainSavedAssignmentSession: (assignmentSessionId, useLlm = true) =>
     apiPost(
       `/api/llm/explain/assignment-sessions/${encodeURIComponent(
@@ -223,5 +237,29 @@ export const api = {
       {},
     ),
 
+  exportReports: () => apiGet("/api/reports/exports"),
 
+  exportReport: (reportId) =>
+    apiGet(`/api/reports/exports/${encodeURIComponent(reportId)}`),
+
+  generateDatasetExport: (datasetId, payload = {}) =>
+    apiPost(
+      `/api/reports/exports/datasets/${encodeURIComponent(datasetId)}`,
+      payload,
+    ),
+
+  generateModelExport: (sessionId) =>
+    apiPost(`/api/reports/exports/models/${encodeURIComponent(sessionId)}`, {}),
+
+  generateAssignmentExport: (assignmentSessionId) =>
+    apiPost(
+      `/api/reports/exports/assignments/${encodeURIComponent(
+        assignmentSessionId,
+      )}`,
+      {},
+    ),
+
+  exportReportFileUrl: (reportId, fileName) =>
+    `/api/reports/exports/${encodeURIComponent(reportId)}/files/` +
+    encodeURIComponent(fileName),
 };

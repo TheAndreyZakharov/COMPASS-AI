@@ -1,706 +1,96 @@
-2026-07-08 18:13:42,057 | ERROR | sandbox_app | Unhandled sandbox backend error: float() argument must be a string or a real number, not 'dict'
-Traceback (most recent call last):
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
-    await self.app(scope, receive, _send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
-    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2543, in app
-    await route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1700, in handle
-    await self.original_router.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2598, in handle
-    await included_router._handle_selected(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1720, in _handle_selected
-    await original_route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1239, in handle
-    await app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 150, in app
-    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 136, in app
-    response = await f(request)
-               ^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 690, in app
-    raw_response = await run_endpoint_function(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 346, in run_endpoint_function
-    return await run_in_threadpool(dependant.call, **values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
-    return await anyio.to_thread.run_sync(func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
-    return await get_async_backend().run_sync_in_worker_thread(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2596, in run_sync_in_worker_thread
-    return await future
-           ^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1029, in run
-    result = context.run(func, *args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/api/models.py", line 57, in export_model
-    return export_and_validate_model(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 327, in export_and_validate_model
-    onnx_result = export_optional_onnx(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 257, in export_optional_onnx
-    return export_sklearn_to_onnx(model, feature_frame)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 166, in export_sklearn_to_onnx
-    onnx_scores = run_onnx_predictions(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/inference/onnx_runtime.py", line 47, in run_onnx_predictions
-    output = np.asarray(outputs[-1]).reshape(-1).astype(float)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: float() argument must be a string or a real number, not 'dict'
-2026-07-08 18:13:42,057 | ERROR | sandbox_app | Unhandled sandbox backend error: float() argument must be a string or a real number, not 'dict'
-Traceback (most recent call last):
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
-    await self.app(scope, receive, _send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
-    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2543, in app
-    await route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1700, in handle
-    await self.original_router.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2598, in handle
-    await included_router._handle_selected(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1720, in _handle_selected
-    await original_route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1239, in handle
-    await app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 150, in app
-    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 136, in app
-    response = await f(request)
-               ^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 690, in app
-    raw_response = await run_endpoint_function(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 346, in run_endpoint_function
-    return await run_in_threadpool(dependant.call, **values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
-    return await anyio.to_thread.run_sync(func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
-    return await get_async_backend().run_sync_in_worker_thread(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2596, in run_sync_in_worker_thread
-    return await future
-           ^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1029, in run
-    result = context.run(func, *args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/api/models.py", line 57, in export_model
-    return export_and_validate_model(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 327, in export_and_validate_model
-    onnx_result = export_optional_onnx(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 257, in export_optional_onnx
-    return export_sklearn_to_onnx(model, feature_frame)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 166, in export_sklearn_to_onnx
-    onnx_scores = run_onnx_predictions(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/inference/onnx_runtime.py", line 47, in run_onnx_predictions
-    output = np.asarray(outputs[-1]).reshape(-1).astype(float)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: float() argument must be a string or a real number, not 'dict'
-INFO:     127.0.0.1:53344 - "POST /api/models/2026-07-08_15-10-41_3d4565/logistic_regression/export HTTP/1.1" 500 Internal Server Error
-ERROR:    Exception in ASGI application
-Traceback (most recent call last):
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 421, in run_asgi
-    result = await app(  # type: ignore[func-returns-value]
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
-    return await self.app(scope, receive, send)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1163, in __call__
-    await super().__call__(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/applications.py", line 90, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
-    await self.app(scope, receive, _send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
-    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
-    await self.app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2543, in app
-    await route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1700, in handle
-    await self.original_router.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 2598, in handle
-    await included_router._handle_selected(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1720, in _handle_selected
-    await original_route.handle(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 1239, in handle
-    await app(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 150, in app
-    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 136, in app
-    response = await f(request)
-               ^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 690, in app
-    raw_response = await run_endpoint_function(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 346, in run_endpoint_function
-    return await run_in_threadpool(dependant.call, **values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
-    return await anyio.to_thread.run_sync(func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/to_thread.py", line 63, in run_sync
-    return await get_async_backend().run_sync_in_worker_thread(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2596, in run_sync_in_worker_thread
-    return await future
-           ^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1029, in run
-    result = context.run(func, *args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/api/models.py", line 57, in export_model
-    return export_and_validate_model(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 327, in export_and_validate_model
-    onnx_result = export_optional_onnx(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 257, in export_optional_onnx
-    return export_sklearn_to_onnx(model, feature_frame)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py", line 166, in export_sklearn_to_onnx
-    onnx_scores = run_onnx_predictions(
-                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/inference/onnx_runtime.py", line 47, in run_onnx_predictions
-    output = np.asarray(outputs[-1]).reshape(-1).astype(float)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: float() argument must be a string or a real number, not 'dict'
+INFO:     127.0.0.1:61097 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61102 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61099 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61101 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61098 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61100 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61097 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
-2026-07-08 18:20:47,300 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 18:20:47,300 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 13:22:29,397 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 13:22:29,397 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
-INFO:     Finished server process [34257]
-INFO:     Started server process [42340]
+INFO:     Finished server process [55753]
+INFO:     Started server process [65634]
 INFO:     Waiting for application startup.
-2026-07-08 18:20:50,455 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-08 18:20:50,455 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 13:22:54,124 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 13:22:54,124 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:54122 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54126 - "GET /reports HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54126 - "GET /js/api.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54126 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54134 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54126 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54134 - "GET /api/reports/training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54126 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54134 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54126 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54134 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54148 - "POST /api/models/2026-07-08_15-10-41_3d4565/logistic_regression/export HTTP/1.1" 200 OK
-/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py:226: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
-  torch.onnx.export(
-W0708 18:21:19.650000 42340 .venv/lib/python3.11/site-packages/torch/onnx/_internal/exporter/_compat.py:133] Setting ONNX exporter to use operator set version 18 because the requested opset_version 17 is a lower version than we have implementations for. Automatic version conversion will be performed, which may not be successful at converting to the requested version. If version conversion is unsuccessful, the opset version of the exported model will be kept at 18. Please consider setting opset_version >=18 to leverage latest ONNX features
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/copyreg.py:105: FutureWarning: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-  return cls.__new__(cls, *args)
-The model version conversion is not supported by the onnxscript version converter and fallback is enabled. The model will be converted using the onnx C API (target version: 17).
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`...
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`... ✅
-[torch.onnx] Run decompositions...
-[torch.onnx] Run decompositions... ✅
-[torch.onnx] Translate the graph into ONNX...
-[torch.onnx] Translate the graph into ONNX... ✅
-[torch.onnx] Optimize the ONNX graph...
-[torch.onnx] Optimize the ONNX graph... ✅
-INFO:     127.0.0.1:54155 - "POST /api/models/2026-07-08_15-10-41_3d4565/torch_mlp/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54241 - "GET /api/models/2026-07-08_15-10-41_3d4565/torch_mlp/validation HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54779 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54779 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54779 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54796 - "GET /api/training/sessions/2026-07-08_15-10-41_3d4565/models/baseline_rule_based HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54796 - "GET /api/training/sessions/2026-07-08_15-10-41_3d4565/models/baseline_rule_based HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54796 - "GET /api/training/sessions/2026-07-08_15-10-41_3d4565/models/baseline_rule_based HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62048 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62054 - "GET /js/pages/assignment_lab.js?v=context-fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62055 - "GET /js/pages/assignment_lab.js?v=context-fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62057 - "GET /js/pages/assignment_lab.js?v=context-fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62066 - "GET /js/app.js?v=context-fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62070 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62078 - "GET /api/reports/exports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62081 - "GET /api/test-cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62082 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62083 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /css/styles.css?v=20260709_frontend_bootstrap_fix HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62112 - "GET /js/app.js?v=20260709_frontend_bootstrap_fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62112 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62112 - "GET /js/components/candidate_comparison.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62114 - "GET /js/components/fairness_chart.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62112 - "GET /js/components/recommendation_cards.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62115 - "GET /js/components/workload_chart.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62114 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /js/pages/assignment_lab.js?v=20260709_frontend_bootstrap_fix HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/test-cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/assignment-sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /js/pages/reports.js?v=20260709_frontend_bootstrap_fix HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62115 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/assignment-sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/reports/exports HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/config/settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/test-cases HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/assignment-sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/training/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62117 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62116 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62115 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62348 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62348 - "GET /js/app.js?v=20260709_frontend_bootstrap_fix HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62348 - "GET /js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62348 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62348 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62348 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62348 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62349 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62350 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62348 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62349 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62351 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62352 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
-2026-07-08 18:31:35,742 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 18:31:35,742 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 13:27:38,477 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 13:27:38,477 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
-INFO:     Finished server process [42340]
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
-  warnings.warn('resource_tracker: There appear to be %d '
-INFO:     Started server process [46501]
-INFO:     Waiting for application startup.
-2026-07-08 18:31:38,705 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-08 18:31:38,705 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:54980 - "GET /api/health HTTP/1.1" 200 OK
-/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py:226: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
-  torch.onnx.export(
-W0708 18:31:46.262000 46501 .venv/lib/python3.11/site-packages/torch/onnx/_internal/exporter/_compat.py:133] Setting ONNX exporter to use operator set version 18 because the requested opset_version 17 is a lower version than we have implementations for. Automatic version conversion will be performed, which may not be successful at converting to the requested version. If version conversion is unsuccessful, the opset version of the exported model will be kept at 18. Please consider setting opset_version >=18 to leverage latest ONNX features
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/copyreg.py:105: FutureWarning: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-  return cls.__new__(cls, *args)
-The model version conversion is not supported by the onnxscript version converter and fallback is enabled. The model will be converted using the onnx C API (target version: 17).
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`...
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`... ✅
-[torch.onnx] Run decompositions...
-[torch.onnx] Run decompositions... ✅
-[torch.onnx] Translate the graph into ONNX...
-[torch.onnx] Translate the graph into ONNX... ✅
-[torch.onnx] Optimize the ONNX graph...
-[torch.onnx] Optimize the ONNX graph... ✅
-INFO:     127.0.0.1:54987 - "POST /api/models/2026-07-08_15-10-41_3d4565/torch_mlp/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54997 - "POST /api/training/run HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55021 - "POST /api/models/2026-07-08_15-10-41_3d4565/baseline_rule_based/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55022 - "POST /api/models/2026-07-08_15-10-41_3d4565/sgd_classifier/export HTTP/1.1" 400 Bad Request
-INFO:     127.0.0.1:55023 - "POST /api/models/2026-07-08_15-10-41_3d4565/logistic_regression/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55024 - "POST /api/models/2026-07-08_15-10-41_3d4565/random_forest/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55025 - "POST /api/models/2026-07-08_15-10-41_3d4565/hist_gradient_boosting/export HTTP/1.1" 400 Bad Request
-/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py:226: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
-  torch.onnx.export(
-W0708 18:32:54.682000 46501 .venv/lib/python3.11/site-packages/torch/onnx/_internal/exporter/_compat.py:133] Setting ONNX exporter to use operator set version 18 because the requested opset_version 17 is a lower version than we have implementations for. Automatic version conversion will be performed, which may not be successful at converting to the requested version. If version conversion is unsuccessful, the opset version of the exported model will be kept at 18. Please consider setting opset_version >=18 to leverage latest ONNX features
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/copyreg.py:105: FutureWarning: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-  return cls.__new__(cls, *args)
-The model version conversion is not supported by the onnxscript version converter and fallback is enabled. The model will be converted using the onnx C API (target version: 17).
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`...
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`... ✅
-[torch.onnx] Run decompositions...
-[torch.onnx] Run decompositions... ✅
-[torch.onnx] Translate the graph into ONNX...
-[torch.onnx] Translate the graph into ONNX... ✅
-[torch.onnx] Optimize the ONNX graph...
-[torch.onnx] Optimize the ONNX graph... ✅
-INFO:     127.0.0.1:55026 - "POST /api/models/2026-07-08_15-10-41_3d4565/torch_mlp/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55335 - "POST /api/models/2026-07-08_15-32-03_a49270/baseline_rule_based/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55336 - "POST /api/models/2026-07-08_15-32-03_a49270/sgd_classifier/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55337 - "POST /api/models/2026-07-08_15-32-03_a49270/logistic_regression/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55338 - "POST /api/models/2026-07-08_15-32-03_a49270/random_forest/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55339 - "POST /api/models/2026-07-08_15-32-03_a49270/hist_gradient_boosting/export HTTP/1.1" 200 OK
-/Users/andrey/Documents/projects/COMPASS-AI/sandbox_app/backend/training/export_models.py:226: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
-  torch.onnx.export(
-W0708 18:36:21.095000 46501 .venv/lib/python3.11/site-packages/torch/onnx/_internal/exporter/_compat.py:133] Setting ONNX exporter to use operator set version 18 because the requested opset_version 17 is a lower version than we have implementations for. Automatic version conversion will be performed, which may not be successful at converting to the requested version. If version conversion is unsuccessful, the opset version of the exported model will be kept at 18. Please consider setting opset_version >=18 to leverage latest ONNX features
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/copyreg.py:105: FutureWarning: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
-  return cls.__new__(cls, *args)
-The model version conversion is not supported by the onnxscript version converter and fallback is enabled. The model will be converted using the onnx C API (target version: 17).
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`...
-[torch.onnx] Obtain model graph for `Sequential([...]` with `torch.export.export(..., strict=False)`... ✅
-[torch.onnx] Run decompositions...
-[torch.onnx] Run decompositions... ✅
-[torch.onnx] Translate the graph into ONNX...
-[torch.onnx] Translate the graph into ONNX... ✅
-[torch.onnx] Optimize the ONNX graph...
-[torch.onnx] Optimize the ONNX graph... ✅
-INFO:     127.0.0.1:55340 - "POST /api/models/2026-07-08_15-32-03_a49270/torch_mlp/export HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55401 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55402 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-08 18:38:03,093 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 18:38:03,093 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [46501]
-/opt/homebrew/Cellar/python@3.11/3.11.15_3/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
-  warnings.warn('resource_tracker: There appear to be %d '
-INFO:     Started server process [59678]
-INFO:     Waiting for application startup.
-2026-07-08 18:54:00,478 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-08 18:54:00,478 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:56506 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56519 - "GET /models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56521 - "GET /js/pages/assignment_lab.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56520 - "GET /css/styles.css HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56522 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56523 - "GET /js/app.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56524 - "GET /js/api.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56523 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56522 - "GET /js/pages/training.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56520 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56521 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56524 - "GET /js/pages/import_data.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56523 - "GET /js/components/charts.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56521 - "GET /js/components/kanban.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56522 - "GET /js/components/table.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56524 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56520 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:56523 - "GET /js/components/training_metrics.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56521 - "GET /js/components/training_plots.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56522 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56524 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56520 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56525 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56525 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56525 - "GET /favicon.ico HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56535 - "GET /training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56538 - "GET /models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56550 - "GET /js/pages/training.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56559 - "GET /js/components/training_metrics.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56567 - "GET /js/components/training_plots.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56575 - "POST /api/generate/dataset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56653 - "POST /api/training/run HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56670 - "GET /api/training/sessions/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56673 - "POST /api/reports/training/2026-07-08_15-54-48_ff2f17/generate HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56685 - "GET /api/reports/training/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56711 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56712 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57006 - "GET /api/reports/training/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-08 18:58:15,172 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 18:58:15,172 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [59678]
-INFO:     Started server process [63845]
-INFO:     Waiting for application startup.
-2026-07-08 18:58:18,492 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-08 18:58:18,492 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:57031 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57032 - "GET /api/reports/training/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57035 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57035 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57035 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57037 - "GET /api/reports/training/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57058 - "GET /api/reports/training/2026-07-08_15-54-48_ff2f17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57061 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57062 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57476 - "GET /models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57476 - "GET /js/api.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57476 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57483 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57476 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57483 - "GET /js/components/training_metrics.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57476 - "GET /js/components/training_plots.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57483 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57476 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57483 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-08 19:04:47,725 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 19:04:47,725 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [63845]
-INFO:     Started server process [76012]
-INFO:     Waiting for application startup.
-2026-07-08 19:30:07,815 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-08 19:30:07,815 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:59499 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59504 - "GET /assignment-lab HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59509 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59514 - "POST /api/test-cases/generate HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59515 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59520 - "GET /api/test-cases/smoke_test_case_27_21/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59525 - "GET /api/test-cases/smoke_test_case_27_21/tables/team HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59526 - "GET /api/test-cases/smoke_test_case_27_21/tables/active_tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59527 - "GET /api/test-cases/smoke_test_case_27_21/tables/history HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59528 - "GET /api/test-cases/smoke_test_case_27_21/recommendation-context HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59530 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59531 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-08 19:31:49,967 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-08 19:31:49,967 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [76012]
-INFO:     Started server process [73981]
-INFO:     Waiting for application startup.
-2026-07-09 10:01:01,372 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 10:01:01,372 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:62700 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62703 - "GET /api/recommendations/modes HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62706 - "POST /api/generate/dataset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62707 - "POST /api/training/run HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62711 - "POST /api/test-cases/generate HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62712 - "GET /api/recommendations/test-cases/smoke_test_case_27_22/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62715 - "POST /api/recommendations/single HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62716 - "GET /api/recommendations/test-cases/smoke_test_case_27_22 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62719 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62720 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62788 - "GET /models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62793 - "GET /js/api.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62791 - "GET /css/styles.css HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /js/pages/settings.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62794 - "GET /js/pages/reports.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62792 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /js/app.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62795 - "GET /js/pages/dashboard.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62792 - "GET /js/pages/training.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62793 - "GET /js/pages/models.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62791 - "GET /js/components/charts.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62794 - "GET /js/pages/viewer.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62795 - "GET /js/pages/import_data.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62792 - "GET /js/pages/generator.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62793 - "GET /js/components/kanban.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62791 - "GET /js/components/table.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62794 - "GET /js/components/training_metrics.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62795 - "GET /js/components/training_plots.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:62792 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62791 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62793 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62796 - "GET /apple-touch-icon-precomposed.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62796 - "GET /apple-touch-icon.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62796 - "GET /favicon.ico HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62788 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/reports/training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62795 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62794 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 10:03:08,230 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 10:03:08,230 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [73981]
-INFO:     Started server process [85025]
-INFO:     Waiting for application startup.
-2026-07-09 10:19:26,547 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 10:19:26,547 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:63796 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63814 - "GET /api/assignment-sessions/modes HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63830 - "POST /api/generate/dataset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63839 - "POST /api/training/run HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63844 - "POST /api/test-cases/generate HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63845 - "POST /api/assignment-sessions/run HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63850 - "GET /api/assignment-sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63852 - "GET /api/assignment-sessions/assignment_20260709_071959_c1aeb00e HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63855 - "GET /api/assignment-sessions/assignment_20260709_071959_c1aeb00e/files/assignment_report.html HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63856 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63857 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 10:20:30,705 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 10:20:30,705 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [85025]
-INFO:     Started server process [94361]
-INFO:     Waiting for application startup.
-2026-07-09 10:31:48,929 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 10:31:48,929 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:64760 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64763 - "GET /assignment-lab HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64776 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64779 - "GET /js/components/recommendation_cards.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64786 - "GET /js/components/candidate_comparison.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64791 - "GET /js/components/workload_chart.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64794 - "GET /js/components/fairness_chart.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64795 - "GET /css/styles.css HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64796 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64797 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 10:32:35,623 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 10:32:35,623 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [94361]
-INFO:     Started server process [96035]
-INFO:     Waiting for application startup.
-2026-07-09 10:33:17,168 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 10:33:17,168 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:64856 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET /js/api.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64868 - "GET /api/config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64867 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64869 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64870 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64868 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/config/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/reports/training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/import-data/supported-tables HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64886 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64893 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64894 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64893 - "GET /api/config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64894 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64893 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64894 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64893 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64898 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/reports/training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/config/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/config/settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/reports/training HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/test-cases HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/training/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/sessions HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/contracts/summary HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64902 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64905 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 10:34:59,058 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 10:34:59,058 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [96035]
-INFO:     Started server process [18087]
-INFO:     Waiting for application startup.
-2026-07-09 11:57:06,310 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 11:57:06,310 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:53361 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53364 - "GET /api/llm/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53367 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53370 - "POST /api/llm/explain/assignment HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53374 - "GET /assignment-lab HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53377 - "GET /js/pages/assignment_lab.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53378 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53379 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 11:57:41,241 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 11:57:41,241 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [18087]
-INFO:     Started server process [24151]
-INFO:     Waiting for application startup.
-2026-07-09 12:11:41,486 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 12:11:41,486 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:54678 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54707 - "GET /api/llm/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54715 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54749 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54750 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 12:13:17,558 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 12:13:17,558 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [24151]
-INFO:     Started server process [26160]
-INFO:     Waiting for application startup.
-2026-07-09 12:13:55,104 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 12:13:55,104 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:55023 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55100 - "GET /api/llm/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55169 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55199 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55200 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 12:14:41,904 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 12:14:41,904 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [26160]
-INFO:     Started server process [29316]
-INFO:     Waiting for application startup.
-2026-07-09 12:17:31,978 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-2026-07-09 12:17:31,978 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
-INFO:     127.0.0.1:55359 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55360 - "GET /api/llm/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55363 - "POST /api/llm/explain/recommendation HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55380 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55381 - "GET / HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-2026-07-09 12:18:04,062 | INFO | sandbox_app | Stopping sandbox backend
-2026-07-09 12:18:04,062 | INFO | sandbox_app | Stopping sandbox backend
-INFO:     Application shutdown complete.
-INFO:     Finished server process [29316]
+INFO:     Finished server process [65634]

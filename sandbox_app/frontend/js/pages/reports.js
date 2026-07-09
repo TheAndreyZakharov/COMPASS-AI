@@ -1,336 +1,570 @@
 import { api } from "../api.js";
-import { htmlEscape, prettyJson, toast } from "../app.js";
-import { renderSummaryCards } from "../components/charts.js";
-import { renderDataTable } from "../components/table.js";
 
 const state = {
-  reports: null,
-  selectedSessionId: "",
+  datasets: [],
+  trainingSessions: [],
+  assignmentSessions: [],
+  exportReports: [],
+  selectedDatasetId: "",
+  selectedDatasetKind: "generated",
+  selectedTrainingSessionId: "",
+  selectedAssignmentSessionId: "",
+  selectedReport: null,
+  error: "",
 };
 
-function reportOptions(payload) {
-  const reports = payload?.reports || [];
-
-  if (reports.length === 0) {
-    return '<option value="">Нет training sessions</option>';
-  }
-
-  return reports
-    .map((report) => {
-      const selected = report.session_id === state.selectedSessionId ? "selected" : "";
-
-      return `
-        <option value="${htmlEscape(report.session_id)}" ${selected}>
-          ${htmlEscape(report.session_id)} · ${htmlEscape(report.status || "")}
-        </option>
-      `;
-    })
-    .join("");
+function htmlEscape(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function selectedReport() {
-  return (state.reports?.reports || []).find(
-    (report) => report.session_id === state.selectedSessionId,
+function prettyJson(value) {
+  return htmlEscape(JSON.stringify(value ?? {}, null, 2));
+}
+
+function toast(title, message = "") {
+  window.dispatchEvent(
+    new CustomEvent("sandbox-toast", {
+      detail: {
+        title,
+        message,
+      },
+    }),
   );
 }
 
-function readControls() {
-  state.selectedSessionId = document.querySelector("#reportsSession").value;
-  renderSelectedReport();
+function option(value, label, selected) {
+  return `
+    <option value="${htmlEscape(value)}" ${value === selected ? "selected" : ""}>
+      ${htmlEscape(label)}
+    </option>
+  `;
 }
 
-function setReportsLoading(isLoading, label = "Loading...") {
-  const status = document.querySelector("#reportsStatus");
-  const buttons = document.querySelectorAll("[data-reports-action]");
+function selectedValue(id) {
+  const element = document.querySelector(`#${id}`);
+  return element ? element.value : "";
+}
 
-  buttons.forEach((button) => {
-    button.disabled = isLoading;
-    button.classList.toggle("loading", isLoading);
-  });
+function datasetRows(payload) {
+  const generated = payload?.generated || [];
+  const imported = payload?.imported || [];
 
-  status.className = isLoading ? "status-pill status-pending" : "status-pill status-ok";
-  status.innerHTML = isLoading
-    ? `<span class="status-dot"></span><span>${htmlEscape(label)}</span>`
-    : '<span class="status-dot"></span><span>Готов</span>';
+  return [
+    ...generated.map((item) => ({ ...item, dataset_kind: "generated" })),
+    ...imported.map((item) => ({ ...item, dataset_kind: "imported" })),
+  ];
+}
+
+function resultValue(result, fallback) {
+  return result.status === "fulfilled" ? result.value : fallback;
+}
+
+function errorMessage(error) {
+  if (!error) {
+    return "";
+  }
+
+  return error.message || String(error);
+}
+
+function renderStatusPanel() {
+  if (!state.error) {
+    return "";
+  }
+
+  return `
+    <section class="panel error-panel">
+      <h3>Reports page warning</h3>
+      <p>${htmlEscape(state.error)}</p>
+      <button id="retryReportsData" class="button-secondary" type="button">Retry</button>
+    </section>
+  `;
+}
+
+function renderDatasetOptions() {
+  if (!state.datasets.length) {
+    return option("", "Нет datasets", "");
+  }
+
+  return state.datasets
+    .map((item) =>
+      option(
+        item.dataset_id,
+        `${item.dataset_id} · ${item.dataset_kind}`,
+        state.selectedDatasetId,
+      ),
+    )
+    .join("");
+}
+
+function renderTrainingSessionOptions() {
+  if (!state.trainingSessions.length) {
+    return option("", "Нет training sessions", "");
+  }
+
+  return state.trainingSessions
+    .map((item) =>
+      option(
+        item.session_id,
+        `${item.session_id} · ${item.status || "unknown"}`,
+        state.selectedTrainingSessionId,
+      ),
+    )
+    .join("");
+}
+
+function renderAssignmentSessionOptions() {
+  if (!state.assignmentSessions.length) {
+    return option("", "Нет assignment sessions", "");
+  }
+
+  return state.assignmentSessions
+    .map((item) =>
+      option(
+        item.assignment_session_id,
+        item.assignment_session_id,
+        state.selectedAssignmentSessionId,
+      ),
+    )
+    .join("");
+}
+
+function renderExportLinks(report) {
+  const files = Array.isArray(report?.files) ? report.files : [];
+
+  if (!report?.report_id || !files.length) {
+    return `<p class="muted">Export files пока не созданы.</p>`;
+  }
+
+  return `
+    <div class="export-links">
+      ${files
+        .map(
+          (fileName) => `
+            <a
+              class="button-secondary"
+              href="${api.exportReportFileUrl(report.report_id, fileName)}"
+              target="_blank"
+              rel="noreferrer"
+            >
+              ${htmlEscape(fileName)}
+            </a>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderExportReportsList() {
+  if (!state.exportReports.length) {
+    return `
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <h3>Saved report exports</h3>
+            <p class="muted">Экспортированные reports пока не созданы.</p>
+          </div>
+          <button id="refreshReportExports" class="button-secondary" type="button">
+            Refresh
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Saved report exports</h3>
+          <p class="muted">JSON, CSV и HTML reports из sandbox_app/reports.</p>
+        </div>
+        <button id="refreshReportExports" class="button-secondary" type="button">
+          Refresh
+        </button>
+      </div>
+
+      <div class="list-grid">
+        ${state.exportReports
+          .map(
+            (report) => `
+              <button
+                class="list-card"
+                data-report-id="${htmlEscape(report.report_id)}"
+                type="button"
+              >
+                <strong>${htmlEscape(report.title || report.report_id)}</strong>
+                <span>
+                  ${htmlEscape(report.report_kind || "report")}
+                  · ${htmlEscape(report.generated_at || "")}
+                </span>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderDatasetExportPanel() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Dataset reports</h3>
+          <p class="muted">
+            Dataset generation report и dataset quality report.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Dataset
+          <select id="datasetReportId">
+            ${renderDatasetOptions()}
+          </select>
+        </label>
+
+        <label>
+          Dataset kind
+          <select id="datasetReportKind">
+            ${option("generated", "generated", state.selectedDatasetKind)}
+            ${option("imported", "imported", state.selectedDatasetKind)}
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button id="generateDatasetExport" type="button">Generate dataset export</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderModelExportPanel() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Model comparison reports</h3>
+          <p class="muted">
+            Export comparison metrics, model artifacts и validation status.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Training session
+          <select id="modelReportSessionId">
+            ${renderTrainingSessionOptions()}
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button id="generateModelExport" type="button">Generate model export</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderAssignmentExportPanel() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Assignment reports</h3>
+          <p class="muted">
+            Recommendation, bulk assignment, fairness и workload reports.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Assignment session
+          <select id="assignmentReportSessionId">
+            ${renderAssignmentSessionOptions()}
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button id="generateAssignmentExport" type="button">
+          Generate assignment export
+        </button>
+      </div>
+    </section>
+  `;
 }
 
 function renderSelectedReport() {
-  const element = document.querySelector("#selectedReportJson");
-
-  if (!element) {
-    return;
+  if (!state.selectedReport) {
+    return `
+      <section class="panel">
+        <h3>Report details</h3>
+        <p class="muted">Выбери report export, чтобы открыть details и links.</p>
+      </section>
+    `;
   }
 
-  element.textContent = prettyJson(selectedReport() || {});
-}
+  const manifest = state.selectedReport.manifest || {};
+  const report = state.selectedReport.report || {};
 
-function renderOutput(html) {
-  document.querySelector("#reportsOutput").innerHTML = html;
-}
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>${htmlEscape(manifest.title || manifest.report_id || "Report")}</h3>
+          <p class="muted">
+            ${htmlEscape(manifest.report_kind || "report")}
+            · ${htmlEscape(manifest.generated_at || "")}
+          </p>
+        </div>
+      </div>
 
-function renderError(error) {
-  renderOutput(`
-    <article class="card">
-      <span class="badge">Error</span>
-      <h2>Reports error</h2>
-      <p class="muted">${htmlEscape(error.message || String(error))}</p>
-    </article>
-  `);
-}
+      ${renderExportLinks(manifest)}
 
-function renderReportsList() {
-  const reports = state.reports?.reports || [];
+      <h4>Summary</h4>
+      <pre>${prettyJson(report.summary || {})}</pre>
 
-  if (reports.length === 0) {
-    renderOutput(`
-      <article class="card">
-        <h2>Reports</h2>
-        <p class="muted">Training sessions пока не найдены.</p>
-      </article>
-    `);
-    return;
-  }
-
-  const rows = reports.map((report) => ({
-    session_id: report.session_id,
-    dataset_id: report.dataset_id,
-    status: report.status,
-    generated_at: report.generated_at || "",
-    trained_models: (report.trained_models || []).join(", "),
-    report_html: report.report_html || "",
-  }));
-
-  renderOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        reports: reports.length,
-        generated: reports.filter((report) => report.status === "generated").length,
-        pending: reports.filter((report) => report.status !== "generated").length,
-        latest_models: reports[0]?.trained_models?.length || 0,
-      })}
+      <h4>Full report JSON</h4>
+      <pre>${prettyJson(report)}</pre>
     </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Training reports</h2>
-      ${renderDataTable(rows, [
-        "session_id",
-        "dataset_id",
-        "status",
-        "generated_at",
-        "trained_models",
-        "report_html",
-      ])}
-    </article>
-  `);
+  `;
 }
 
-function renderReportManifest(manifest) {
-  const plots = manifest.plots || {};
-  const sessionPlots = plots.session_plots || {};
-  const modelPlots = plots.model_plots || {};
-  const artifactRows = (manifest.artifacts || []).map((artifact) => ({
-    model_name: artifact.model_name,
-    validation_status: artifact.export_validation?.status || "",
-    artifact_format: artifact.metadata?.artifact_format || "",
-    plot_count: Object.keys(modelPlots[artifact.model_name] || {}).length,
-  }));
-
-  const sessionPlotRows = Object.entries(sessionPlots).map(([name, path]) => ({
-    plot: name,
-    path,
-  }));
-
-  renderOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        models: artifactRows.length,
-        session_plots: sessionPlotRows.length,
-        model_plot_groups: Object.keys(modelPlots).length,
-        comparison_rows: manifest.comparison_metrics?.length || 0,
-      })}
-    </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Report actions</h2>
+function renderTrainingReportsCompatibilityPanel() {
+  return `
+    <section class="panel">
+      <h3>Training reports compatibility</h3>
       <p class="muted">
-        HTML report endpoint:
-        /api/reports/training/${htmlEscape(manifest.session_id)}/html
+        Старые training plots и training_report.html из предыдущего этапа остаются
+        доступными через training reports API. Новый export layer добавляет
+        отдельные JSON, CSV и HTML bundles.
       </p>
-      <a
-        class="button button-primary"
-        href="/api/reports/training/${encodeURIComponent(manifest.session_id)}/html"
-        target="_blank"
-      >
-        Open HTML report
-      </a>
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Session plots</h2>
-      ${renderDataTable(sessionPlotRows)}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Model plot groups</h2>
-      ${renderDataTable(artifactRows)}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Comparison metrics</h2>
-      ${renderDataTable(manifest.comparison_metrics || [])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Report manifest</h2>
-      <pre class="code">${prettyJson(manifest)}</pre>
-    </article>
-  `);
+    </section>
+  `;
 }
 
-async function refreshReports() {
-  try {
-    setReportsLoading(true, "Reports...");
-    state.reports = await api.trainingReports();
+function renderReportsHtml() {
+  return `
+    <div class="page-stack">
+      <section class="hero-panel">
+        <div>
+          <p class="eyebrow">Reports</p>
+          <h1>Reports and exports</h1>
+          <p>
+            Dataset, model, recommendation, bulk assignment, fairness и workload
+            reports с JSON, CSV и HTML export links.
+          </p>
+        </div>
+      </section>
 
-    if (!state.selectedSessionId) {
-      state.selectedSessionId = state.reports?.reports?.[0]?.session_id || "";
-    }
+      ${renderStatusPanel()}
+      ${renderDatasetExportPanel()}
+      ${renderModelExportPanel()}
+      ${renderAssignmentExportPanel()}
+      ${renderTrainingReportsCompatibilityPanel()}
+      ${renderExportReportsList()}
+      ${renderSelectedReport()}
+    </div>
+  `;
+}
 
-    document.querySelector("#reportsSession").innerHTML = reportOptions(state.reports);
-    renderSelectedReport();
-    renderReportsList();
-  } catch (error) {
-    renderError(error);
-    toast("Reports", error.message || String(error));
-  } finally {
-    setReportsLoading(false);
+async function refreshData() {
+  state.error = "";
+
+  const [datasetsResult, trainingResult, assignmentResult, reportsResult] =
+    await Promise.allSettled([
+      api.datasets(),
+      api.trainingSessions(),
+      api.assignmentSessions(),
+      api.exportReports(),
+    ]);
+
+  const datasetsPayload = resultValue(datasetsResult, {
+    generated: [],
+    imported: [],
+  });
+  const trainingPayload = resultValue(trainingResult, {
+    training_sessions: [],
+  });
+  const assignmentPayload = resultValue(assignmentResult, {
+    assignment_sessions: [],
+  });
+  const reportsPayload = resultValue(reportsResult, {
+    reports: [],
+  });
+
+  state.datasets = datasetRows(datasetsPayload);
+  state.trainingSessions = trainingPayload.training_sessions || [];
+  state.assignmentSessions = assignmentPayload.assignment_sessions || [];
+  state.exportReports = reportsPayload.reports || [];
+
+  const rejected = [
+    datasetsResult,
+    trainingResult,
+    assignmentResult,
+    reportsResult,
+  ].filter((result) => result.status === "rejected");
+
+  if (rejected.length) {
+    state.error = rejected
+      .map((result) => errorMessage(result.reason))
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  if (!state.selectedDatasetId && state.datasets.length) {
+    state.selectedDatasetId = state.datasets[0].dataset_id;
+    state.selectedDatasetKind = state.datasets[0].dataset_kind;
+  }
+
+  if (!state.selectedTrainingSessionId && state.trainingSessions.length) {
+    state.selectedTrainingSessionId = state.trainingSessions[0].session_id;
+  }
+
+  if (!state.selectedAssignmentSessionId && state.assignmentSessions.length) {
+    state.selectedAssignmentSessionId =
+      state.assignmentSessions[0].assignment_session_id;
   }
 }
 
-async function generateSelectedReport() {
-  try {
-    readControls();
+function repaint() {
+  const root = document.querySelector("#appRoot");
 
-    if (!state.selectedSessionId) {
-      throw new Error("Сначала выбери training session.");
-    }
-
-    setReportsLoading(true, "Generating report...");
-    const manifest = await api.generateTrainingReport(state.selectedSessionId);
-    renderReportManifest(manifest);
-    toast("Training report", "Report generated");
-    state.reports = await api.trainingReports();
-    document.querySelector("#reportsSession").innerHTML = reportOptions(state.reports);
-    renderSelectedReport();
-  } catch (error) {
-    renderError(error);
-    toast("Reports", error.message || String(error));
-  } finally {
-    setReportsLoading(false);
+  if (!root) {
+    return;
   }
+
+  root.innerHTML = renderReportsHtml();
+  bindEvents();
 }
 
-async function loadSelectedReport() {
-  try {
-    readControls();
+async function generateDatasetExport() {
+  const datasetId = selectedValue("datasetReportId");
+  const datasetKind = selectedValue("datasetReportKind");
 
-    if (!state.selectedSessionId) {
-      throw new Error("Сначала выбери training session.");
-    }
-
-    setReportsLoading(true, "Loading report...");
-    const manifest = await api.trainingReport(state.selectedSessionId);
-    renderReportManifest(manifest);
-  } catch (error) {
-    renderError(error);
-    toast("Reports", error.message || String(error));
-  } finally {
-    setReportsLoading(false);
+  if (!datasetId) {
+    toast("Reports", "Dataset не выбран");
+    return;
   }
+
+  const result = await api.generateDatasetExport(datasetId, {
+    dataset_kind: datasetKind,
+  });
+
+  state.selectedReport = {
+    manifest: result,
+    report: result.payload || {},
+  };
+
+  await refreshData();
+  toast("Reports", "Dataset export generated");
+}
+
+async function generateModelExport() {
+  const sessionId = selectedValue("modelReportSessionId");
+
+  if (!sessionId) {
+    toast("Reports", "Training session не выбран");
+    return;
+  }
+
+  const result = await api.generateModelExport(sessionId);
+
+  state.selectedReport = {
+    manifest: result,
+    report: result.payload || {},
+  };
+
+  await refreshData();
+  toast("Reports", "Model export generated");
+}
+
+async function generateAssignmentExport() {
+  const assignmentSessionId = selectedValue("assignmentReportSessionId");
+
+  if (!assignmentSessionId) {
+    toast("Reports", "Assignment session не выбран");
+    return;
+  }
+
+  const result = await api.generateAssignmentExport(assignmentSessionId);
+
+  state.selectedReport = {
+    manifest: result,
+    report: result.payload || {},
+  };
+
+  await refreshData();
+  toast("Reports", "Assignment export generated");
+}
+
+async function runAction(action) {
+  try {
+    await action();
+  } catch (error) {
+    state.error = errorMessage(error);
+    toast("Reports error", state.error);
+  }
+
+  repaint();
 }
 
 function bindEvents() {
-  document.querySelector("#reportsSession").addEventListener("change", readControls);
-
-  document.querySelector("[data-reports-action='refresh']").addEventListener("click", () => {
-    refreshReports();
+  document.querySelector("#generateDatasetExport")?.addEventListener("click", () => {
+    runAction(generateDatasetExport);
   });
 
-  document.querySelector("[data-reports-action='list']").addEventListener("click", () => {
-    renderReportsList();
+  document.querySelector("#generateModelExport")?.addEventListener("click", () => {
+    runAction(generateModelExport);
   });
 
-  document.querySelector("[data-reports-action='generate']").addEventListener("click", () => {
-    generateSelectedReport();
+  document.querySelector("#generateAssignmentExport")?.addEventListener("click", () => {
+    runAction(generateAssignmentExport);
   });
 
-  document.querySelector("[data-reports-action='load']").addEventListener("click", () => {
-    loadSelectedReport();
+  document.querySelector("#refreshReportExports")?.addEventListener("click", () => {
+    runAction(refreshData);
+  });
+
+  document.querySelector("#retryReportsData")?.addEventListener("click", () => {
+    runAction(refreshData);
+  });
+
+  document.querySelectorAll("[data-report-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      runAction(async () => {
+        const reportId = button.dataset.reportId || "";
+        state.selectedReport = await api.exportReport(reportId);
+      });
+    });
   });
 }
 
 export async function renderReports() {
-  state.reports = await api.trainingReports();
-  state.selectedSessionId = state.reports?.reports?.[0]?.session_id || "";
-
-  window.setTimeout(() => {
-    bindEvents();
-    renderSelectedReport();
-    renderReportsList();
-  }, 0);
-
-  return `
-    <section class="grid grid-2">
-      <article class="card">
-        <div class="viewer-section-header">
-          <div>
-            <h2>Reports</h2>
-            <p class="muted">
-              Training plots, model comparison, report manifest and HTML training report.
-            </p>
-          </div>
-          <div class="status-pill status-ok" id="reportsStatus">
-            <span class="status-dot"></span>
-            <span>Готов</span>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <div class="form-row">
-            <label for="reportsSession">Training session</label>
-            <select class="select" id="reportsSession">
-              ${reportOptions(state.reports)}
-            </select>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <button class="button button-secondary" data-reports-action="list" type="button">
-            Reports
-          </button>
-          <button class="button button-primary" data-reports-action="generate" type="button">
-            Generate report
-          </button>
-          <button class="button button-secondary" data-reports-action="load" type="button">
-            Load manifest
-          </button>
-          <button class="button button-secondary" data-reports-action="refresh" type="button">
-            Refresh
-          </button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>Selected report</h2>
-        <pre class="code" id="selectedReportJson">${prettyJson(selectedReport() || {})}</pre>
-      </article>
-    </section>
-
-    <section id="reportsOutput" style="margin-top: 16px;">
-      <article class="card">
-        <h2>Reports</h2>
-        <p class="muted">Загрузка reports...</p>
-      </article>
-    </section>
-  `;
+  await refreshData();
+  window.setTimeout(bindEvents, 0);
+  return renderReportsHtml();
 }
+
+export async function renderReportsPage() {
+  return renderReports();
+}
+
+export async function renderPage() {
+  return renderReports();
+}
+
+export default renderReports;

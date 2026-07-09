@@ -1742,42 +1742,89 @@ Smoke test проходит.
 
 ## 27.26. Добавить reports и exports
 
-- [ ] Делать dataset generation report.
-- [ ] Делать dataset quality report.
-- [ ] Делать training report.
-- [ ] Делать model comparison report.
-- [ ] Делать recommendation report.
-- [ ] Делать bulk assignment report.
-- [ ] Делать fairness report.
-- [ ] Делать workload report.
-- [ ] Экспортировать JSON.
-- [ ] Экспортировать CSV.
-- [ ] Экспортировать HTML.
-- [ ] Показывать список reports в UI.
-- [ ] Добавить download links.
+- [x] Делать dataset generation report.
+- [x] Делать dataset quality report.
+- [x] Делать training report.
+- [x] Делать model comparison report.
+- [x] Делать recommendation report.
+- [x] Делать bulk assignment report.
+- [x] Делать fairness report.
+- [x] Делать workload report.
+- [x] Экспортировать JSON.
+- [x] Экспортировать CSV.
+- [x] Экспортировать HTML.
+- [x] Показывать список reports в UI.
+- [x] Добавить download links.
+- [x] Добавить общий report bundle helper.
+- [x] Добавить exports API.
+- [x] Подключить Reports UI к exports API.
+- [x] Добавить устойчивую загрузку Reports UI через Promise.allSettled.
+- [x] Исправить frontend API client и добавить совместимый dataViewerDatasets alias.
+- [x] Сделать Reports UI self-contained без зависимости от app.js helpers.
+- [x] Исправить контракт renderer для Reports UI.
+- [x] Перевести frontend app bootstrap на lazy page imports.
+- [x] Защитить backend status от падения из-за ошибки импорта любой страницы.
+- [x] Добавить cache busting для app.js и lazy page imports.
+- [x] Добавить router-compatible aliases для Assignment Lab.
+- [x] Сделать app.js безопасным для Node import checks без window и document.
+- [x] Подключить test case summary endpoint в Assignment Lab.
+- [x] Подключить recommendation context endpoint в Assignment Lab.
+- [x] Добавить tests для report helpers, UI/API wiring, Assignment Lab wiring и frontend bootstrap.
 
 Файлы:
 
-```text
 sandbox_app/backend/reports/dataset_report.py
 sandbox_app/backend/reports/model_report.py
 sandbox_app/backend/reports/assignment_report.py
 sandbox_app/backend/reports/html_export.py
 sandbox_app/backend/api/reports.py
+sandbox_app/frontend/index.html
+sandbox_app/frontend/js/app.js
 sandbox_app/frontend/js/pages/reports.js
-```
+sandbox_app/frontend/js/pages/assignment_lab.js
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/css/styles.css
+sandbox_app/tests/test_report_exports_helpers.py
+sandbox_app/tests/test_reports_exports_assets.py
+sandbox_app/tests/test_frontend_bootstrap_assets.py
+sandbox_app/tests/test_assignment_lab_ui_assets.py
 
 Папки:
 
-```text
 sandbox_app/reports
 sandbox_app/data/exports
-```
 
-**Ожидаемый результат:** результаты экспериментов можно сохранить, открыть и показать отдельно.
+Endpoints:
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox reports and exports`
+GET /api/reports/exports
+GET /api/reports/exports/{report_id}
+GET /api/reports/exports/{report_id}/files/{file_name}
+POST /api/reports/exports/datasets/{dataset_id}
+POST /api/reports/exports/models/{session_id}
+POST /api/reports/exports/assignments/{assignment_session_id}
+
+Что сделано по факту:
+Добавлен единый слой report exports. Dataset report собирает generation summary, metadata, counts и dataset quality checks. Model report собирает comparison metrics, model artifacts и export validation status из training session. Assignment report собирает recommendation candidates, assigned tasks, unassigned tasks, workload after assignment и fairness report из assignment session. Каждый report сохраняется как bundle с report.json, report.html, report_manifest.json и CSV tables. Reports UI показывает список exports, даёт запуск dataset, model и assignment exports, открывает details и download links. Frontend bootstrap больше не падает из-за ошибки импорта одной страницы, потому что app.js загружает страницы лениво и сохраняет backend status working. Assignment Lab экспортирует renderAssignmentLabPage, renderAssignmentLab, renderPage и default, совместим со старым и новым router contract, безопасно проходит Node import checks, показывает test case summaries и использует recommendation context через API.
+
+Проверки:
+Backend проходит python -m compileall.
+Pytest tests report helpers, reports exports assets, frontend bootstrap assets и Assignment Lab UI assets проходят.
+Pytest smoke tests training reports и bulk assignment проходят.
+Pytest smoke test recommendation UI проходит.
+Node checks проходят для app.js, api.js, reports.js и assignment_lab.js.
+Node ESM import checks проходят для app.js, reports.js и assignment_lab.js.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверены endpoints data-viewer datasets, training sessions, assignment sessions, test cases и reports exports.
+Проверена страница /reports.
+Проверена страница /assignment-lab.
+Проверена отдача index.html, app.js, reports.js, assignment_lab.js и api.js.
+Smoke test проходит.
+
+Ожидаемый результат:
+результаты экспериментов можно сохранить, открыть и показать отдельно.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox reports and exports
 
 ---
 

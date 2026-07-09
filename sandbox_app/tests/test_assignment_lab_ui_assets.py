@@ -14,13 +14,30 @@ def test_assignment_lab_ui_assets_are_wired() -> None:
     api_js = read("frontend/js/api.js")
 
     assert "export async function renderAssignmentLab" in assignment_js
+    assert "export async function renderAssignmentLabPage" in assignment_js
+    assert "export async function renderPage" in assignment_js
+    assert "export default renderAssignmentLabPage" in assignment_js
+
     assert "api.generateTestCase" in assignment_js
     assert "api.testCases" in assignment_js
     assert "api.testCaseSummary" in assignment_js
     assert "api.testCaseRecommendationContext" in assignment_js
-    assert "Generate test case" in assignment_js
-    assert "active_tasks_count" in assignment_js
+    assert "api.recommendableTasks" in assignment_js
+    assert "api.singleRecommendation" in assignment_js
+    assert "api.runBulkAssignment" in assignment_js
+    assert "api.assignmentSessions" in assignment_js
+    assert "api.assignmentSession" in assignment_js
+    assert "api.explainRecommendation" in assignment_js
+    assert "api.explainAssignment" in assignment_js
 
-    assert "testCases" in api_js
-    assert "generateTestCase" in api_js
+    assert 'from "../app.js"' not in assignment_js
+    assert "function htmlEscape" in assignment_js
+    assert "function prettyJson" in assignment_js
+    assert "function toast" in assignment_js
+    assert "recommendationContexts" in assignment_js
+    assert "loadRecommendationContexts" in assignment_js
+    assert "Promise.allSettled" in assignment_js
+
+    assert "testCaseSummary" in api_js
     assert "testCaseRecommendationContext" in api_js
+    assert "assignmentSessions" in api_js
