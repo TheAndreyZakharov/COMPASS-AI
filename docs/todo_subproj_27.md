@@ -1605,33 +1605,52 @@ Smoke test проходит.
 
 ## 27.24. Сделать recommendation UI
 
-- [ ] Показывать top candidates карточками.
-- [ ] Показывать score breakdown.
-- [ ] Показывать risks.
-- [ ] Показывать recommendation mode.
-- [ ] Показывать candidate comparison.
-- [ ] Показывать kanban после распределения.
-- [ ] Показывать workload chart.
-- [ ] Показывать fatigue chart.
-- [ ] Показывать fairness chart.
-- [ ] Показывать unassigned tasks.
-- [ ] Добавить фильтры по человеку, статусу, проекту, риску.
-- [ ] Добавить export results.
+- [x] Показывать top candidates карточками.
+- [x] Показывать score breakdown.
+- [x] Показывать risks.
+- [x] Показывать recommendation mode.
+- [x] Показывать candidate comparison.
+- [x] Показывать kanban после распределения.
+- [x] Показывать workload chart.
+- [x] Показывать fatigue chart.
+- [x] Показывать fairness chart.
+- [x] Показывать unassigned tasks.
+- [x] Добавить фильтры по человеку, статусу, проекту, риску.
+- [x] Добавить export results.
+- [x] Подключить single recommendation UI к backend.
+- [x] Подключить bulk assignment UI к backend.
+- [x] Добавить frontend components для recommendation cards, candidate comparison, workload и fairness.
+- [x] Добавить frontend smoke test recommendation UI assets.
 
 Файлы:
 
-```text
 sandbox_app/frontend/js/components/recommendation_cards.js
 sandbox_app/frontend/js/components/candidate_comparison.js
 sandbox_app/frontend/js/components/workload_chart.js
 sandbox_app/frontend/js/components/fairness_chart.js
 sandbox_app/frontend/js/pages/assignment_lab.js
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/frontend/css/styles.css
+sandbox_app/tests/test_recommendation_ui_assets.py
 
-**Ожидаемый результат:** вывод модели понятен человеку и не выглядит как сырой JSON.
+Что сделано по факту:
+Assignment Lab стал рабочим UI для single recommendation и bulk assignment. Пользователь выбирает saved model, training session, test case, task, recommendation mode и assignment mode. Single recommendation показывает top candidates карточками, score breakdown, matched и missing skills, risks и candidate comparison. Bulk assignment показывает kanban after assignment, assigned tasks, unassigned tasks, workload after assignment, fairness report и export links на HTML, JSON и CSV. Добавлены фильтры по человеку, статусу, проекту и риску.
 
-**Примерное время:** 8–12 часов.  
-**Коммит:** `Add sandbox recommendation UI`
+Проверки:
+Pytest smoke test recommendation UI assets проходит.
+Pytest smoke tests single recommendation и bulk assignment проходят.
+Если Node.js установлен, recommendation components, assignment_lab.js и api.js проходят node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверена страница /assignment-lab.
+Проверена отдача recommendation UI components.
+Проверена отдача CSS additions.
+Smoke test проходит.
+
+Ожидаемый результат:
+вывод модели понятен человеку и не выглядит как сырой JSON.
+
+Примерное время: 8–12 часов.
+Коммит: Add sandbox recommendation UI
 
 ---
 

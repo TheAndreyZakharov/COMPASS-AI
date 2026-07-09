@@ -1,663 +1,742 @@
 import { api } from "../api.js";
 import { htmlEscape, prettyJson, toast } from "../app.js";
-import { renderSummaryCards } from "../components/charts.js";
-import { renderDataTable } from "../components/table.js";
+import { renderCandidateComparison } from "../components/candidate_comparison.js";
+import { renderFairnessChart } from "../components/fairness_chart.js";
+import { renderRecommendationCards } from "../components/recommendation_cards.js";
+import { renderWorkloadChart } from "../components/workload_chart.js";
 
-const DEFAULT_ROLES = [
-  "backend_developer",
-  "frontend_developer",
-  "fullstack_developer",
-  "qa_engineer",
-  "data_analyst",
-  "team_lead",
-];
-
-const DEFAULT_GRADES = ["junior", "middle", "senior", "lead"];
-
-const DEFAULT_SKILLS = [
-  "python",
-  "fastapi",
-  "postgresql",
-  "react",
-  "typescript",
-  "testing",
-  "analytics",
-  "ml",
-  "devops",
-  "architecture",
+const MODEL_NAMES = [
+  "baseline_rule_based",
+  "sgd_classifier",
+  "logistic_regression",
+  "random_forest",
+  "hist_gradient_boosting",
+  "torch_mlp",
 ];
 
 const state = {
-  testCases: null,
+  testCases: [],
+  trainingSessions: [],
+  assignmentSessions: [],
   selectedTestCaseId: "",
+  selectedTrainingSessionId: "",
+  selectedModelName: "logistic_regression",
+  tasks: [],
+  selectedTaskId: "",
+  singleResult: null,
+  bulkResult: null,
+  selectedAssignmentSession: null,
+  filters: {
+    person: "",
+    status: "",
+    project: "",
+    risk: "",
+  },
 };
 
-function splitCsv(value) {
-  return String(value || "")
+function numberInput(id, label, value, attrs = "") {
+  return `
+    <label>
+      ${htmlEscape(label)}
+      <input id="${id}" type="number" value="${htmlEscape(value)}" ${attrs}>
+    </label>
+  `;
+}
+
+function textInput(id, label, value = "") {
+  return `
+    <label>
+      ${htmlEscape(label)}
+      <input id="${id}" type="text" value="${htmlEscape(value)}">
+    </label>
+  `;
+}
+
+function selectInput(id, label, options, selected) {
+  return `
+    <label>
+      ${htmlEscape(label)}
+      <select id="${id}">
+        ${options
+          .map(
+            (option) => `
+              <option
+                value="${htmlEscape(option.value)}"
+                ${option.value === selected ? "selected" : ""}
+              >
+                ${htmlEscape(option.label)}
+              </option>
+            `,
+          )
+          .join("")}
+      </select>
+    </label>
+  `;
+}
+
+function selectedValue(id) {
+  const element = document.getElementById(id);
+  return element ? element.value : "";
+}
+
+function numericValue(id, fallback) {
+  const value = Number(selectedValue(id));
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function csvValues(id) {
+  return selectedValue(id)
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
 }
 
-function testCaseOptions(payload) {
-  const items = payload?.test_cases || [];
+function modelOptions() {
+  return MODEL_NAMES.map((name) => ({
+    label: name,
+    value: name,
+  }));
+}
 
-  if (items.length === 0) {
-    return '<option value="">Нет test cases</option>';
+function testCaseOptions() {
+  return state.testCases.map((item) => ({
+    label: `${item.test_case_id} · ${item.people_count || 0} people`,
+    value: item.test_case_id,
+  }));
+}
+
+function trainingSessionOptions() {
+  return state.trainingSessions.map((item) => ({
+    label: `${item.session_id} · ${item.status || "unknown"}`,
+    value: item.session_id,
+  }));
+}
+
+function taskOptions() {
+  return state.tasks.map((task) => ({
+    label: `${task.task_id} · ${task.title || "Untitled"}`,
+    value: task.task_id,
+  }));
+}
+
+function applyFilters(rows) {
+  return rows.filter((row) => {
+    const person = state.filters.person.toLowerCase();
+    const status = state.filters.status.toLowerCase();
+    const project = state.filters.project.toLowerCase();
+    const risk = state.filters.risk.toLowerCase();
+
+    const rowPerson = String(
+      row.assigned_employee_name || row.name || row.employee_id || "",
+    ).toLowerCase();
+    const rowStatus = String(row.status || row.task_status || "").toLowerCase();
+    const rowProject = String(row.project_id || "").toLowerCase();
+    const rowRisk = JSON.stringify(row.risks || row.risk_summary || {})
+      .toLowerCase();
+
+    return (
+      (!person || rowPerson.includes(person)) &&
+      (!status || rowStatus.includes(status)) &&
+      (!project || rowProject.includes(project)) &&
+      (!risk || rowRisk.includes(risk))
+    );
+  });
+}
+
+function renderFilters() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Filters</h3>
+          <p class="muted">Фильтры по результатам single и bulk assignment.</p>
+        </div>
+        <button id="clearAssignmentFilters" class="button-secondary">
+          Clear filters
+        </button>
+      </div>
+
+      <div class="form-grid">
+        ${textInput("filterPerson", "Person", state.filters.person)}
+        ${textInput("filterStatus", "Task status", state.filters.status)}
+        ${textInput("filterProject", "Project", state.filters.project)}
+        ${textInput("filterRisk", "Risk", state.filters.risk)}
+      </div>
+    </section>
+  `;
+}
+
+function renderGeneratorPanel() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Test case generator</h2>
+          <p class="muted">
+            Создание отдельной команды для проверки recommendations.
+          </p>
+        </div>
+        <button id="refreshAssignmentData" class="button-secondary">Refresh</button>
+      </div>
+
+      <div class="form-grid">
+        ${textInput("testCaseId", "test_case_id", "ui_test_case")}
+        ${selectInput(
+          "domainProfile",
+          "Domain",
+          [
+            { label: "developers", value: "developers" },
+            { label: "designers", value: "designers" },
+            { label: "custom", value: "custom" },
+          ],
+          "developers",
+        )}
+        ${numberInput("peopleCount", "People count", 8, "min='1' max='500'")}
+        ${numberInput("activeTasksCount", "Active tasks", 12, "min='1' max='5000'")}
+        ${numberInput("historyDepth", "History depth", 4, "min='0' max='200'")}
+        ${numberInput("seed", "Seed", 27024, "min='1'")}
+        ${textInput("roles", "Roles CSV", "Backend Engineer,Frontend Engineer,QA Engineer")}
+        ${textInput("grades", "Grades CSV", "junior,middle,senior,lead")}
+        ${textInput("skills", "Skills CSV", "python,fastapi,react,sql,testing,ml")}
+      </div>
+
+      <div class="actions-row">
+        <button id="generateTestCase">Generate test case</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderSelectionPanel() {
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Recommendation controls</h2>
+          <p class="muted">
+            Выбор saved model, test case, task и режима рекомендации.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        ${selectInput(
+          "trainingSessionId",
+          "Training session",
+          trainingSessionOptions(),
+          state.selectedTrainingSessionId,
+        )}
+        ${selectInput(
+          "modelName",
+          "Model",
+          modelOptions(),
+          state.selectedModelName,
+        )}
+        ${selectInput(
+          "testCaseSelect",
+          "Test case",
+          testCaseOptions(),
+          state.selectedTestCaseId,
+        )}
+        ${selectInput("taskSelect", "Task", taskOptions(), state.selectedTaskId)}
+        ${selectInput(
+          "recommendationMode",
+          "Recommendation mode",
+          [
+            { label: "balanced", value: "balanced" },
+            { label: "best_quality", value: "best_quality" },
+            { label: "fastest_delivery", value: "fastest_delivery" },
+            { label: "best_learning", value: "best_learning" },
+            { label: "risk_aware", value: "risk_aware" },
+          ],
+          "balanced",
+        )}
+        ${selectInput(
+          "assignmentMode",
+          "Assignment mode",
+          [
+            { label: "balanced", value: "balanced" },
+            { label: "best_quality", value: "best_quality" },
+            { label: "fastest_delivery", value: "fastest_delivery" },
+            { label: "best_learning", value: "best_learning" },
+            { label: "risk_aware", value: "risk_aware" },
+          ],
+          "balanced",
+        )}
+        ${numberInput("topK", "Top K", 3, "min='1' max='100'")}
+        ${numberInput(
+          "maxWorkload",
+          "Max workload per person",
+          1.2,
+          "min='0.1' max='1.5' step='0.05'",
+        )}
+        ${numberInput(
+          "fairnessPenalty",
+          "Fairness penalty",
+          0.12,
+          "min='0' max='2' step='0.01'",
+        )}
+        ${numberInput(
+          "fatiguePenalty",
+          "Fatigue penalty",
+          0.12,
+          "min='0' max='2' step='0.01'",
+        )}
+        ${numberInput(
+          "learningBonus",
+          "Learning bonus",
+          0.08,
+          "min='0' max='2' step='0.01'",
+        )}
+        ${numberInput(
+          "workloadPenalty",
+          "Workload penalty",
+          0.18,
+          "min='0' max='2' step='0.01'",
+        )}
+      </div>
+
+      <div class="actions-row">
+        <button id="loadRecommendableTasks" class="button-secondary">
+          Load tasks
+        </button>
+        <button id="runSingleRecommendation">Run single recommendation</button>
+        <button id="runBulkAssignment">Run bulk assignment</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderTestCasesPanel() {
+  if (!state.testCases.length) {
+    return `
+      <section class="panel">
+        <h3>Test cases</h3>
+        <p class="muted">Test cases пока не созданы.</p>
+      </section>
+    `;
   }
 
-  return items
-    .map((item) => {
-      const selected = item.test_case_id === state.selectedTestCaseId ? "selected" : "";
-
-      return `
-        <option value="${htmlEscape(item.test_case_id)}" ${selected}>
-          ${htmlEscape(item.test_case_id)} · people ${htmlEscape(item.people || 0)}
-        </option>
-      `;
-    })
-    .join("");
+  return `
+    <section class="panel">
+      <h3>Test cases</h3>
+      <div class="list-grid">
+        ${state.testCases
+          .map(
+            (item) => `
+              <button
+                class="list-card ${
+                  item.test_case_id === state.selectedTestCaseId ? "active" : ""
+                }"
+                data-test-case-id="${htmlEscape(item.test_case_id)}"
+              >
+                <strong>${htmlEscape(item.test_case_id)}</strong>
+                <span>
+                  people: ${htmlEscape(item.people_count ?? 0)}
+                  · tasks: ${htmlEscape(item.active_tasks_count ?? 0)}
+                </span>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
 }
 
-function selectedTestCase() {
-  return (state.testCases?.test_cases || []).find(
-    (item) => item.test_case_id === state.selectedTestCaseId,
-  );
-}
+function renderSingleResult() {
+  if (!state.singleResult) {
+    return `
+      <section class="panel">
+        <h3>Single recommendation</h3>
+        <p class="muted">Запусти single recommendation, чтобы увидеть top candidates.</p>
+      </section>
+    `;
+  }
 
-function setAssignmentLoading(isLoading, label = "Loading...") {
-  const status = document.querySelector("#assignmentStatus");
-  const buttons = document.querySelectorAll("[data-assignment-action]");
-
-  buttons.forEach((button) => {
-    button.disabled = isLoading;
-    button.classList.toggle("loading", isLoading);
-  });
-
-  status.className = isLoading ? "status-pill status-pending" : "status-pill status-ok";
-  status.innerHTML = isLoading
-    ? `<span class="status-dot"></span><span>${htmlEscape(label)}</span>`
-    : '<span class="status-dot"></span><span>Готов</span>';
-}
-
-function setOutput(html) {
-  document.querySelector("#assignmentOutput").innerHTML = html;
-}
-
-function renderError(title, error) {
-  setOutput(`
-    <article class="card">
-      <span class="badge">Error</span>
-      <h2>${htmlEscape(title)}</h2>
-      <p class="muted">${htmlEscape(error.message || String(error))}</p>
-    </article>
-  `);
-}
-
-function readSelectedCase() {
-  state.selectedTestCaseId = document.querySelector("#testCaseSelect").value;
-}
-
-function readGeneratePayload() {
-  const testCaseId = document.querySelector("#testCaseId").value.trim();
-
-  return {
-    test_case_id: testCaseId || null,
-    active_tasks_count: Number.parseInt(
-      document.querySelector("#activeTasksCount").value,
-      10,
-    ),
-    active_tasks_per_person_max: Number.parseInt(
-      document.querySelector("#activeTasksPerPersonMax").value,
-      10,
-    ),
-    availability_max: Number.parseFloat(document.querySelector("#availabilityMax").value),
-    availability_min: Number.parseFloat(document.querySelector("#availabilityMin").value),
-    domain_profile: document.querySelector("#testCaseDomainProfile").value,
-    fatigue_max: Number.parseFloat(document.querySelector("#fatigueMax").value),
-    fatigue_min: Number.parseFloat(document.querySelector("#fatigueMin").value),
-    grades: splitCsv(document.querySelector("#testCaseGrades").value),
-    history_depth: Number.parseInt(document.querySelector("#historyDepth").value, 10),
-    learning_goals_max: Number.parseInt(
-      document.querySelector("#learningGoalsMax").value,
-      10,
-    ),
-    learning_goals_min: Number.parseInt(
-      document.querySelector("#learningGoalsMin").value,
-      10,
-    ),
-    people_count: Number.parseInt(document.querySelector("#peopleCount").value, 10),
-    roles: splitCsv(document.querySelector("#testCaseRoles").value),
-    seed: Number.parseInt(document.querySelector("#testCaseSeed").value, 10),
-    skills: splitCsv(document.querySelector("#testCaseSkills").value),
-    workload_max: Number.parseFloat(document.querySelector("#workloadMax").value),
-    workload_min: Number.parseFloat(document.querySelector("#workloadMin").value),
-    overwrite: document.querySelector("#testCaseOverwrite").checked,
+  const filteredCandidates = applyFilters(state.singleResult.candidates || []);
+  const result = {
+    ...state.singleResult,
+    candidates: filteredCandidates,
   };
+
+  return `
+    ${renderRecommendationCards(result, { title: "Single recommendation top candidates" })}
+    ${renderCandidateComparison(filteredCandidates, { title: "Single candidate comparison" })}
+    <section class="panel">
+      <h3>Single recommendation raw JSON</h3>
+      <pre>${prettyJson(state.singleResult)}</pre>
+    </section>
+  `;
 }
 
-function renderTestCasesList() {
-  const rows = state.testCases?.test_cases || [];
+function renderBulkKanban(assignedRows, unassignedRows) {
+  const assigned = assignedRows || [];
+  const unassigned = unassignedRows || [];
 
-  if (rows.length === 0) {
-    setOutput(`
-      <article class="card">
-        <h2>Test cases</h2>
-        <p class="muted">Test cases пока не созданы.</p>
-      </article>
-    `);
+  return `
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h3>Kanban after assignment</h3>
+          <p class="muted">Назначенные и неназначенные задачи после симуляции.</p>
+        </div>
+      </div>
+
+      <div class="kanban-board">
+        <div class="kanban-column">
+          <h4>Assigned · ${assigned.length}</h4>
+          ${assigned
+            .map(
+              (row) => `
+                <article class="kanban-card">
+                  <strong>${htmlEscape(row.task_title || row.task_id)}</strong>
+                  <p>${htmlEscape(row.assigned_employee_name || "—")}</p>
+                  <span>${htmlEscape(row.priority || "—")}</span>
+                </article>
+              `,
+            )
+            .join("")}
+        </div>
+
+        <div class="kanban-column">
+          <h4>Unassigned · ${unassigned.length}</h4>
+          ${unassigned
+            .map(
+              (row) => `
+                <article class="kanban-card warning">
+                  <strong>${htmlEscape(row.task_title || row.task_id)}</strong>
+                  <p>${htmlEscape(row.reason || "—")}</p>
+                  <span>${htmlEscape(row.priority || "—")}</span>
+                </article>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderExportLinks(result) {
+  const sessionId = result?.assignment_session_id;
+
+  if (!sessionId) {
+    return "";
+  }
+
+  const files = [
+    "assignment_report.html",
+    "recommendations.json",
+    "assigned_tasks.csv",
+    "unassigned_tasks.csv",
+    "workload_after_assignment.csv",
+    "fairness_report.json",
+  ];
+
+  return `
+    <section class="panel">
+      <h3>Export results</h3>
+      <div class="export-links">
+        ${files
+          .map(
+            (fileName) => `
+              <a
+                class="button-secondary"
+                href="/api/assignment-sessions/${encodeURIComponent(
+                  sessionId,
+                )}/files/${encodeURIComponent(fileName)}"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ${htmlEscape(fileName)}
+              </a>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderBulkResult() {
+  if (!state.bulkResult) {
+    return `
+      <section class="panel">
+        <h3>Bulk assignment</h3>
+        <p class="muted">Запусти bulk assignment, чтобы увидеть распределение задач.</p>
+      </section>
+    `;
+  }
+
+  const assigned = applyFilters(state.bulkResult.assigned_tasks || []);
+  const unassigned = applyFilters(state.bulkResult.unassigned_tasks || []);
+  const workloadRows = state.bulkResult.workload_after_assignment || [];
+
+  return `
+    ${renderBulkKanban(assigned, unassigned)}
+    ${renderWorkloadChart(workloadRows)}
+    ${renderFairnessChart(state.bulkResult.fairness_report, workloadRows)}
+    ${renderExportLinks(state.bulkResult)}
+    <section class="panel">
+      <h3>Bulk assignment raw JSON</h3>
+      <pre>${prettyJson(state.bulkResult)}</pre>
+    </section>
+  `;
+}
+
+function renderAssignmentSessionsPanel() {
+  if (!state.assignmentSessions.length) {
+    return `
+      <section class="panel">
+        <h3>Assignment sessions</h3>
+        <p class="muted">Сохранённых assignment sessions пока нет.</p>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="panel">
+      <h3>Assignment sessions</h3>
+      <div class="list-grid">
+        ${state.assignmentSessions
+          .map(
+            (item) => `
+              <button
+                class="list-card"
+                data-assignment-session-id="${htmlEscape(
+                  item.assignment_session_id,
+                )}"
+              >
+                <strong>${htmlEscape(item.assignment_session_id)}</strong>
+                <span>
+                  assigned: ${htmlEscape(item.assigned_tasks ?? 0)}
+                  · unassigned: ${htmlEscape(item.unassigned_tasks ?? 0)}
+                </span>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function render() {
+  return `
+    <div class="page-stack">
+      <section class="hero-panel">
+        <div>
+          <p class="eyebrow">Assignment Lab</p>
+          <h1>Recommendation UI</h1>
+          <p>
+            Проверка single task recommendation и bulk assignment через saved
+            models, test cases, score breakdown, risks, workload и fairness.
+          </p>
+        </div>
+      </section>
+
+      ${renderGeneratorPanel()}
+      ${renderSelectionPanel()}
+      ${renderFilters()}
+      ${renderTestCasesPanel()}
+      ${renderSingleResult()}
+      ${renderBulkResult()}
+      ${renderAssignmentSessionsPanel()}
+    </div>
+  `;
+}
+
+async function refreshAll() {
+  const [testCases, trainingSessions, assignmentSessions] = await Promise.all([
+    api.testCases(),
+    api.trainingSessions(),
+    api.assignmentSessions(),
+  ]);
+
+  state.testCases = testCases.test_cases || testCases.items || [];
+  state.trainingSessions = trainingSessions.training_sessions || [];
+  state.assignmentSessions = assignmentSessions.assignment_sessions || [];
+
+  if (!state.selectedTestCaseId && state.testCases.length) {
+    state.selectedTestCaseId = state.testCases[0].test_case_id;
+  }
+
+  if (!state.selectedTrainingSessionId && state.trainingSessions.length) {
+    state.selectedTrainingSessionId = state.trainingSessions[0].session_id;
+  }
+}
+
+async function loadTasks() {
+  if (!state.selectedTestCaseId) {
+    toast("Сначала выбери test case", "error");
     return;
   }
 
-  setOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        test_cases: state.testCases.total || 0,
-        people: rows.reduce((sum, item) => sum + Number(item.people || 0), 0),
-        active_tasks: rows.reduce((sum, item) => sum + Number(item.active_tasks || 0), 0),
-        history: rows.reduce((sum, item) => sum + Number(item.history || 0), 0),
-      })}
-    </section>
+  const response = await api.recommendableTasks(state.selectedTestCaseId);
+  state.tasks = response.tasks || [];
 
-    <article class="card" style="margin-top: 16px;">
-      <h2>Saved test cases</h2>
-      ${renderDataTable(rows, [
-        "test_case_id",
-        "created_at",
-        "domain_profile",
-        "people",
-        "active_tasks",
-        "history",
-        "recommendation_ready",
-        "bulk_assignment_ready",
-      ])}
-    </article>
-  `);
-}
-
-function renderGenerateResult(result) {
-  const metadata = result.metadata || {};
-  const counts = metadata.counts || {};
-  const summaries = metadata.summaries || {};
-
-  setOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        test_case: result.test_case_id || "",
-        people: counts.people || 0,
-        active_tasks: counts.active_tasks || 0,
-        history: counts.history || 0,
-      })}
-    </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Workload summary</h2>
-      <pre class="code">${prettyJson(summaries.workload || {})}</pre>
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Preview team</h2>
-      ${renderDataTable(result.preview?.team || [])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Preview active tasks</h2>
-      ${renderDataTable(result.preview?.active_tasks || [])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Generated payload</h2>
-      <pre class="code">${prettyJson(result)}</pre>
-    </article>
-  `);
-}
-
-function renderSummary(summary) {
-  const metadata = summary.metadata || {};
-  const counts = metadata.counts || {};
-
-  setOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        test_case: summary.test_case_id || "",
-        people: counts.people || 0,
-        active_tasks: counts.active_tasks || 0,
-        history: counts.history || 0,
-      })}
-    </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Assignment capacity</h2>
-      ${renderDataTable(summary.capacity || [], [
-        "employee_id",
-        "name",
-        "role",
-        "grade",
-        "current_workload",
-        "fatigue_score",
-        "availability_score",
-        "assignment_capacity",
-        "active_tasks",
-      ])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Team preview</h2>
-      ${renderDataTable(summary.team_preview || [])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Active tasks preview</h2>
-      ${renderDataTable(summary.active_tasks_preview || [])}
-    </article>
-  `);
-}
-
-function renderTable(tableName, payload) {
-  const rows = Array.isArray(payload) ? payload : [payload];
-
-  setOutput(`
-    <article class="card">
-      <h2>${htmlEscape(tableName)}</h2>
-      ${renderDataTable(rows)}
-    </article>
-  `);
-}
-
-function renderContext(context) {
-  setOutput(`
-    <section class="grid grid-4">
-      ${renderSummaryCards({
-        team_size: context.team_size || 0,
-        active_tasks: context.active_tasks_count || 0,
-        history_rows: context.history_rows || 0,
-        pending_hours: context.estimated_pending_hours || 0,
-      })}
-    </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Recommendation context</h2>
-      <p class="muted">
-        Этот payload будет использоваться на следующих этапах для single
-        recommendation и bulk assignment.
-      </p>
-      <pre class="code">${prettyJson(context)}</pre>
-    </article>
-  `);
-}
-
-async function refreshTestCases(render = true) {
-  state.testCases = await api.testCases();
-
-  if (!state.selectedTestCaseId) {
-    state.selectedTestCaseId = state.testCases?.test_cases?.[0]?.test_case_id || "";
-  }
-
-  const select = document.querySelector("#testCaseSelect");
-  if (select) {
-    select.innerHTML = testCaseOptions(state.testCases);
-    select.value = state.selectedTestCaseId;
-  }
-
-  if (render) {
-    renderTestCasesList();
+  if (!state.selectedTaskId && state.tasks.length) {
+    state.selectedTaskId = state.tasks[0].task_id;
   }
 }
 
 async function generateTestCase() {
-  try {
-    setAssignmentLoading(true, "Generating test case...");
-    const result = await api.generateTestCase(readGeneratePayload());
+  const payload = {
+    test_case_id: selectedValue("testCaseId"),
+    domain_profile: selectedValue("domainProfile"),
+    people_count: numericValue("peopleCount", 8),
+    active_tasks_count: numericValue("activeTasksCount", 12),
+    history_depth: numericValue("historyDepth", 4),
+    seed: numericValue("seed", 27024),
+    overwrite: true,
+    roles: csvValues("roles"),
+    grades: csvValues("grades"),
+    skills: csvValues("skills"),
+  };
 
-    state.selectedTestCaseId = result.test_case_id;
-    await refreshTestCases(false);
-    renderGenerateResult(result);
-    toast("Test case generated", result.test_case_id);
-  } catch (error) {
-    renderError("Test case generation failed", error);
-    toast("Test case", error.message || String(error));
-  } finally {
-    setAssignmentLoading(false);
-  }
+  const result = await api.generateTestCase(payload);
+  state.selectedTestCaseId = result.test_case_id || payload.test_case_id;
+  await refreshAll();
+  await loadTasks();
+  toast("Test case generated", "success");
 }
 
-async function loadSummary() {
-  try {
-    readSelectedCase();
+async function runSingleRecommendation() {
+  state.selectedTrainingSessionId = selectedValue("trainingSessionId");
+  state.selectedModelName = selectedValue("modelName");
+  state.selectedTestCaseId = selectedValue("testCaseSelect");
+  state.selectedTaskId = selectedValue("taskSelect");
 
-    if (!state.selectedTestCaseId) {
-      throw new Error("Сначала выбери test case.");
+  const payload = {
+    session_id: state.selectedTrainingSessionId,
+    model_name: state.selectedModelName,
+    test_case_id: state.selectedTestCaseId,
+    task_id: state.selectedTaskId,
+    recommendation_mode: selectedValue("recommendationMode"),
+    top_k: numericValue("topK", 3),
+    save_result: true,
+  };
+
+  state.singleResult = await api.singleRecommendation(payload);
+  toast("Single recommendation completed", "success");
+}
+
+async function runBulkAssignment() {
+  state.selectedTrainingSessionId = selectedValue("trainingSessionId");
+  state.selectedModelName = selectedValue("modelName");
+  state.selectedTestCaseId = selectedValue("testCaseSelect");
+
+  const payload = {
+    session_id: state.selectedTrainingSessionId,
+    model_name: state.selectedModelName,
+    test_case_id: state.selectedTestCaseId,
+    assignment_mode: selectedValue("assignmentMode"),
+    recommendation_mode: selectedValue("recommendationMode"),
+    top_k: numericValue("topK", 3),
+    max_workload_per_person: numericValue("maxWorkload", 1.2),
+    fairness_penalty: numericValue("fairnessPenalty", 0.12),
+    fatigue_penalty: numericValue("fatiguePenalty", 0.12),
+    learning_bonus: numericValue("learningBonus", 0.08),
+    workload_penalty: numericValue("workloadPenalty", 0.18),
+    task_statuses: ["todo"],
+    save_session: true,
+  };
+
+  state.bulkResult = await api.runBulkAssignment(payload);
+  await refreshAll();
+  toast("Bulk assignment completed", "success");
+}
+
+function syncFilters() {
+  state.filters.person = selectedValue("filterPerson");
+  state.filters.status = selectedValue("filterStatus");
+  state.filters.project = selectedValue("filterProject");
+  state.filters.risk = selectedValue("filterRisk");
+}
+
+function bindEvents(root) {
+  root.querySelector("#refreshAssignmentData")?.addEventListener("click", async () => {
+    await refreshAll();
+    if (state.selectedTestCaseId) {
+      await loadTasks();
     }
+    root.innerHTML = render();
+    bindEvents(root);
+  });
 
-    setAssignmentLoading(true, "Loading summary...");
-    const summary = await api.testCaseSummary(state.selectedTestCaseId);
-    renderSummary(summary);
-  } catch (error) {
-    renderError("Test case summary failed", error);
-    toast("Test case", error.message || String(error));
-  } finally {
-    setAssignmentLoading(false);
+  root.querySelector("#generateTestCase")?.addEventListener("click", async () => {
+    await generateTestCase();
+    root.innerHTML = render();
+    bindEvents(root);
+  });
+
+  root.querySelector("#loadRecommendableTasks")?.addEventListener("click", async () => {
+    state.selectedTestCaseId = selectedValue("testCaseSelect");
+    await loadTasks();
+    root.innerHTML = render();
+    bindEvents(root);
+  });
+
+  root.querySelector("#runSingleRecommendation")?.addEventListener("click", async () => {
+    await runSingleRecommendation();
+    root.innerHTML = render();
+    bindEvents(root);
+  });
+
+  root.querySelector("#runBulkAssignment")?.addEventListener("click", async () => {
+    await runBulkAssignment();
+    root.innerHTML = render();
+    bindEvents(root);
+  });
+
+  root.querySelector("#clearAssignmentFilters")?.addEventListener("click", () => {
+    state.filters = {
+      person: "",
+      status: "",
+      project: "",
+      risk: "",
+    };
+    root.innerHTML = render();
+    bindEvents(root);
+  });
+
+  root.querySelectorAll("#filterPerson, #filterStatus, #filterProject, #filterRisk")
+    .forEach((input) => {
+      input.addEventListener("input", () => {
+        syncFilters();
+        root.innerHTML = render();
+        bindEvents(root);
+      });
+    });
+
+  root.querySelectorAll("[data-test-case-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      state.selectedTestCaseId = button.dataset.testCaseId || "";
+      state.selectedTaskId = "";
+      await loadTasks();
+      root.innerHTML = render();
+      bindEvents(root);
+    });
+  });
+
+  root.querySelectorAll("[data-assignment-session-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const sessionId = button.dataset.assignmentSessionId || "";
+      state.bulkResult = await api.assignmentSession(sessionId);
+      root.innerHTML = render();
+      bindEvents(root);
+    });
+  });
+}
+
+export async function renderAssignmentLabPage(root) {
+  await refreshAll();
+
+  if (state.selectedTestCaseId) {
+    await loadTasks();
   }
-}
 
-async function loadTable(tableName) {
-  try {
-    readSelectedCase();
-
-    if (!state.selectedTestCaseId) {
-      throw new Error("Сначала выбери test case.");
-    }
-
-    setAssignmentLoading(true, `Loading ${tableName}...`);
-    const table = await api.testCaseTable(state.selectedTestCaseId, tableName);
-    renderTable(tableName, table);
-  } catch (error) {
-    renderError(`${tableName} loading failed`, error);
-    toast("Test case table", error.message || String(error));
-  } finally {
-    setAssignmentLoading(false);
-  }
-}
-
-async function loadContext() {
-  try {
-    readSelectedCase();
-
-    if (!state.selectedTestCaseId) {
-      throw new Error("Сначала выбери test case.");
-    }
-
-    setAssignmentLoading(true, "Loading context...");
-    const context = await api.testCaseRecommendationContext(state.selectedTestCaseId);
-    renderContext(context);
-  } catch (error) {
-    renderError("Recommendation context failed", error);
-    toast("Recommendation context", error.message || String(error));
-  } finally {
-    setAssignmentLoading(false);
-  }
-}
-
-async function deleteSelectedCase() {
-  try {
-    readSelectedCase();
-
-    if (!state.selectedTestCaseId) {
-      throw new Error("Сначала выбери test case.");
-    }
-
-    const testCaseId = state.selectedTestCaseId;
-    setAssignmentLoading(true, "Deleting test case...");
-    const result = await api.deleteTestCase(testCaseId);
-
-    state.selectedTestCaseId = "";
-    await refreshTestCases(true);
-    toast("Test case deleted", result.test_case_id);
-  } catch (error) {
-    renderError("Delete test case failed", error);
-    toast("Delete test case", error.message || String(error));
-  } finally {
-    setAssignmentLoading(false);
-  }
-}
-
-function bindEvents() {
-  document.querySelector("#testCaseSelect").addEventListener("change", readSelectedCase);
-
-  document.querySelector("[data-assignment-action='generate']").addEventListener(
-    "click",
-    () => {
-      generateTestCase();
-    },
-  );
-
-  document.querySelector("[data-assignment-action='list']").addEventListener("click", () => {
-    refreshTestCases(true);
-  });
-
-  document.querySelector("[data-assignment-action='summary']").addEventListener(
-    "click",
-    () => {
-      loadSummary();
-    },
-  );
-
-  document.querySelector("[data-assignment-action='team']").addEventListener("click", () => {
-    loadTable("team");
-  });
-
-  document.querySelector("[data-assignment-action='active-tasks']").addEventListener(
-    "click",
-    () => {
-      loadTable("active_tasks");
-    },
-  );
-
-  document.querySelector("[data-assignment-action='history']").addEventListener("click", () => {
-    loadTable("history");
-  });
-
-  document.querySelector("[data-assignment-action='context']").addEventListener("click", () => {
-    loadContext();
-  });
-
-  document.querySelector("[data-assignment-action='delete']").addEventListener("click", () => {
-    deleteSelectedCase();
-  });
-}
-
-export async function renderAssignmentLab() {
-  state.testCases = await api.testCases();
-  state.selectedTestCaseId = state.testCases?.test_cases?.[0]?.test_case_id || "";
-
-  window.setTimeout(() => {
-    bindEvents();
-    renderTestCasesList();
-  }, 0);
-
-  return `
-    <section class="grid grid-2">
-      <article class="card">
-        <div class="viewer-section-header">
-          <div>
-            <h2>Assignment Lab</h2>
-            <p class="muted">
-              Генерация отдельной текущей команды для проверки обученных моделей.
-            </p>
-          </div>
-          <div class="status-pill status-ok" id="assignmentStatus">
-            <span class="status-dot"></span>
-            <span>Готов</span>
-          </div>
-        </div>
-
-        <div class="grid grid-2">
-          <div class="form-row">
-            <label for="testCaseId">test_case_id</label>
-            <input
-              class="input"
-              id="testCaseId"
-              placeholder="empty = auto id"
-              type="text"
-            />
-          </div>
-
-          <div class="form-row">
-            <label for="testCaseDomainProfile">domain_profile</label>
-            <select class="select" id="testCaseDomainProfile">
-              <option value="developers">developers</option>
-              <option value="designers">designers</option>
-              <option value="custom">custom</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="peopleCount">people_count</label>
-            <input class="input" id="peopleCount" min="1" type="number" value="10" />
-          </div>
-
-          <div class="form-row">
-            <label for="activeTasksCount">active_tasks_count</label>
-            <input class="input" id="activeTasksCount" min="0" type="number" value="16" />
-          </div>
-
-          <div class="form-row">
-            <label for="historyDepth">history_depth</label>
-            <input class="input" id="historyDepth" min="0" type="number" value="8" />
-          </div>
-
-          <div class="form-row">
-            <label for="testCaseSeed">seed</label>
-            <input class="input" id="testCaseSeed" type="number" value="21001" />
-          </div>
-        </div>
-
-        <div class="grid grid-2">
-          <div class="form-row">
-            <label for="workloadMin">workload_min</label>
-            <input class="input" id="workloadMin" step="0.01" type="number" value="0.10" />
-          </div>
-          <div class="form-row">
-            <label for="workloadMax">workload_max</label>
-            <input class="input" id="workloadMax" step="0.01" type="number" value="0.85" />
-          </div>
-          <div class="form-row">
-            <label for="fatigueMin">fatigue_min</label>
-            <input class="input" id="fatigueMin" step="0.01" type="number" value="0.05" />
-          </div>
-          <div class="form-row">
-            <label for="fatigueMax">fatigue_max</label>
-            <input class="input" id="fatigueMax" step="0.01" type="number" value="0.80" />
-          </div>
-          <div class="form-row">
-            <label for="availabilityMin">availability_min</label>
-            <input
-              class="input"
-              id="availabilityMin"
-              step="0.01"
-              type="number"
-              value="0.15"
-            />
-          </div>
-          <div class="form-row">
-            <label for="availabilityMax">availability_max</label>
-            <input
-              class="input"
-              id="availabilityMax"
-              step="0.01"
-              type="number"
-              value="1.00"
-            />
-          </div>
-        </div>
-
-        <label class="checkbox-row">
-          <input id="testCaseOverwrite" type="checkbox" />
-          <span>overwrite existing test case</span>
-        </label>
-
-        <div class="toolbar">
-          <button class="button button-primary" data-assignment-action="generate" type="button">
-            Generate test case
-          </button>
-          <button class="button button-secondary" data-assignment-action="list" type="button">
-            Refresh list
-          </button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>Domain options</h2>
-        <div class="form-row">
-          <label for="testCaseRoles">roles CSV</label>
-          <textarea class="textarea" id="testCaseRoles" rows="3">${
-            DEFAULT_ROLES.join(", ")
-          }</textarea>
-        </div>
-
-        <div class="form-row">
-          <label for="testCaseGrades">grades CSV</label>
-          <textarea class="textarea" id="testCaseGrades" rows="2">${
-            DEFAULT_GRADES.join(", ")
-          }</textarea>
-        </div>
-
-        <div class="form-row">
-          <label for="testCaseSkills">skills CSV</label>
-          <textarea class="textarea" id="testCaseSkills" rows="5">${
-            DEFAULT_SKILLS.join(", ")
-          }</textarea>
-        </div>
-
-        <div class="grid grid-3">
-          <div class="form-row">
-            <label for="learningGoalsMin">learning_goals_min</label>
-            <input class="input" id="learningGoalsMin" min="0" type="number" value="1" />
-          </div>
-          <div class="form-row">
-            <label for="learningGoalsMax">learning_goals_max</label>
-            <input class="input" id="learningGoalsMax" min="0" type="number" value="3" />
-          </div>
-          <div class="form-row">
-            <label for="activeTasksPerPersonMax">active_tasks_per_person_max</label>
-            <input
-              class="input"
-              id="activeTasksPerPersonMax"
-              min="0"
-              type="number"
-              value="4"
-            />
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="grid grid-2" style="margin-top: 16px;">
-      <article class="card">
-        <h2>Saved test cases</h2>
-        <div class="toolbar">
-          <select class="select" id="testCaseSelect">
-            ${testCaseOptions(state.testCases)}
-          </select>
-          <button class="button button-secondary" data-assignment-action="summary" type="button">
-            Summary
-          </button>
-          <button class="button button-secondary" data-assignment-action="team" type="button">
-            Team
-          </button>
-          <button
-            class="button button-secondary"
-            data-assignment-action="active-tasks"
-            type="button"
-          >
-            Active tasks
-          </button>
-          <button class="button button-secondary" data-assignment-action="history" type="button">
-            History
-          </button>
-          <button class="button button-secondary" data-assignment-action="context" type="button">
-            Context
-          </button>
-          <button class="button button-danger" data-assignment-action="delete" type="button">
-            Delete
-          </button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>Selected test case</h2>
-        <pre class="code">${prettyJson(selectedTestCase() || {})}</pre>
-      </article>
-    </section>
-
-    <section id="assignmentOutput" style="margin-top: 16px;">
-      <article class="card">
-        <h2>Assignment Lab</h2>
-        <p class="muted">
-          Создай test case, чтобы на следующих этапах проверить single
-          recommendation и bulk assignment.
-        </p>
-      </article>
-    </section>
-  `;
+  root.innerHTML = render();
+  bindEvents(root);
 }
