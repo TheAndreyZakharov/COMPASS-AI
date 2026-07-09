@@ -2050,38 +2050,64 @@ Smoke test проходит.
 
 ## 27.30. Финальная проверка готовности этапа
 
-- [ ] Папка sandbox_app полностью автономна.
-- [ ] Приложение запускается через scripts/start.sh.
-- [ ] Приложение останавливается через scripts/stop.sh.
-- [ ] Приложение открывается в браузере.
-- [ ] UI сделан на HTML/CSS/Vanilla JS.
-- [ ] Backend работает на FastAPI.
-- [ ] Основной COMPASS API не сломан.
-- [ ] Можно создавать custom schemas.
-- [ ] Можно генерировать команды.
-- [ ] Можно генерировать задачи.
-- [ ] Можно генерировать историю выполненных задач.
-- [ ] Можно генерировать полный training dataset одной кнопкой.
-- [ ] Можно генерировать большие training datasets.
-- [ ] Можно просматривать данные в таблицах.
-- [ ] Можно просматривать задачи в kanban.
-- [ ] Можно импортировать внешние datasets.
-- [ ] Можно строить features.
-- [ ] Можно обучать несколько моделей.
-- [ ] Каждое обучение сохраняется как session.
-- [ ] Модели сохраняются.
-- [ ] Графики сохраняются PNG.
-- [ ] Reports сохраняются.
-- [ ] Можно создать test team.
-- [ ] Можно проверить single task recommendation.
-- [ ] Можно выполнить bulk todo assignment.
-- [ ] Можно включить Qwen explanations.
-- [ ] Есть fallback explanation без LLM.
-- [ ] Есть exports.
-- [ ] Есть tests.
-- [ ] Есть README.
+- [x] Папка sandbox_app полностью автономна.
+- [x] Приложение запускается через scripts/start.sh.
+- [x] Приложение останавливается через scripts/stop.sh.
+- [x] Приложение открывается в браузере.
+- [x] UI сделан на HTML/CSS/Vanilla JS.
+- [x] Backend работает на FastAPI.
+- [x] Основной COMPASS API не сломан.
+- [x] Можно создавать custom schemas.
+- [x] Можно генерировать команды.
+- [x] Можно генерировать задачи.
+- [x] Можно генерировать историю выполненных задач.
+- [x] Можно генерировать полный training dataset одной кнопкой.
+- [x] Можно генерировать большие training datasets.
+- [x] Можно просматривать данные в таблицах.
+- [x] Можно просматривать задачи в kanban.
+- [x] Можно импортировать внешние datasets.
+- [x] Можно строить features.
+- [x] Можно обучать несколько моделей.
+- [x] Каждое обучение сохраняется как session.
+- [x] Модели сохраняются.
+- [x] Графики сохраняются PNG.
+- [x] Reports сохраняются.
+- [x] Можно создать test team.
+- [x] Можно проверить single task recommendation.
+- [x] Можно выполнить bulk todo assignment.
+- [x] Можно включить Qwen explanations.
+- [x] Есть fallback explanation без LLM.
+- [x] Есть exports.
+- [x] Есть tests.
+- [x] Есть README.
+- [x] Добавлен final readiness checklist.
+- [x] Добавлен final milestone readiness test.
 
-**Ожидаемый результат:** этап считается завершённым, когда песочница позволяет пройти полный рабочий цикл: настроить domain schema, сгенерировать данные, обучить модели, создать тестовую команду, распределить задачи и получить понятные объяснения.
+Файлы:
 
-**Примерное время:** 2–4 часа.  
-**Коммит:** `Finalize sandbox app milestone`
+sandbox_app/docs/final_readiness_checklist.md
+sandbox_app/tests/test_final_milestone_readiness.py
+
+Что сделано по факту:
+Добавлен финальный readiness checklist для ручной проверки этапа. Добавлен pytest readiness gate, который проверяет структуру sandbox_app, ключевые backend API files, frontend pages, tests, README, settings isolation flags, run scripts, Makefile targets, регистрацию routers, browser UI без Streamlit и отсутствие прямого импорта основного src, agents и llm из sandbox backend. Финальный test проверяет реальные файлы и реальные router registrations проекта, не требуя несуществующих строк внутри main.py или clean_tmp.sh.
+
+Проверки:
+app_settings.json проходит python -m json.tool.
+Backend и tests проходят python -m compileall.
+Pytest final milestone readiness проходит.
+Pytest README assets проходит.
+Pytest end-to-end pipeline assets проходит.
+Pytest settings assets проходит.
+Pytest sandbox_app/tests проходит.
+Если ruff установлен, sandbox_app проходит ruff check.
+Node checks проходят для app.js, api.js, pages и components.
+Backend запускается через start.sh.
+Проверены health, status, config, feature schemas, datasets, training sessions, models, test cases, recommendation modes, assignment modes, LLM status, reports exports и settings endpoints.
+Smoke test проходит.
+В браузере проверены Dashboard, Settings, Data Generator, Data Viewer, Training, Models, Assignment Lab и Reports.
+
+Ожидаемый результат:
+этап считается завершённым, когда песочница позволяет пройти полный рабочий цикл: настроить domain schema, сгенерировать данные, обучить модели, создать тестовую команду, распределить задачи и получить понятные объяснения.
+
+Примерное время: 2–4 часа.
+Коммит: Finalize sandbox app milestone
