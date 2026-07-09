@@ -232,3 +232,68 @@ INFO:     Waiting for application shutdown.
 2026-07-09 15:52:44,483 | INFO | sandbox_app | Stopping sandbox backend
 INFO:     Application shutdown complete.
 INFO:     Finished server process [29676]
+INFO:     Started server process [39171]
+INFO:     Waiting for application startup.
+2026-07-09 16:10:23,349 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+2026-07-09 16:10:23,349 | INFO | sandbox_app | Starting COMPASS AI Sandbox 0.1.0 on 127.0.0.1:8601
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8601 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57715 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57716 - "GET /viewer HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57716 - "GET /js/app.js?v=20260709_frontend_bootstrap_fix HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57716 - "GET /js/api.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57716 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57716 - "GET /js/app.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57716 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57716 - "GET /api/docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57733 - "GET /api/openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57773 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57774 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /?v=readme-docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /css/styles.css?v=20260709_frontend_bootstrap_fix HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57783 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57793 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57792 - "GET /api/sessions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57794 - "GET /api/contracts/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57795 - "GET /api/feature-schemas?preview=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57783 - "GET /api/data-viewer/datasets HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-07-09 16:11:13,626 | INFO | sandbox_app | Stopping sandbox backend
+2026-07-09 16:11:13,626 | INFO | sandbox_app | Stopping sandbox backend
+INFO:     Application shutdown complete.
+INFO:     Finished server process [39171]

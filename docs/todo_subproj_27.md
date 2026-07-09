@@ -1977,35 +1977,40 @@ Manual browser pipeline checklist пройден.
 
 ## 27.29. Задокументировать песочницу
 
-- [ ] Создать полноценный sandbox_app/README.md.
-- [ ] Описать назначение песочницы.
-- [ ] Описать запуск.
-- [ ] Описать остановку.
-- [ ] Описать структуру папок.
-- [ ] Описать data contracts.
-- [ ] Описать feature schemas.
-- [ ] Описать custom schema editor.
-- [ ] Описать генерацию команды.
-- [ ] Описать генерацию задач.
-- [ ] Описать генерацию истории.
-- [ ] Описать full dataset generation.
-- [ ] Описать imported datasets.
-- [ ] Описать Data Viewer.
-- [ ] Описать feature builder.
-- [ ] Описать обучение моделей.
-- [ ] Описать training sessions.
-- [ ] Описать model export.
-- [ ] Описать test team.
-- [ ] Описать single recommendation.
-- [ ] Описать bulk assignment.
-- [ ] Описать Qwen explanations.
-- [ ] Описать reports.
-- [ ] Описать ограничения.
-- [ ] Добавить troubleshooting.
+- [x] Создать полноценный sandbox_app/README.md.
+- [x] Описать назначение песочницы.
+- [x] Описать запуск.
+- [x] Описать остановку.
+- [x] Описать структуру папок.
+- [x] Описать data contracts.
+- [x] Описать feature schemas.
+- [x] Описать custom schema editor.
+- [x] Описать генерацию команды.
+- [x] Описать генерацию задач.
+- [x] Описать генерацию истории.
+- [x] Описать full dataset generation.
+- [x] Описать imported datasets.
+- [x] Описать Data Viewer.
+- [x] Описать feature builder.
+- [x] Описать обучение моделей.
+- [x] Описать training sessions.
+- [x] Описать model export.
+- [x] Описать test team.
+- [x] Описать single recommendation.
+- [x] Описать bulk assignment.
+- [x] Описать Qwen explanations.
+- [x] Описать reports.
+- [x] Описать ограничения.
+- [x] Добавить troubleshooting.
+- [x] Добавить README assets test.
+
+Файлы:
+
+sandbox_app/README.md
+sandbox_app/tests/test_readme_assets.py
 
 Troubleshooting:
 
-```text
 Port 8601 is busy
 Python is not from .venv
 FastAPI is not installed
@@ -2018,12 +2023,28 @@ ONNX Runtime is not installed
 Ollama is not running
 Qwen model not found
 Browser shows old JS after cache
-```
 
-**Ожидаемый результат:** подпроект можно открыть отдельно и понять, как им пользоваться без чтения всего кода.
+Что сделано по факту:
+README описывает назначение sandbox_app, запуск, остановку, Makefile targets, структуру папок, backend endpoints, frontend pages, data contracts, feature schemas, custom schema editor, генерацию команды, задач, истории и full dataset, imported datasets, Data Viewer, feature builder, training, training sessions, model export, reports, test team, single recommendation, bulk assignment, Qwen/Ollama explanations, settings, полный browser pipeline, проверки, ограничения и troubleshooting. Добавлен pytest test, который защищает README от удаления ключевых разделов, endpoints, команд и troubleshooting пунктов.
 
-**Примерное время:** 5–8 часов.  
-**Коммит:** `Document sandbox app`
+Проверки:
+Backend и tests проходят python -m compileall.
+Pytest README assets проходит.
+Pytest end-to-end pipeline assets проходит.
+Pytest settings assets проходит.
+Pytest feature schemas проходит.
+Pytest sandbox_app/tests проходит.
+Если ruff установлен, sandbox_app проходит ruff check.
+Node checks проходят для app.js, api.js, pages и components.
+Backend запускается через start.sh.
+Smoke test проходит.
+В браузере проверены Dashboard, Settings, Data Generator и Reports.
+
+Ожидаемый результат:
+подпроект можно открыть отдельно и понять, как им пользоваться без чтения всего кода.
+
+Примерное время: 5–8 часов.
+Коммит: Document sandbox app
 
 ---
 
