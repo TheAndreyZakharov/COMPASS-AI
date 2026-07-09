@@ -317,3 +317,6 @@ def list_available_models() -> dict[str, Any]:
         "total": len(models),
         "training_sessions_dir": str(TRAINING_SESSIONS_DIR),
     }
+
+def load_sandbox_model(session_id: str, model_name: str) -> LoadedSandboxModel:
+    return load_model(session_id, model_name)

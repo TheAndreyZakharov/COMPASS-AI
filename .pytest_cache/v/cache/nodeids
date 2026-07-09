@@ -1,5 +1,7 @@
 [
   "sandbox_app/tests/test_assignment_lab_ui_assets.py::test_assignment_lab_ui_assets_are_wired",
+  "sandbox_app/tests/test_bulk_assignment.py::test_bulk_assignment_session",
+  "sandbox_app/tests/test_bulk_assignment_api_assets.py::test_bulk_assignment_api_assets_are_wired",
   "sandbox_app/tests/test_data_viewer_api.py::test_data_viewer_reads_generated_dataset_tables",
   "sandbox_app/tests/test_feature_builder.py::test_build_features_for_generated_dataset",
   "sandbox_app/tests/test_full_dataset_generator.py::test_generate_full_dataset_small_preview",

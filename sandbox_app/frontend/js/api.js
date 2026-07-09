@@ -200,5 +200,17 @@ export const api = {
       `/api/recommendations/test-cases/${encodeURIComponent(testCaseId)}/` +
         encodeURIComponent(recommendationId),
     ),
-    
+
+  assignmentModes: () => apiGet("/api/assignment-sessions/modes"),
+  runBulkAssignment: (payload) =>
+    apiPost("/api/assignment-sessions/run", payload),
+  assignmentSessions: () => apiGet("/api/assignment-sessions"),
+  assignmentSession: (assignmentSessionId) =>
+    apiGet(
+      `/api/assignment-sessions/${encodeURIComponent(assignmentSessionId)}`,
+    ),
+
+
+
+
 };

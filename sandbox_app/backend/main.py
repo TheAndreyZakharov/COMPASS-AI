@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sandbox_app.backend.api import (
+    assignment_sessions,
     config,
     contracts,
     data_viewer,
@@ -99,6 +100,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(models.router, prefix=api_prefix)
     app.include_router(test_cases.router, prefix=api_prefix)
     app.include_router(recommendations.router, prefix=api_prefix)
+    app.include_router(assignment_sessions.router, prefix=api_prefix)
 
 
 def register_frontend_routes(app: FastAPI) -> None:

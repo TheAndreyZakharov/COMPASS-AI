@@ -1523,35 +1523,49 @@ Smoke test проходит.
 
 ## 27.23. Реализовать bulk assignment simulation
 
-- [ ] Выбирать saved model.
-- [ ] Выбирать test case.
-- [ ] Брать все todo задачи.
-- [ ] Настраивать assignment mode.
-- [ ] Настраивать top_k.
-- [ ] Настраивать max workload per person.
-- [ ] Настраивать fairness penalty.
-- [ ] Настраивать fatigue penalty.
-- [ ] Настраивать learning bonus.
-- [ ] Распределять задачи пачкой.
-- [ ] Обновлять прогнозную загрузку после каждого назначения.
-- [ ] Не назначать всё одному сильному человеку.
-- [ ] Показывать assigned tasks.
-- [ ] Показывать unassigned tasks.
-- [ ] Показывать workload after assignment.
-- [ ] Показывать fairness report.
-- [ ] Сохранять assignment session.
+- [x] Выбирать saved model.
+- [x] Выбирать test case.
+- [x] Брать все todo задачи.
+- [x] Настраивать assignment mode.
+- [x] Настраивать top_k.
+- [x] Настраивать max workload per person.
+- [x] Настраивать fairness penalty.
+- [x] Настраивать fatigue penalty.
+- [x] Настраивать learning bonus.
+- [x] Распределять задачи пачкой.
+- [x] Обновлять прогнозную загрузку после каждого назначения.
+- [x] Не назначать всё одному сильному человеку.
+- [x] Показывать assigned tasks.
+- [x] Показывать unassigned tasks.
+- [x] Показывать workload after assignment.
+- [x] Показывать fairness report.
+- [x] Сохранять assignment session.
+- [x] Добавить Assignment Sessions API.
+- [x] Добавить assignment modes endpoint.
+- [x] Добавить HTML assignment report.
+- [x] Добавить CSV exports для assigned, unassigned и workload after assignment.
+- [x] Добавить pytest smoke test bulk assignment.
+- [x] Добавить frontend API methods для bulk assignment.
 
 Файлы:
 
-```text
 sandbox_app/backend/inference/bulk_assignment.py
 sandbox_app/backend/inference/assignment_optimizer.py
 sandbox_app/backend/api/assignment_sessions.py
-```
+sandbox_app/frontend/js/api.js
+sandbox_app/tests/test_bulk_assignment.py
+sandbox_app/tests/test_bulk_assignment_api_assets.py
+
+Endpoints:
+
+GET /api/assignment-sessions/modes
+POST /api/assignment-sessions/run
+GET /api/assignment-sessions
+GET /api/assignment-sessions/{assignment_session_id}
+GET /api/assignment-sessions/{assignment_session_id}/files/{file_name}
 
 Результат:
 
-```text
 sandbox_app/assignment_sessions/<session_id>/assignment_config.json
 sandbox_app/assignment_sessions/<session_id>/recommendations.json
 sandbox_app/assignment_sessions/<session_id>/assigned_tasks.csv
@@ -1559,12 +1573,33 @@ sandbox_app/assignment_sessions/<session_id>/unassigned_tasks.csv
 sandbox_app/assignment_sessions/<session_id>/workload_after_assignment.csv
 sandbox_app/assignment_sessions/<session_id>/fairness_report.json
 sandbox_app/assignment_sessions/<session_id>/assignment_report.html
-```
+sandbox_app/assignment_sessions/<session_id>/session_summary.json
 
-**Ожидаемый результат:** модель может разом распределить все todo-задачи с учётом качества, скорости, обучения, усталости и загрузки.
+Что сделано по факту:
+Bulk assignment simulation работает поверх saved model и test case. Backend берёт assignment-ready задачи, сортирует их по приоритету и сложности, для каждой задачи строит task-employee candidates, прогоняет их через модель, применяет assignment optimizer и назначает лучшего доступного кандидата. После каждого назначения обновляется projected workload. Optimizer учитывает assignment_mode, top_k, max_workload_per_person, fairness_penalty, fatigue_penalty, learning_bonus и workload_penalty. Результат сохраняется как assignment session с recommendations JSON, CSV exports, fairness report и HTML report.
 
-**Примерное время:** 12–20 часов.  
-**Коммит:** `Add sandbox bulk assignment simulation`
+Проверки:
+Backend проходит python -m compileall.
+Pytest smoke test bulk assignment проходит.
+Pytest smoke test bulk assignment API assets проходит.
+Pytest smoke tests single recommendation и test team generator проходят.
+Если Node.js установлен, api.js проходит node --check.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверен endpoint assignment modes.
+Проверена генерация smoke dataset.
+Проверен запуск training session.
+Проверена генерация test case.
+Проверен endpoint bulk assignment run.
+Проверено сохранение assignment session.
+Проверены assigned tasks, unassigned tasks, workload after assignment и fairness report.
+Проверена отдача assignment_report.html.
+Smoke test проходит.
+
+Ожидаемый результат:
+модель может разом распределить все todo-задачи с учётом качества, скорости, обучения, усталости и загрузки.
+
+Примерное время: 12–20 часов.
+Коммит: Add sandbox bulk assignment simulation
 
 ---
 
