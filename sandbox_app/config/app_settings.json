@@ -4,72 +4,78 @@
     "slug": "compass-ai-sandbox",
     "version": "0.1.0",
     "environment": "local",
-    "target_python": "3.11.x",
     "host": "127.0.0.1",
-    "port": 8601
+    "port": 8601,
+    "target_python": "3.11.15",
+    "python_version": "3.11.15"
   },
   "isolation": {
     "autonomous_subproject": true,
     "do_not_import_main_src": true,
     "do_not_import_main_llm": true,
     "do_not_import_main_agents": true,
-    "do_not_modify_main_compass_api": true
+    "do_not_modify_main_compass_api": true,
+    "forbid_main_src_imports": true,
+    "forbid_main_llm_imports": true,
+    "forbid_main_agent_imports": true
   },
   "paths": {
-    "config_dir": "sandbox_app/config",
-    "feature_schemas_dir": "sandbox_app/config/feature_schemas",
-    "data_contracts_dir": "sandbox_app/config/data_contracts",
     "generated_data_dir": "sandbox_app/data/generated",
     "imported_data_dir": "sandbox_app/data/imported",
     "test_cases_dir": "sandbox_app/data/test_cases",
-    "exports_dir": "sandbox_app/data/exports",
     "training_sessions_dir": "sandbox_app/training_sessions",
     "assignment_sessions_dir": "sandbox_app/assignment_sessions",
     "reports_dir": "sandbox_app/reports",
+    "exports_dir": "sandbox_app/data/exports",
     "logs_dir": "sandbox_app/logs"
   },
   "defaults": {
-    "seed": 42,
+    "seed": 27027,
     "domain_profile": "developers",
     "dataset_mode": "small_preview",
+    "target_mode": "balanced",
     "recommendation_mode": "balanced",
+    "assignment_mode": "balanced",
     "training_models": [
       "baseline_rule_based",
-      "sgd_classifier",
-      "logistic_regression"
+      "logistic_regression",
+      "random_forest"
     ]
   },
-  "dataset_modes": {
+  "generation": {
     "small_preview": {
       "employees_count": 10,
       "tasks_count": 100,
+      "history_depth_per_employee": 5,
       "target_pairs": 1000,
-      "history_depth_per_employee": 25
+      "candidates_per_task": 10
     },
     "medium_validation": {
       "employees_count": 30,
       "tasks_count": 1000,
+      "history_depth_per_employee": 10,
       "target_pairs": 30000,
-      "history_depth_per_employee": 100
+      "candidates_per_task": 30
     },
     "large_training": {
       "employees_count": 100,
       "tasks_count": 10000,
+      "history_depth_per_employee": 20,
       "target_pairs": 1000000,
-      "history_depth_per_employee": 250
-    },
-    "huge_training": {
-      "requires_confirmation": true,
-      "max_employees_count": 1000,
-      "max_tasks_count": 100000,
-      "max_target_pairs": 10000000
+      "candidates_per_task": 100
     }
+  },
+  "limits": {
+    "huge_generation_requires_confirmation": true,
+    "huge_max_employees": 1000,
+    "huge_max_tasks": 100000,
+    "huge_max_pairs": 10000000,
+    "ui_schema_preview_limit": 50
   },
   "ollama": {
     "base_url": "http://localhost:11434",
     "model": "qwen2.5:1.5b-instruct",
     "timeout_seconds": 30,
-    "explanations_only": true,
-    "can_change_ranking": false
+    "auto_pull": true
   }
 }

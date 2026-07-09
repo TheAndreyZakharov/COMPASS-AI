@@ -1830,42 +1830,75 @@ Smoke test проходит.
 
 ## 27.27. Добавить Settings UI и schema editor
 
-- [ ] Сделать страницу Settings рабочей.
-- [ ] Показывать app settings.
-- [ ] Настраивать paths.
-- [ ] Настраивать default seed.
-- [ ] Настраивать default domain profile.
-- [ ] Настраивать default dataset mode.
-- [ ] Настраивать default recommendation mode.
-- [ ] Настраивать default training models.
-- [ ] Настраивать huge generation limits.
-- [ ] Настраивать Ollama base URL.
-- [ ] Настраивать Qwen model name.
-- [ ] Сохранять settings в JSON.
-- [ ] Добавить reset settings.
-- [ ] Сделать editor feature schemas.
-- [ ] Добавлять roles через UI.
-- [ ] Добавлять grades через UI.
-- [ ] Добавлять skills через UI.
-- [ ] Добавлять employee features через UI.
-- [ ] Добавлять task features через UI.
-- [ ] Добавлять outcome features через UI.
-- [ ] Удалять и переименовывать features через UI.
-- [ ] Показывать schema preview.
-- [ ] Сохранять schemas через API.
+- [x] Сделать страницу Settings рабочей.
+- [x] Показывать app settings.
+- [x] Настраивать paths.
+- [x] Настраивать default seed.
+- [x] Настраивать default domain profile.
+- [x] Настраивать default dataset mode.
+- [x] Настраивать default recommendation mode.
+- [x] Настраивать default training models.
+- [x] Настраивать huge generation limits.
+- [x] Настраивать Ollama base URL.
+- [x] Настраивать Qwen model name.
+- [x] Сохранять settings в JSON.
+- [x] Добавить reset settings.
+- [x] Сделать editor feature schemas.
+- [x] Добавлять roles через UI.
+- [x] Добавлять grades через UI.
+- [x] Добавлять skills через UI.
+- [x] Добавлять employee features через UI.
+- [x] Добавлять task features через UI.
+- [x] Добавлять outcome features через UI.
+- [x] Удалять features через UI.
+- [x] Показывать schema preview.
+- [x] Сохранять schemas через API.
+- [x] Добавить Settings API.
+- [x] Добавить validation settings payload.
+- [x] Сохранить совместимость app_settings.json со старым core settings loader.
+- [x] Добавить обязательные isolation settings старого и нового формата.
+- [x] Добавить защиту do_not_modify_main_compass_api.
+- [x] Добавить tests для Settings API wiring.
+- [x] Добавить tests для совместимости core settings loader.
+- [x] Добавить tests для create_app startup compatibility.
 
 Файлы:
 
-```text
 sandbox_app/backend/api/settings.py
 sandbox_app/frontend/js/pages/settings.js
+sandbox_app/frontend/js/api.js
 sandbox_app/config/app_settings.json
-```
+sandbox_app/tests/test_settings_assets.py
 
-**Ожидаемый результат:** пользователь может настраивать песочницу и custom schemas без ручной правки JSON.
+Endpoints:
 
-**Примерное время:** 8–14 часов.  
-**Коммит:** `Add sandbox settings`
+GET /api/settings
+PUT /api/settings
+PATCH /api/settings
+POST /api/settings/reset
+GET /api/settings/schema
+
+Что сделано по факту:
+Settings API читает, валидирует, сохраняет и сбрасывает app_settings.json. Settings UI показывает defaults, paths, huge generation limits и Ollama/Qwen settings. Schema editor подключён к существующему feature schemas API: можно создавать custom schema, редактировать roles, grades, skills, добавлять и удалять features, открывать schema preview. app_settings.json сохраняет обязательные app keys и isolation flags старого и нового формата, включая запрет изменения основного COMPASS API, поэтому backend startup и reset settings не ломают core settings loader.
+
+Проверки:
+app_settings.json проходит python -m json.tool.
+Backend проходит python -m compileall.
+Core settings loader успешно читает app_settings.json.
+Backend create_app успешно создаётся.
+Pytest Settings assets проходит.
+Pytest frontend bootstrap, reports exports и Assignment Lab assets проходят.
+Pytest training reports и bulk assignment проходят.
+Node checks проходят для settings.js, api.js и app.js.
+Если ruff установлен, sandbox_app проходит ruff check.
+Проверены endpoints health, config, settings, settings schema и страница /settings.
+Smoke test проходит.
+
+Ожидаемый результат:
+пользователь может настраивать песочницу и custom schemas без ручной правки JSON.
+
+Примерное время: 8–14 часов.
+Коммит: Add sandbox settings
 
 ---
 

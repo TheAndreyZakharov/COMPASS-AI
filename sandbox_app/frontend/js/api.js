@@ -46,6 +46,26 @@ export async function apiPost(path, payload = {}) {
   return parseResponse(response);
 }
 
+export async function apiPut(path, payload = {}) {
+  const response = await fetch(path, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(payload),
+  });
+
+  return parseResponse(response);
+}
+
+export async function apiPatch(path, payload = {}) {
+  const response = await fetch(path, {
+    method: "PATCH",
+    headers: JSON_HEADERS,
+    body: JSON.stringify(payload),
+  });
+
+  return parseResponse(response);
+}
+
 export async function apiUpload(path, formData) {
   const response = await fetch(path, {
     method: "POST",
@@ -69,6 +89,11 @@ export const api = {
   config: () => apiGet("/api/config"),
   settings: () => apiGet("/api/config/settings"),
   sessions: () => apiGet("/api/sessions"),
+  sandboxSettings: () => apiGet("/api/settings"),
+  sandboxSettingsSchema: () => apiGet("/api/settings/schema"),
+  updateSandboxSettings: (payload) => apiPut("/api/settings", payload),
+  patchSandboxSettings: (payload) => apiPatch("/api/settings", payload),
+  resetSandboxSettings: () => apiPost("/api/settings/reset", {}),
 
   contractsSummary: () => apiGet("/api/contracts/summary"),
   featureSchemas: () => apiGet("/api/feature-schemas?preview=true"),
@@ -262,4 +287,40 @@ export const api = {
   exportReportFileUrl: (reportId, fileName) =>
     `/api/reports/exports/${encodeURIComponent(reportId)}/files/` +
     encodeURIComponent(fileName),
+
+  featureSchema: (profileId, preview = false) =>
+    apiGet(
+      `/api/feature-schemas/${encodeURIComponent(profileId)}` +
+        `${preview ? "?preview=true" : ""}`,
+    ),
+
+  featureSchemaTemplate: () => apiGet("/api/feature-schemas/template"),
+
+  createFeatureSchema: (payload) => apiPost("/api/feature-schemas", payload),
+
+  updateFeatureSchema: (profileId, payload) =>
+    apiPut(`/api/feature-schemas/${encodeURIComponent(profileId)}`, payload),
+
+  deleteFeatureSchema: (profileId) =>
+    apiDelete(`/api/feature-schemas/${encodeURIComponent(profileId)}`),
+
+  addSchemaFeature: (profileId, group, payload) =>
+    apiPost(
+      `/api/feature-schemas/${encodeURIComponent(profileId)}/features/` +
+        encodeURIComponent(group),
+      payload,
+    ),
+
+  updateSchemaFeature: (profileId, group, featureName, payload) =>
+    apiPatch(
+      `/api/feature-schemas/${encodeURIComponent(profileId)}/features/` +
+        `${encodeURIComponent(group)}/${encodeURIComponent(featureName)}`,
+      payload,
+    ),
+
+  deleteSchemaFeature: (profileId, group, featureName) =>
+    apiDelete(
+      `/api/feature-schemas/${encodeURIComponent(profileId)}/features/` +
+        `${encodeURIComponent(group)}/${encodeURIComponent(featureName)}`,
+    ),
 };
