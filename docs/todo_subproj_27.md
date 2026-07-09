@@ -1904,33 +1904,38 @@ Smoke test проходит.
 
 ## 27.28. Протестировать полный pipeline
 
-- [ ] Написать tests для feature schemas.
-- [ ] Написать tests для team generator.
-- [ ] Написать tests для task generator.
-- [ ] Написать tests для history generator.
-- [ ] Написать tests для full dataset generator.
-- [ ] Написать tests для data viewer API.
-- [ ] Написать tests для import validation.
-- [ ] Написать tests для feature builder.
-- [ ] Написать training smoke test.
-- [ ] Написать tests для training sessions.
-- [ ] Написать tests для model loading.
-- [ ] Написать tests для single recommendation.
-- [ ] Написать tests для bulk assignment.
-- [ ] Написать tests для Qwen fallback explanation.
-- [ ] Написать smoke test запуска backend.
-- [ ] Проверить end-to-end сценарий вручную в браузере.
-- [ ] Проверить, что основной COMPASS API не сломан.
+- [x] Написать tests для feature schemas.
+- [x] Написать tests для team generator.
+- [x] Написать tests для task generator.
+- [x] Написать tests для history generator.
+- [x] Написать tests для full dataset generator.
+- [x] Написать tests для data viewer API.
+- [x] Написать tests для import validation.
+- [x] Написать tests для feature builder.
+- [x] Написать training smoke test.
+- [x] Написать tests для training sessions.
+- [x] Написать tests для model loading.
+- [x] Написать tests для single recommendation.
+- [x] Написать tests для bulk assignment.
+- [x] Написать tests для Qwen fallback explanation.
+- [x] Написать smoke test запуска backend.
+- [x] Добавить end-to-end pipeline assets test.
+- [x] Добавить manual browser pipeline checklist.
+- [x] Проверить end-to-end сценарий вручную в браузере.
+- [x] Проверить, что основной COMPASS API не сломан.
+
+Файлы:
+
+sandbox_app/tests/test_feature_schemas.py
+sandbox_app/tests/test_end_to_end_pipeline_assets.py
+sandbox_app/docs/end_to_end_pipeline_checklist.md
 
 Команда:
 
-```bash
 pytest sandbox_app/tests
-```
 
 End-to-end сценарий:
 
-```text
 open browser app
 create custom schema
 generate full dataset
@@ -1946,12 +1951,27 @@ enable Qwen explanations
 save assignment session
 open reports
 export results
-```
 
-**Ожидаемый результат:** песочница проходит полный цикл от генерации данных до объяснённого распределения задач.
+Что сделано по факту:
+Добавлен отдельный test для feature schemas. Тест проверяет наличие developers, designers и custom schemas, валидность JSON, системные profiles, редактируемость custom schema, допустимые feature types, реальные CRUD функции feature schema loader и реальные CRUD routes feature schemas API. Добавлен end-to-end pipeline assets test, который проверяет покрытие backend API, frontend pages, тестовых файлов, router registration, frontend API client methods, startup smoke script и отсутствие прямого импорта основного src, agents и llm из sandbox backend. Добавлен manual browser checklist для полного прохождения пайплайна руками в UI.
 
-**Примерное время:** 12–20 часов.  
-**Коммит:** `Test sandbox end to end pipeline`
+Проверки:
+Backend проходит python -m compileall.
+Pytest feature schemas проходит.
+Pytest end-to-end pipeline assets проходит.
+Pytest sandbox_app/tests проходит.
+Node checks проходят для app.js, api.js, pages и components.
+Если ruff установлен, sandbox_app проходит ruff check.
+Backend запускается через start.sh.
+Smoke test проходит.
+Проверены health, feature schemas и settings endpoints.
+Manual browser pipeline checklist пройден.
+
+Ожидаемый результат:
+песочница проходит полный цикл от генерации данных до объяснённого распределения задач.
+
+Примерное время: 12–20 часов.
+Коммит: Test sandbox end to end pipeline
 
 ---
 

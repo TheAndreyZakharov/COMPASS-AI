@@ -2,5 +2,9 @@
   "tests/test_skill_vectorizer.py::test_employee_skill_vector_from_json_string": true,
   "tests/test_skill_vectorizer.py::test_task_required_skill_vector_prefers_required_skills": true,
   "tests/test_skill_vectorizer.py::test_task_required_skill_vector_falls_back_to_stack": true,
-  "sandbox_app/tests/test_test_team_generator.py::test_case_summary": true
+  "sandbox_app/tests/test_test_team_generator.py::test_case_summary": true,
+  "sandbox_app/tests/test_feature_schemas.py::test_feature_schema_groups_have_valid_feature_definitions": true,
+  "sandbox_app/tests/test_feature_schemas.py::test_system_feature_schemas_are_protected_by_api_assets": true,
+  "sandbox_app/tests/test_feature_schemas.py::test_feature_schema_loader_and_api_assets_support_full_crud": true,
+  "sandbox_app/tests/test_feature_schemas.py::test_feature_schema_backend_loader_exists": true
 }
