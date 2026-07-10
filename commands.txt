@@ -1,0 +1,9 @@
+sandbox:
+bash sandbox_app/scripts/start.sh
+bash sandbox_app/scripts/stop.sh
+
+for Plane:
+cmd+shift+p 
+Tasks: Run Task
+COMPASS: start stack
+COMPASS: stop stack
