@@ -1,8 +1,23 @@
 import { api } from "../api.js";
-import { htmlEscape, prettyJson, setLastDatasetId, toast } from "../app.js";
+import { htmlEscape, setLastDatasetId, toast } from "../app.js";
 import { renderDataTable } from "../components/table.js";
 
 const TABLES = ["employees", "tasks", "assignment_history", "training_pairs"];
+
+function startLongTaskToast(options) {
+  const detail = { options, controller: null };
+  window.dispatchEvent(new CustomEvent("sandbox-long-task-start", { detail }));
+
+  return detail.controller || {
+    update() {},
+    done(message = "Готово") {
+      toast(options?.title || "Импорт данных", message);
+    },
+    error(message = "Ошибка") {
+      toast(options?.title || "Импорт данных", message);
+    },
+  };
+}
 
 function selectedFile(tableName) {
   return document.querySelector(`#importFile_${tableName}`)?.files?.[0] || null;
@@ -45,7 +60,7 @@ function buildDatasetFormData() {
 function buildPreviewFormData(tableName) {
   const file = selectedFile(tableName);
   if (!file) {
-    throw new Error(`Выбери файл для ${tableName}`);
+    throw new Error(`Выберите файл для ${tableName}`);
   }
 
   const formData = new FormData();
@@ -63,6 +78,10 @@ function setImportLoading(isLoading, label = "Импорт...") {
     button.classList.toggle("loading", isLoading);
   });
 
+  if (!status) {
+    return;
+  }
+
   status.className = isLoading ? "status-pill status-pending" : "status-pill status-ok";
   status.innerHTML = isLoading
     ? `<span class="status-dot"></span><span>${htmlEscape(label)}</span>`
@@ -76,7 +95,7 @@ function renderValidationBlocks(result) {
   if (errors.length === 0 && warnings.length === 0) {
     return `
       <article class="card">
-        <h3>Validation</h3>
+        <h3>Проверка</h3>
         <p class="muted">Ошибок и предупреждений нет.</p>
       </article>
     `;
@@ -85,12 +104,12 @@ function renderValidationBlocks(result) {
   return `
     <section class="grid grid-2">
       <article class="card">
-        <h3>Schema errors</h3>
+        <h3>Ошибки структуры</h3>
         ${renderDataTable(errors)}
       </article>
       <article class="card">
-        <h3>Warnings</h3>
-        <pre class="code">${prettyJson(warnings)}</pre>
+        <h3>Предупреждения</h3>
+        ${renderDataTable(warnings.map((warning) => ({ warning })))}
       </article>
     </section>
   `;
@@ -99,10 +118,15 @@ function renderValidationBlocks(result) {
 function renderPreview(result) {
   const preview = result.preview || [];
   const rows = Array.isArray(preview) ? preview : Object.values(preview).flat();
+  const resultContainer = document.querySelector("#importResult");
 
-  document.querySelector("#importResult").innerHTML = `
+  if (!resultContainer) {
+    return;
+  }
+
+  resultContainer.innerHTML = `
     <article class="card">
-      <h2>Preview: ${htmlEscape(result.table_name || "table")}</h2>
+      <h2>Предпросмотр: ${htmlEscape(result.table_name || "таблица")}</h2>
       <p class="muted">
         ${htmlEscape(result.filename || "")} · ${htmlEscape(result.format || "")} ·
         rows: ${htmlEscape(result.rows || 0)}
@@ -113,11 +137,6 @@ function renderPreview(result) {
     <section style="margin-top: 16px;">
       ${renderValidationBlocks(result)}
     </section>
-
-    <article class="card" style="margin-top: 16px;">
-      <h3>Raw preview response</h3>
-      <pre class="code">${prettyJson(result)}</pre>
-    </article>
   `;
 }
 
@@ -129,23 +148,29 @@ function renderImportResult(result) {
 
   const openViewerButton =
     result.status === "imported"
-      ? '<button class="button button-primary" id="openImportedDataset" type="button">Открыть в Data Viewer</button>'
+      ? '<button class="button button-primary" id="openImportedDataset" type="button">Открыть в просмотре данных</button>'
       : "";
+  const resultContainer = document.querySelector("#importResult");
 
-  document.querySelector("#importResult").innerHTML = `
+  if (!resultContainer) {
+    return;
+  }
+
+  resultContainer.innerHTML = `
     <section class="grid grid-3">
       <article class="card">
-        <h2>Status</h2>
-        <p><strong>${htmlEscape(result.status || "unknown")}</strong></p>
+        <h2>Статус</h2>
+        <p><strong>${result.status === "imported" ? "Импортировано" : "Требуется проверка"}</strong></p>
         <p class="muted">${htmlEscape(result.dataset_id || "")}</p>
       </article>
       <article class="card">
-        <h2>Dataset dir</h2>
-        <p class="muted">${htmlEscape(result.dataset_dir || "")}</p>
+        <h2>Таблицы</h2>
+        <p><strong>${htmlEscape((result.tables || []).length)}</strong></p>
+        <p class="muted">файлов принято</p>
       </article>
       <article class="card">
-        <h2>Next step</h2>
-        ${openViewerButton || '<p class="muted">Исправь validation errors и повтори импорт.</p>'}
+        <h2>Следующий шаг</h2>
+        ${openViewerButton || '<p class="muted">Исправьте ошибки проверки и повторите импорт.</p>'}
       </article>
     </section>
 
@@ -154,13 +179,8 @@ function renderImportResult(result) {
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Imported tables</h2>
+      <h2>Импортированные таблицы</h2>
       ${renderDataTable(result.tables || [])}
-    </article>
-
-    <article class="card" style="margin-top: 16px;">
-      <h2>Raw import response</h2>
-      <pre class="code">${prettyJson(result)}</pre>
     </article>
   `;
 
@@ -174,10 +194,16 @@ function renderImportResult(result) {
 }
 
 function renderImportError(error) {
-  document.querySelector("#importResult").innerHTML = `
+  const resultContainer = document.querySelector("#importResult");
+
+  if (!resultContainer) {
+    return;
+  }
+
+  resultContainer.innerHTML = `
     <article class="card">
-      <span class="badge">Error</span>
-      <h2>Import failed</h2>
+      <span class="badge">Ошибка</span>
+      <h2>Импорт не выполнен</h2>
       <p class="muted">${htmlEscape(error.message || String(error))}</p>
     </article>
   `;
@@ -185,31 +211,43 @@ function renderImportError(error) {
 
 async function runPreview(tableName) {
   try {
-    setImportLoading(true, `Preview ${tableName}...`);
+    setImportLoading(true, `Предпросмотр ${tableName}...`);
     const result = await api.importPreview(buildPreviewFormData(tableName));
     renderPreview(result);
   } catch (error) {
     renderImportError(error);
-    toast("Preview error", error.message || String(error));
+    toast("Ошибка предпросмотра", error.message || String(error));
   } finally {
     setImportLoading(false);
   }
 }
 
 async function runImport() {
+  const progress = startLongTaskToast({
+    title: "Импортируем файлы...",
+    message: "Проверяем таблицы...",
+    steps: ["Проверяем таблицы...", "Импортируем файлы...", "Сохраняем датасет..."],
+  });
+
   try {
-    setImportLoading(true, "Import dataset...");
+    setImportLoading(true, "Импортируем датасет...");
+    progress.update({ message: "Импортируем файлы...", percent: 32, stepIndex: 1 });
     const result = await api.importDataset(buildDatasetFormData());
-    renderImportResult(result);
+    progress.update({ message: "Сохраняем датасет...", percent: 94, stepIndex: 2 });
 
     if (result.status === "imported") {
-      toast("Dataset imported", result.dataset_id);
+      progress.done("Готово");
+      renderImportResult(result);
+      toast("Датасет импортирован", result.dataset_id);
     } else {
-      toast("Validation failed", "Исправь schema errors и повтори импорт.");
+      progress.error("Проверка не пройдена");
+      renderImportResult(result);
+      toast("Проверка не пройдена", "Исправьте ошибки структуры и повторите импорт.");
     }
   } catch (error) {
+    progress.error(error.message || String(error));
     renderImportError(error);
-    toast("Import error", error.message || String(error));
+    toast("Ошибка импорта", error.message || String(error));
   } finally {
     setImportLoading(false);
   }
@@ -233,7 +271,7 @@ function fileInputRow(tableName) {
         data-preview-table="${htmlEscape(tableName)}"
         type="button"
       >
-        Preview
+        Предпросмотр
       </button>
     </div>
   `;
@@ -248,18 +286,17 @@ function bindImportEvents() {
 }
 
 export async function renderImportData() {
-  const supported = await api.importSupportedTables();
-
   window.setTimeout(bindImportEvents, 0);
 
   return `
-    <section class="grid grid-2">
+    <section class="grid">
       <article class="card">
         <div class="viewer-section-header">
           <div>
-            <h2>Import external dataset</h2>
+            <h2>Импорт своих данных</h2>
             <p class="muted">
-              Импортирует external CSV, JSON и Parquet в sandbox_app/data/imported.
+              Загрузите свои таблицы вместо синтетической генерации. Сначала можно
+              проверить файл через предпросмотр, затем сохранить датасет.
             </p>
           </div>
           <div class="status-pill status-ok" id="importStatus">
@@ -271,19 +308,19 @@ export async function renderImportData() {
         <div class="form">
           <div class="grid grid-2">
             <div class="form-row">
-              <label for="importDatasetId">dataset_id</label>
+              <label for="importDatasetId">ID датасета</label>
               <input class="input" id="importDatasetId" type="text" value="ui_imported_dataset" />
             </div>
 
             <div class="form-row">
-              <label for="importDomainProfile">domain_profile</label>
+              <label for="importDomainProfile">Профиль предметной области</label>
               <input class="input" id="importDomainProfile" type="text" value="custom" />
             </div>
 
             <div class="form-row checkbox-row">
               <label>
                 <input id="importOverwrite" type="checkbox" />
-                overwrite existing imported dataset
+                заменить существующий импортированный датасет
               </label>
             </div>
           </div>
@@ -294,23 +331,18 @@ export async function renderImportData() {
 
           <div class="toolbar">
             <button class="button button-primary" data-import-action="dataset" type="button">
-              Import dataset
+              Импортировать датасет
             </button>
           </div>
         </div>
-      </article>
-
-      <article class="card">
-        <h2>Supported import contract</h2>
-        <pre class="code">${prettyJson(supported)}</pre>
       </article>
     </section>
 
     <section id="importResult" style="margin-top: 16px;">
       <article class="card">
-        <h2>Result</h2>
+        <h2>Результат</h2>
         <p class="muted">
-          Выбери файлы, запусти Preview для проверки или Import dataset для сохранения.
+          Выберите файлы, нажмите «Предпросмотр» для проверки или «Импортировать датасет» для сохранения.
         </p>
       </article>
     </section>

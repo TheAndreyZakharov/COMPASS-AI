@@ -111,10 +111,16 @@ def register_frontend_routes(app: FastAPI) -> None:
     PATHS.frontend_css_dir.mkdir(parents=True, exist_ok=True)
     PATHS.frontend_js_dir.mkdir(parents=True, exist_ok=True)
     PATHS.frontend_assets_dir.mkdir(parents=True, exist_ok=True)
+    PATHS.brand_assets_dir.mkdir(parents=True, exist_ok=True)
 
     app.mount("/css", StaticFiles(directory=PATHS.frontend_css_dir), name="sandbox-css")
     app.mount("/js", StaticFiles(directory=PATHS.frontend_js_dir), name="sandbox-js")
     app.mount("/assets", StaticFiles(directory=PATHS.frontend_assets_dir), name="sandbox-assets")
+    app.mount("/brand", StaticFiles(directory=PATHS.brand_assets_dir), name="sandbox-brand")
+
+    @app.api_route("/favicon.ico", methods=["GET", "HEAD"], include_in_schema=False)
+    async def favicon() -> FileResponse:
+        return FileResponse(PATHS.brand_assets_dir / "image.png", media_type="image/png")
 
     @app.get("/", include_in_schema=False)
     async def frontend_index() -> FileResponse:

@@ -4,10 +4,11 @@ import csv
 import html
 import json
 import shutil
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
+
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 
 SANDBOX_DIR = Path(__file__).resolve().parents[2]
 REPORTS_DIR = SANDBOX_DIR / "reports"
@@ -19,7 +20,7 @@ class ExportError(RuntimeError):
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).replace(microsecond=0).isoformat()
+    return moscow_now_iso()
 
 
 def short_id() -> str:
@@ -29,7 +30,7 @@ def short_id() -> str:
 def report_id(kind: str, source_id: str) -> str:
     safe_kind = safe_name(kind)
     safe_source = safe_name(source_id)
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     return f"{stamp}_{safe_kind}_{safe_source}_{short_id()}"
 
 

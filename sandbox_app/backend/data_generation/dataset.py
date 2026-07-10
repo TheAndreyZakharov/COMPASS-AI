@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import random
 import re
-import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+import time
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 from sandbox_app.backend.data_generation.history import generate_assignment_history
 from sandbox_app.backend.data_generation.tasks import generate_tasks
 from sandbox_app.backend.data_generation.training_pairs import (
@@ -73,7 +73,7 @@ DATASET_MODES = {
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def validate_dataset_id(dataset_id: str) -> str:
@@ -87,7 +87,7 @@ def validate_dataset_id(dataset_id: str) -> str:
 
 
 def generate_dataset_id(domain_profile: str, dataset_mode: str, seed: int | None) -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     seed_part = "random" if seed is None else str(seed)
     return f"dataset_{domain_profile}_{dataset_mode}_{stamp}_{seed_part}"
 

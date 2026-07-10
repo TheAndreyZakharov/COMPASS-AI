@@ -30,6 +30,47 @@ def safe_text(value: Any) -> str:
     return str(value or "").strip()
 
 
+def explanation_text(value: Any) -> str:
+    if isinstance(value, list):
+        lines: list[str] = []
+
+        for item in value:
+            if isinstance(item, dict):
+                text = (
+                    item.get("message")
+                    or item.get("text")
+                    or item.get("explanation")
+                    or item.get("summary")
+                )
+                if text:
+                    lines.append(f"- {safe_text(text)}")
+                    continue
+
+                details = [
+                    f"{key}: {safe_text(raw_value)}"
+                    for key, raw_value in item.items()
+                    if safe_text(raw_value)
+                ]
+                if details:
+                    lines.append(f"- {', '.join(details)}")
+            else:
+                text = safe_text(item)
+                if text:
+                    lines.append(f"- {text}")
+
+        return "\n".join(lines).strip()
+
+    if isinstance(value, dict):
+        lines = [
+            f"{key}: {safe_text(raw_value)}"
+            for key, raw_value in value.items()
+            if safe_text(raw_value)
+        ]
+        return "\n".join(lines).strip()
+
+    return safe_text(value)
+
+
 def candidate_label(candidate: dict[str, Any]) -> str:
     name = safe_text(candidate.get("name"))
     employee_id = safe_text(candidate.get("employee_id"))
@@ -59,6 +100,7 @@ def allowed_candidate_tokens(candidates: list[dict[str, Any]]) -> set[str]:
 def compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     factors = candidate.get("factors") or {}
     risks = candidate.get("risks") or []
+    snapshot = candidate.get("employee_snapshot") or {}
 
     return {
         "employee_id": candidate.get("employee_id"),
@@ -78,6 +120,14 @@ def compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
             "workload_pressure": factors.get("workload_pressure"),
             "fatigue_risk": factors.get("fatigue_risk"),
             "availability_gap": factors.get("availability_gap"),
+        },
+        "employee_snapshot": {
+            "current_workload": snapshot.get("current_workload"),
+            "fatigue_score": snapshot.get("fatigue_score"),
+            "availability_score": snapshot.get("availability_score"),
+            "avg_quality_score": snapshot.get("avg_quality_score"),
+            "avg_completion_speed": snapshot.get("avg_completion_speed"),
+            "deadline_reliability": snapshot.get("deadline_reliability"),
         },
         "risks": [
             {
@@ -244,10 +294,27 @@ def recommendation_prompt(recommendation: dict[str, Any]) -> str:
         "Нельзя менять ranking, score, кандидатов, навыки или риски. "
         "Нельзя придумывать новых кандидатов, новые навыки или новые факты. "
         "Используй только JSON ниже. "
+        "Пиши как опытный руководитель/аналитик, который объясняет назначение задачи человеку: "
+        "живым языком, но строго по фактам и метрикам из JSON. "
+        "Обязательно используй конкретные числа score, model_score, skill_match_ratio, "
+        "quality_fit_score, speed_fit_score, workload_pressure, fatigue_score, "
+        "availability_score и риски, если они есть. "
+        "Не просто перечисляй метрики: коротко объясняй, что каждая важная цифра значит "
+        "для этой задачи, почему кандидат подходит, где слабые места и чем он отличается "
+        "от соседних кандидатов в ranking. "
         "Верни строго JSON object с полями: summary, candidate_explanations, risks_note. "
         "candidate_explanations должен быть массивом объектов с полями "
         "employee_id, explanation, strengths, concerns. "
-        "employee_id должен быть только из входных candidates.\n\n"
+        "employee_id должен быть только из входных candidates. "
+        "summary — 4-6 предложений: общий вывод, почему top-1 выбран, "
+        "какой есть компромисс по нагрузке/риску и на что обратить внимание. "
+        "explanation — 4-6 предложений по каждому кандидату: роль, совпадение навыков, "
+        "качество, скорость, нагрузка, усталость/доступность, риски и итоговый смысл этих цифр. "
+        "strengths и concerns — списки из 2-4 строк каждый; в строках тоже указывай числа, "
+        "если число есть во входных данных. concerns не должен быть Python/JSON object, "
+        "только обычные человеческие строки. "
+        "В строковых значениях можно использовать короткие markdown-списки, "
+        "но весь ответ всё равно должен быть валидным JSON.\n\n"
         f"{json.dumps(compact, ensure_ascii=False, indent=2)}"
     )
 
@@ -260,12 +327,26 @@ def normalize_llm_explanation(
     candidates = recommendation.get("candidates") or []
     validate_candidate_references(parsed, candidates)
 
-    summary = safe_text(parsed.get("summary"))
-    risks_note = safe_text(parsed.get("risks_note"))
+    summary = explanation_text(parsed.get("summary"))
+    risks_note = explanation_text(parsed.get("risks_note"))
     candidate_explanations = parsed.get("candidate_explanations", [])
 
     if not summary:
         raise ExplanationError("LLM summary is empty")
+
+    normalized_candidates: list[dict[str, Any]] = []
+    for item in candidate_explanations:
+        if not isinstance(item, dict):
+            continue
+
+        normalized_candidates.append(
+            {
+                **item,
+                "explanation": explanation_text(item.get("explanation")),
+                "strengths": item.get("strengths", []),
+                "concerns": item.get("concerns", []),
+            }
+        )
 
     return {
         "status": "ok",
@@ -275,7 +356,7 @@ def normalize_llm_explanation(
         "llm_model": model_name,
         "summary": summary,
         "risks_note": risks_note,
-        "candidate_explanations": candidate_explanations,
+        "candidate_explanations": normalized_candidates,
     }
 
 
@@ -299,7 +380,7 @@ def explain_recommendation(
     system = (
         "Ты объясняешь результаты ML ranking. "
         "Ты не принимаешь решений и не меняешь порядок кандидатов. "
-        "Отвечай только валидным JSON без markdown."
+        "Отвечай только валидным JSON. Не добавляй текст вне JSON."
     )
 
     try:
@@ -373,8 +454,15 @@ def assignment_prompt(assignment_session: dict[str, Any]) -> str:
         "Нельзя менять назначения, ranking, score, людей, задачи или fairness metrics. "
         "Нельзя придумывать новых людей, задачи, навыки или причины. "
         "Используй только JSON ниже. "
+        "Пиши как понятный аналитик: объясни подробнее, сколько задач назначено, "
+        "сколько осталось без назначения, как распределилась нагрузка, где есть риски, "
+        "какие числа это подтверждают и почему итог выглядит логичным. "
         "Верни строго JSON object с полями: summary, fairness_note, workload_note, "
-        "unassigned_note, risks_note.\n\n"
+        "unassigned_note, risks_note. "
+        "Каждое непустое поле должно быть 3-5 предложений или короткий markdown-список "
+        "с конкретными числами из JSON. "
+        "В строковых значениях можно использовать короткие markdown-списки, "
+        "но весь ответ всё равно должен быть валидным JSON.\n\n"
         f"{json.dumps(compact, ensure_ascii=False, indent=2)}"
     )
 
@@ -397,7 +485,7 @@ def explain_assignment_session(
     system = (
         "Ты объясняешь сохранённый результат batch assignment. "
         "Ты не меняешь назначения, порядок, score и fairness metrics. "
-        "Отвечай только валидным JSON без markdown."
+        "Отвечай только валидным JSON. Не добавляй текст вне JSON."
     )
 
     try:
@@ -407,7 +495,7 @@ def explain_assignment_session(
             temperature=0.15,
         )
         parsed = extract_json_object(generated.response)
-        summary = safe_text(parsed.get("summary"))
+        summary = explanation_text(parsed.get("summary"))
 
         if not summary:
             raise ExplanationError("LLM summary is empty")
@@ -419,10 +507,10 @@ def explain_assignment_session(
             "llm_used": True,
             "llm_model": generated.model,
             "summary": summary,
-            "fairness_note": safe_text(parsed.get("fairness_note")),
-            "workload_note": safe_text(parsed.get("workload_note")),
-            "unassigned_note": safe_text(parsed.get("unassigned_note")),
-            "risks_note": safe_text(parsed.get("risks_note")),
+            "fairness_note": explanation_text(parsed.get("fairness_note")),
+            "workload_note": explanation_text(parsed.get("workload_note")),
+            "unassigned_note": explanation_text(parsed.get("unassigned_note")),
+            "risks_note": explanation_text(parsed.get("risks_note")),
         }
     except (OllamaClientError, ExplanationError) as exc:
         return fallback_assignment_explanation(assignment_session, reason=str(exc))

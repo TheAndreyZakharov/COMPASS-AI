@@ -1,8 +1,38 @@
 # Python
 .venv/
+__pycache__/
+*.py[cod]
 
 # macOS
 .DS_Store
 
 # External Plane source checkout
 plane/docker/plane-source/
+
+# Sandbox runtime logs
+sandbox_app/logs/*
+!sandbox_app/logs/.gitkeep
+
+# Sandbox generated runtime data
+sandbox_app/data/generated/*
+!sandbox_app/data/generated/.gitkeep
+
+sandbox_app/data/imported/*
+!sandbox_app/data/imported/.gitkeep
+
+sandbox_app/data/test_cases/*
+!sandbox_app/data/test_cases/.gitkeep
+
+sandbox_app/data/exports/*
+!sandbox_app/data/exports/.gitkeep
+
+# Sandbox runtime sessions
+sandbox_app/training_sessions/*
+!sandbox_app/training_sessions/.gitkeep
+
+sandbox_app/assignment_sessions/*
+!sandbox_app/assignment_sessions/.gitkeep
+
+# Sandbox runtime reports
+sandbox_app/reports/*
+!sandbox_app/reports/.gitkeep

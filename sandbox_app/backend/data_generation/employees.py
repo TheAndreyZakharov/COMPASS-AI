@@ -5,12 +5,12 @@ import json
 import math
 import random
 import secrets
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.data_contracts import validate_record_required_fields
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 from sandbox_app.backend.features.schema import load_feature_schema, schema_preview
 from sandbox_app.backend.utils.json_io import write_json
 
@@ -36,48 +36,6 @@ CORE_EMPLOYEE_FIELDS = {
     "timezone",
     "team_id",
 }
-
-FIRST_NAMES = [
-    "Alex",
-    "Maria",
-    "Dmitry",
-    "Anna",
-    "Ivan",
-    "Elena",
-    "Nikita",
-    "Sofia",
-    "Mikhail",
-    "Daria",
-    "Artem",
-    "Polina",
-    "Sergey",
-    "Kira",
-    "Andrey",
-    "Alina",
-    "Roman",
-    "Vera",
-    "Pavel",
-    "Nina",
-]
-
-LAST_NAMES = [
-    "Volkov",
-    "Morozova",
-    "Smirnov",
-    "Kuznetsova",
-    "Sokolov",
-    "Popova",
-    "Petrov",
-    "Novikova",
-    "Fedorov",
-    "Orlova",
-    "Lebedev",
-    "Romanova",
-    "Egorov",
-    "Mikhailova",
-    "Nikolaev",
-    "Semenova",
-]
 
 DEFAULT_GRADE_WEIGHTS = {
     "junior": 0.22,
@@ -256,7 +214,7 @@ def parse_generation_config(payload: dict[str, Any]) -> dict[str, Any]:
         "save_dataset": bool(payload.get("save_dataset", True)),
         "overwrite": bool(payload.get("overwrite", False)),
         "team_id": str(payload.get("team_id", "sandbox_team")),
-        "timezone": str(payload.get("timezone", "UTC")),
+        "timezone": str(payload.get("timezone", "Europe/Moscow")),
     }
 
 
@@ -628,7 +586,7 @@ def build_team_metadata(
         "dataset_type": "generated",
         "generator": "team",
         "domain_profile": config["domain_profile"],
-        "created_at": datetime.now(UTC).isoformat(),
+            "created_at": moscow_now_iso(),
         "seed": config["seed"],
         "counts": {
             "employees": len(employees),
@@ -684,13 +642,11 @@ def validate_generated_employees(employees: list[dict[str, Any]]) -> None:
 
 
 def build_person_name(index: int) -> str:
-    first = FIRST_NAMES[(index - 1) % len(FIRST_NAMES)]
-    last = LAST_NAMES[((index - 1) // len(FIRST_NAMES)) % len(LAST_NAMES)]
-    return f"{first} {last}"
+    return f"employee_{index:06d}"
 
 
 def build_dataset_id(prefix: str) -> str:
-    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    timestamp = moscow_stamp()
     suffix = secrets.token_hex(3)
     return f"{prefix}_{timestamp}_{suffix}"
 

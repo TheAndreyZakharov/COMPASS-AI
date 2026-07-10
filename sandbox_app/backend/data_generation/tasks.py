@@ -4,12 +4,13 @@ import csv
 import json
 import random
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.data_contracts import validate_record_required_fields
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now, moscow_now_iso, moscow_stamp
 from sandbox_app.backend.data_generation.backlog import (
     build_backlog,
     build_kanban_summary,
@@ -71,16 +72,16 @@ class TaskGenerationError(RuntimeError):
     """Raised when sandbox task generation cannot be completed safely."""
 
 
-def utc_now() -> datetime:
-    return datetime.now(UTC)
+def utc_now():
+    return moscow_now()
 
 
 def utc_now_iso() -> str:
-    return utc_now().isoformat()
+    return moscow_now_iso()
 
 
 def generate_dataset_id(domain_profile: str, seed: int | None) -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     seed_part = "random" if seed is None else str(seed)
     return f"tasks_{domain_profile}_{stamp}_{seed_part}"
 
@@ -338,8 +339,7 @@ def make_task_title(
     index: int,
     domain_profile: str,
 ) -> str:
-    readable_type = task_type.replace("_", " ").replace("-", " ")
-    return f"{readable_type.title()} #{index:04d} for {project_id} [{domain_profile}]"
+    return f"task_{index:06d}"
 
 
 def make_task_description(
@@ -348,11 +348,7 @@ def make_task_description(
     priority: str,
     complexity: float,
 ) -> str:
-    skills_part = ", ".join(required_skills)
-    return (
-        f"Generated {task_type} task with {priority} priority, "
-        f"complexity {complexity}, and required skills: {skills_part}."
-    )
+    return ""
 
 
 def generate_tasks(payload: dict[str, Any]) -> dict[str, Any]:

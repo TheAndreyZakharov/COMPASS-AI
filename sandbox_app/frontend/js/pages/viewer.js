@@ -2,7 +2,6 @@ import { api } from "../api.js";
 import {
   getLastDatasetId,
   htmlEscape,
-  prettyJson,
   setLastDatasetId,
   toast,
 } from "../app.js";
@@ -28,6 +27,7 @@ const state = {
   page: 1,
   pageSize: 25,
   search: "",
+  viewMode: "datasets",
   filters: {
     status: "",
     role: "",
@@ -68,7 +68,7 @@ function datasetOptions(datasetsPayload) {
   const datasets = allDatasets(datasetsPayload);
 
   if (datasets.length === 0) {
-    return '<option value="">Нет datasets</option>';
+    return '<option value="">Нет датасетов</option>';
   }
 
   return datasets
@@ -91,8 +91,17 @@ function datasetOptions(datasetsPayload) {
 function tableOptions() {
   return TABLES.map((tableName) => {
     const selected = tableName === state.tableName ? "selected" : "";
-    return `<option value="${tableName}" ${selected}>${tableName}</option>`;
+    return `<option value="${tableName}" ${selected}>${tableLabel(tableName)}</option>`;
   }).join("");
+}
+
+function tableLabel(tableName) {
+  return {
+    employees: "Сотрудники",
+    tasks: "Задачи",
+    assignment_history: "История выполнений",
+    training_pairs: "Пары для обучения",
+  }[tableName] || tableName;
 }
 
 function selectedDatasetDescriptor() {
@@ -189,7 +198,6 @@ function readControls() {
     setLastDatasetId(state.datasetId);
   }
 
-  renderSelectedDatasetCard();
 }
 
 function setViewerLoading(isLoading, label = "Загрузка...") {
@@ -207,9 +215,20 @@ function setViewerLoading(isLoading, label = "Загрузка...") {
     : '<span class="status-dot"></span><span>Готов</span>';
 }
 
+function setActiveViewerAction(action) {
+  state.viewMode = action;
+  document.querySelectorAll("[data-viewer-action]").forEach((button) => {
+    const active = button.dataset.viewerAction === action;
+    button.classList.toggle("button-primary", active);
+    button.classList.toggle("button-secondary", !active);
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
 function ensureDatasetSelected() {
   if (!state.datasetId) {
-    throw new Error("Сначала выбери dataset.");
+    throw new Error("Сначала выберите датасет.");
   }
 }
 
@@ -217,40 +236,24 @@ function renderOutput(html) {
   document.querySelector("#viewerOutput").innerHTML = html;
 }
 
-function renderSelectedDatasetCard() {
-  const element = document.querySelector("#viewerSelectedDatasetJson");
-
-  if (!element) {
-    return;
-  }
-
-  element.textContent = prettyJson(
-    selectedDatasetDescriptor() || {
-      dataset_id: state.datasetId || null,
-      dataset_kind: state.datasetKind || null,
-    },
-  );
-}
-
 function renderError(error) {
   renderOutput(`
     <article class="card">
-      <span class="badge">Error</span>
-      <h2>Data Viewer error</h2>
+      <span class="badge">Ошибка</span>
+      <h2>Не удалось открыть данные</h2>
       <p class="muted">${htmlEscape(error.message || error)}</p>
     </article>
   `);
 }
 
 async function loadDatasets() {
-  setViewerLoading(true, "Datasets...");
+  setViewerLoading(true, "Датасеты...");
 
   try {
     state.datasets = await api.datasets();
     selectInitialDataset();
 
     document.querySelector("#viewerDataset").innerHTML = datasetOptions(state.datasets);
-    renderSelectedDatasetCard();
     renderDatasetList();
   } catch (error) {
     renderError(error);
@@ -260,27 +263,32 @@ async function loadDatasets() {
 }
 
 function renderDatasetList() {
+  setActiveViewerAction("datasets");
   const datasets = allDatasets(state.datasets);
 
   if (datasets.length === 0) {
     renderOutput(`
       <article class="card">
-        <h2>Datasets</h2>
-        <p class="muted">Generated и imported datasets пока не найдены.</p>
+        <h2>Датасеты</h2>
+        <p class="muted">Датасетов пока нет. Создайте данные или импортируйте свои файлы.</p>
+        <div class="toolbar">
+          <a class="button button-primary" href="/generator" data-link>Создать данные</a>
+          <a class="button button-secondary" href="/import-data" data-link>Импортировать файлы</a>
+        </div>
       </article>
     `);
     return;
   }
 
   const rows = datasets.map((dataset) => ({
-    dataset_id: dataset.dataset_id,
-    kind: dataset.dataset_kind,
-    domain_profile: dataset.domain_profile || "",
-    dataset_mode: dataset.dataset_mode || "",
-    employees: dataset.counts?.employees || 0,
-    tasks: dataset.counts?.tasks || 0,
-    training_pairs: dataset.counts?.training_pairs || 0,
-    created_at: dataset.created_at || "",
+    "Датасет": dataset.dataset_id,
+    "Тип": dataset.dataset_kind === "generated" ? "созданный" : "импортированный",
+    "Профиль": dataset.domain_profile || "",
+    "Размер": dataset.dataset_mode || "",
+    "Сотрудники": dataset.counts?.employees || 0,
+    "Задачи": dataset.counts?.tasks || 0,
+    "Пары для обучения": dataset.counts?.training_pairs || 0,
+    "Создан": dataset.created_at || "",
   }));
 
   renderOutput(`
@@ -289,16 +297,16 @@ function renderDatasetList() {
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Datasets</h2>
+      <h2>Датасеты</h2>
       ${renderDataTable(rows, [
-        "dataset_id",
-        "kind",
-        "domain_profile",
-        "dataset_mode",
-        "employees",
-        "tasks",
-        "training_pairs",
-        "created_at",
+        "Датасет",
+        "Тип",
+        "Профиль",
+        "Размер",
+        "Сотрудники",
+        "Задачи",
+        "Пары для обучения",
+        "Создан",
       ])}
     </article>
   `);
@@ -306,12 +314,13 @@ function renderDatasetList() {
 
 async function loadSummary() {
   ensureDatasetSelected();
-  setViewerLoading(true, "Summary...");
+  setActiveViewerAction("summary");
+  setViewerLoading(true, "Сводка...");
 
   try {
     const summary = await api.datasetSummary(state.datasetId, datasetKindQuery());
     const counts = summary.summary_counts || summary.dataset?.counts || {};
-    const metadata = summary.metadata || {};
+    const dataset = summary.dataset || {};
 
     renderOutput(`
       <section class="grid grid-4">
@@ -319,17 +328,17 @@ async function loadSummary() {
       </section>
 
       <section class="grid grid-2" style="margin-top: 16px;">
-        ${renderBarChart("Table sizes", counts)}
+        ${renderBarChart("Размер таблиц", counts)}
         <article class="card">
-          <h3>Dataset profile</h3>
-          <pre class="code">${prettyJson(summary.dataset || {})}</pre>
+          <h3>Профиль датасета</h3>
+          <div class="info-list">
+            <p><strong>ID:</strong> ${htmlEscape(dataset.dataset_id || state.datasetId)}</p>
+            <p><strong>Тип:</strong> ${htmlEscape(dataset.dataset_kind || state.datasetKind)}</p>
+            <p><strong>Домен:</strong> ${htmlEscape(dataset.domain_profile || "не указан")}</p>
+            <p><strong>Режим:</strong> ${htmlEscape(dataset.dataset_mode || "не указан")}</p>
+          </div>
         </article>
       </section>
-
-      <article class="card" style="margin-top: 16px;">
-        <h2>Metadata</h2>
-        <pre class="code">${prettyJson(metadata)}</pre>
-      </article>
     `);
   } catch (error) {
     renderError(error);
@@ -340,6 +349,7 @@ async function loadSummary() {
 
 async function loadTable() {
   ensureDatasetSelected();
+  setActiveViewerAction("table");
   setViewerLoading(true, `${state.tableName}...`);
 
   try {
@@ -352,12 +362,12 @@ async function loadTable() {
       <article class="card">
         <div class="viewer-section-header">
           <div>
-            <h2>${htmlEscape(state.tableName)}</h2>
+            <h2>${htmlEscape(tableLabel(state.tableName))}</h2>
             <p class="muted">
               ${htmlEscape(result.format || "table")} · ${htmlEscape(result.source || "")}
             </p>
           </div>
-          <span class="badge">${htmlEscape(pagination.total || 0)} rows</span>
+          <span class="badge">${htmlEscape(pagination.total || 0)} строк</span>
         </div>
 
         ${renderDataTable(items, columns)}
@@ -375,7 +385,8 @@ async function loadTable() {
 
 async function loadKanban() {
   ensureDatasetSelected();
-  setViewerLoading(true, "Kanban...");
+  setActiveViewerAction("kanban");
+  setViewerLoading(true, "Канбан...");
 
   try {
     const kanban = await api.kanban(state.datasetId, datasetKindQuery());
@@ -383,18 +394,16 @@ async function loadKanban() {
 
     renderOutput(`
       <section class="grid grid-2">
-        ${renderBarChart("Kanban counts", counts)}
+        ${renderBarChart("Статусы задач", counts)}
         <article class="card">
-          <h3>Kanban summary</h3>
-          <pre class="code">${prettyJson({
-            total: kanban.total,
-            counts,
-          })}</pre>
+          <h3>Сводка по задачам</h3>
+          <p><strong>${htmlEscape(kanban.total || 0)}</strong> задач всего</p>
+          <p class="muted">Ниже показано распределение по статусам.</p>
         </article>
       </section>
 
       <article class="card" style="margin-top: 16px;">
-        <h2>Kanban board</h2>
+        <h2>Канбан задач</h2>
         ${renderKanbanBoard(kanban)}
       </article>
     `);
@@ -407,7 +416,8 @@ async function loadKanban() {
 
 async function loadCharts() {
   ensureDatasetSelected();
-  setViewerLoading(true, "Charts...");
+  setActiveViewerAction("charts");
+  setViewerLoading(true, "Графики...");
 
   try {
     const chartQuery =
@@ -420,14 +430,48 @@ async function loadCharts() {
 
     renderOutput(`
       <section class="grid grid-2">
-        ${renderBarChart("Tasks by status", countByField(taskRows, "status"))}
-        ${renderBarChart("Tasks by priority", countByField(taskRows, "priority"))}
-        ${renderBarChart("Employees by role", countByField(employeeRows, "role"))}
-        ${renderBarChart("Employees by grade", countByField(employeeRows, "grade"))}
+        ${renderBarChart("Задачи по статусам", countByField(taskRows, "status"))}
+        ${renderBarChart("Задачи по приоритетам", countByField(taskRows, "priority"))}
+        ${renderBarChart("Сотрудники по ролям", countByField(employeeRows, "role"))}
+        ${renderBarChart("Сотрудники по уровням", countByField(employeeRows, "grade"))}
       </section>
     `);
   } catch (error) {
     renderError(error);
+  } finally {
+    setViewerLoading(false);
+  }
+}
+
+async function deleteSelectedDataset() {
+  readControls();
+  ensureDatasetSelected();
+
+  const confirmed = window.confirm(
+    `Удалить датасет "${state.datasetId}" (${selectedDatasetKind()})? Это удалит его файлы.`,
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  setViewerLoading(true, "Удаление датасета...");
+
+  try {
+    await api.deleteDataset(state.datasetId, selectedDatasetKind());
+    if (getLastDatasetId() === state.datasetId) {
+      setLastDatasetId("");
+    }
+    state.datasetId = "";
+    state.page = 1;
+    state.datasets = await api.datasets();
+    selectInitialDataset();
+    document.querySelector("#viewerDataset").innerHTML = datasetOptions(state.datasets);
+    renderDatasetList();
+    toast("Датасет удален", "Файлы удалены из sandbox_app.");
+  } catch (error) {
+    renderError(error);
+    toast("Просмотр данных", error.message || String(error));
   } finally {
     setViewerLoading(false);
   }
@@ -464,6 +508,7 @@ function bindViewerEvents() {
   });
 
   document.querySelector("#viewerRefreshDatasets").addEventListener("click", loadDatasets);
+  document.querySelector("#viewerDeleteDataset").addEventListener("click", deleteSelectedDataset);
 
   document.querySelectorAll("[data-viewer-action]").forEach((button) => {
     button.addEventListener("click", async () => {
@@ -489,7 +534,7 @@ function bindViewerEvents() {
         }
       } catch (error) {
         renderError(error);
-        toast("Data Viewer", error.message || String(error));
+        toast("Просмотр данных", error.message || String(error));
       }
     });
   });
@@ -517,18 +562,18 @@ export async function renderViewer() {
 
   window.setTimeout(() => {
     bindViewerEvents();
-    renderSelectedDatasetCard();
     renderDatasetList();
   }, 0);
 
   return `
-    <section class="grid grid-2">
+    <section class="grid">
       <article class="card">
         <div class="viewer-section-header">
           <div>
-            <h2>Data Viewer</h2>
+            <h2>Просмотр данных</h2>
             <p class="muted">
-              Просмотр generated и imported datasets без ручного открытия CSV, JSON или Parquet.
+              Выберите датасет, таблицу и режим просмотра. Данные можно искать,
+              фильтровать и проверять без открытия файлов.
             </p>
           </div>
           <div class="status-pill status-ok" id="viewerStatusPill">
@@ -539,19 +584,19 @@ export async function renderViewer() {
 
         <div class="toolbar">
           <div class="form-row">
-            <label for="viewerDataset">Dataset</label>
+            <label for="viewerDataset">Датасет</label>
             <select class="select" id="viewerDataset">
               ${datasetOptions(state.datasets)}
             </select>
           </div>
 
           <div class="form-row">
-            <label for="viewerTable">Table</label>
+            <label for="viewerTable">Таблица</label>
             <select class="select" id="viewerTable">${tableOptions()}</select>
           </div>
 
           <div class="form-row">
-            <label for="viewerPageSize">Page size</label>
+            <label for="viewerPageSize">Строк на странице</label>
             <input
               class="input"
               id="viewerPageSize"
@@ -563,7 +608,7 @@ export async function renderViewer() {
           </div>
 
           <div class="form-row">
-            <label for="viewerSearch">Search</label>
+            <label for="viewerSearch">Поиск</label>
             <input class="input" id="viewerSearch" placeholder="Поиск..." type="search" />
           </div>
         </div>
@@ -596,45 +641,63 @@ export async function renderViewer() {
         </div>
 
         <div class="toolbar">
-          <button class="button button-secondary" data-viewer-action="datasets" type="button">
-            Datasets
+          <button
+            class="button ${state.viewMode === "datasets" ? "button-primary active" : "button-secondary"}"
+            data-viewer-action="datasets"
+            type="button"
+            aria-pressed="${state.viewMode === "datasets" ? "true" : "false"}"
+          >
+            Датасеты
           </button>
-          <button class="button button-secondary" data-viewer-action="summary" type="button">
-            Summary
+          <button
+            class="button ${state.viewMode === "summary" ? "button-primary active" : "button-secondary"}"
+            data-viewer-action="summary"
+            type="button"
+            aria-pressed="${state.viewMode === "summary" ? "true" : "false"}"
+          >
+            Сводка
           </button>
-          <button class="button button-primary" data-viewer-action="table" type="button">
-            Table
+          <button
+            class="button ${state.viewMode === "table" ? "button-primary active" : "button-secondary"}"
+            data-viewer-action="table"
+            type="button"
+            aria-pressed="${state.viewMode === "table" ? "true" : "false"}"
+          >
+            Таблица
           </button>
-          <button class="button button-secondary" data-viewer-action="charts" type="button">
-            Charts
+          <button
+            class="button ${state.viewMode === "charts" ? "button-primary active" : "button-secondary"}"
+            data-viewer-action="charts"
+            type="button"
+            aria-pressed="${state.viewMode === "charts" ? "true" : "false"}"
+          >
+            Графики
           </button>
-          <button class="button button-secondary" data-viewer-action="kanban" type="button">
-            Kanban
+          <button
+            class="button ${state.viewMode === "kanban" ? "button-primary active" : "button-secondary"}"
+            data-viewer-action="kanban"
+            type="button"
+            aria-pressed="${state.viewMode === "kanban" ? "true" : "false"}"
+          >
+            Канбан
           </button>
           <button class="button button-secondary" id="viewerClearFilters" type="button">
-            Clear filters
+            Очистить фильтры
           </button>
           <button class="button button-secondary" id="viewerRefreshDatasets" type="button">
-            Refresh datasets
+            Обновить список
+          </button>
+          <button class="button button-danger" id="viewerDeleteDataset" type="button">
+            Удалить датасет
           </button>
         </div>
-      </article>
-
-      <article class="card">
-        <h2>Selected dataset</h2>
-        <pre class="code" id="viewerSelectedDatasetJson">${prettyJson(
-          selectedDatasetDescriptor() || {
-            dataset_id: state.datasetId || null,
-            dataset_kind: state.datasetKind || null,
-          },
-        )}</pre>
       </article>
     </section>
 
     <section id="viewerOutput" style="margin-top: 16px;">
       <article class="card">
-        <h2>Datasets</h2>
-        <p class="muted">Загрузка datasets...</p>
+        <h2>Датасеты</h2>
+        <p class="muted">Загрузка датасетов...</p>
       </article>
     </section>
   `;

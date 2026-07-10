@@ -1,5 +1,5 @@
 import { api } from "../api.js";
-import { htmlEscape, prettyJson, toast } from "../app.js";
+import { htmlEscape, toast } from "../app.js";
 import { renderSummaryCards } from "../components/charts.js";
 import { renderDataTable } from "../components/table.js";
 
@@ -16,7 +16,7 @@ function sessionOptions(payload) {
   const sessions = payload?.sessions || [];
 
   if (sessions.length === 0) {
-    return '<option value="">Нет training sessions</option>';
+    return '<option value="">Нет сессий обучения</option>';
   }
 
   return sessions
@@ -88,7 +88,7 @@ function syncModelSelect() {
   }
 }
 
-function setModelsLoading(isLoading, label = "Loading...") {
+function setModelsLoading(isLoading, label = "Загрузка...") {
   const status = document.querySelector("#modelsStatus");
   const buttons = document.querySelectorAll("[data-models-action]");
 
@@ -110,8 +110,8 @@ function renderOutput(html) {
 function renderError(error) {
   renderOutput(`
     <article class="card">
-      <span class="badge">Error</span>
-      <h2>Models error</h2>
+      <span class="badge">Ошибка</span>
+      <h2>Ошибка вкладки моделей</h2>
       <p class="muted">${htmlEscape(error.message || String(error))}</p>
     </article>
   `);
@@ -124,23 +124,23 @@ function renderSessionsList() {
   if (sessions.length === 0) {
     renderOutput(`
       <article class="card">
-        <h2>Training sessions</h2>
-        <p class="muted">Training sessions пока не найдены.</p>
+        <h2>Сессии обучения</h2>
+        <p class="muted">Модели пока не обучены. Сначала перейдите во вкладку «Обучение».</p>
+        <a class="button button-primary" href="/training" data-link>Перейти к обучению</a>
       </article>
     `);
     return;
   }
 
   const rows = sessions.map((session) => ({
-    session_id: session.session_id,
-    status: session.status,
-    dataset_id: session.dataset_id,
-    dataset_kind: session.dataset_kind,
-    target_mode: session.target_mode,
-    feature_count: session.feature_count,
-    rows: session.rows,
-    trained_models: (session.trained_models || []).join(", "),
-    completed_at: session.completed_at,
+    "Сессия": session.session_id,
+    "Статус": session.status,
+    "Датасет": session.dataset_id,
+    "Цель": session.target_mode,
+    "Признаки": session.feature_count,
+    "Строки": session.rows,
+    "Модели": (session.trained_models || []).join(", "),
+    "Завершено": session.completed_at,
   }));
 
   renderOutput(`
@@ -156,18 +156,8 @@ function renderSessionsList() {
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Training sessions</h2>
-      ${renderDataTable(rows, [
-        "session_id",
-        "status",
-        "dataset_id",
-        "dataset_kind",
-        "target_mode",
-        "feature_count",
-        "rows",
-        "trained_models",
-        "completed_at",
-      ])}
+      <h2>Сессии обучения</h2>
+      ${renderDataTable(rows)}
     </article>
   `);
 }
@@ -178,37 +168,29 @@ function renderModelsList() {
   if (models.length === 0) {
     renderOutput(`
       <article class="card">
-        <h2>Saved models</h2>
-        <p class="muted">Saved models пока не найдены.</p>
+        <h2>Обученные модели</h2>
+        <p class="muted">Сохраненных моделей пока нет. Запустите обучение на выбранном датасете.</p>
+        <a class="button button-primary" href="/training" data-link>Обучить модели</a>
       </article>
     `);
     return;
   }
 
   const rows = models.map((model) => ({
-    session_id: model.session_id,
-    model_name: model.model_name,
-    artifact_format: model.artifact_format,
-    dataset_id: model.dataset_id,
-    target_mode: model.target_mode,
-    feature_count: model.feature_count,
-    validation: model.export_validation_status,
-    onnx: model.onnx_path ? "yes" : "no",
+    "Сессия": model.session_id,
+    "Модель": model.model_name,
+    "Формат": model.artifact_format,
+    "Датасет": model.dataset_id,
+    "Цель": model.target_mode,
+    "Признаки": model.feature_count,
+    "Проверка": model.export_validation_status,
+    "ONNX": model.onnx_path ? "да" : "нет",
   }));
 
   renderOutput(`
     <article class="card">
-      <h2>Saved models</h2>
-      ${renderDataTable(rows, [
-        "session_id",
-        "model_name",
-        "artifact_format",
-        "dataset_id",
-        "target_mode",
-        "feature_count",
-        "validation",
-        "onnx",
-      ])}
+      <h2>Обученные модели</h2>
+      ${renderDataTable(rows)}
     </article>
   `);
 }
@@ -216,13 +198,12 @@ function renderModelsList() {
 function renderSessionDetails(details) {
   const artifacts = details.artifacts || [];
   const artifactRows = artifacts.map((artifact) => ({
-    model_name: artifact.model_name,
-    status: artifact.export_validation?.status || "",
-    artifact_format: artifact.metadata?.artifact_format || "",
-    feature_count: artifact.metadata?.feature_count || 0,
-    train_rows: artifact.metadata?.train_rows || 0,
-    prediction_rows: artifact.metadata?.prediction_rows || 0,
-    files: (artifact.files || []).join(", "),
+    "Модель": artifact.model_name,
+    "Статус": artifact.export_validation?.status || "",
+    "Формат": artifact.metadata?.artifact_format || "",
+    "Признаки": artifact.metadata?.feature_count || 0,
+    "Обучающие строки": artifact.metadata?.train_rows || 0,
+    "Предсказания": artifact.metadata?.prediction_rows || 0,
   }));
 
   const buttons = artifacts
@@ -251,18 +232,22 @@ function renderSessionDetails(details) {
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Session summary</h2>
-      <pre class="code">${prettyJson(details.summary || {})}</pre>
+      <h2>Сессия</h2>
+      <div class="info-list">
+        <p><strong>ID:</strong> ${htmlEscape(details.session_id || state.selectedSessionId)}</p>
+        <p><strong>Датасет:</strong> ${htmlEscape(details.summary?.dataset_id || "")}</p>
+        <p><strong>Статус:</strong> ${htmlEscape(details.summary?.status || "")}</p>
+      </div>
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Model artifacts</h2>
+      <h2>Артефакты моделей</h2>
       ${renderDataTable(artifactRows)}
       <div class="toolbar" style="margin-top: 12px;">${buttons}</div>
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Comparison metrics</h2>
+      <h2>Сравнение качества</h2>
       ${renderDataTable(details.comparison_metrics || [])}
     </article>
   `);
@@ -278,32 +263,36 @@ function renderModelArtifact(details) {
         <p class="muted">${htmlEscape(details.model_dir || "")}</p>
       </article>
       <article class="card">
-        <h2>Export validation</h2>
+        <h2>Проверка</h2>
         <p><strong>${htmlEscape(details.export_validation?.status || "unknown")}</strong></p>
       </article>
       <article class="card">
-        <h2>Predictions</h2>
+        <h2>Предсказания</h2>
         <p><strong>${htmlEscape(details.prediction_rows || 0)}</strong> rows</p>
       </article>
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Model metadata</h2>
-      <pre class="code">${prettyJson(details.metadata || {})}</pre>
+      <h2>Сведения о модели</h2>
+      <div class="info-list">
+        <p><strong>Формат:</strong> ${htmlEscape(details.metadata?.artifact_format || "")}</p>
+        <p><strong>Признаки:</strong> ${htmlEscape(details.metadata?.feature_count || 0)}</p>
+        <p><strong>Строк обучения:</strong> ${htmlEscape(details.metadata?.train_rows || 0)}</p>
+      </div>
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Export validation</h2>
-      <pre class="code">${prettyJson(details.export_validation || {})}</pre>
+      <h2>Проверка экспорта</h2>
+      ${renderDataTable([details.export_validation || {}])}
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Metrics</h2>
-      <pre class="code">${prettyJson(details.metrics || {})}</pre>
+      <h2>Метрики</h2>
+      ${renderDataTable(Object.entries(details.metrics || {}).map(([name, value]) => ({ metric: name, value })))}
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Predictions preview</h2>
+      <h2>Пример предсказаний</h2>
       ${renderDataTable(details.predictions_preview || [])}
     </article>
   `);
@@ -327,8 +316,12 @@ function renderExportResult(result) {
     </section>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Export validation</h2>
-      <pre class="code">${prettyJson(result)}</pre>
+      <h2>Результат проверки</h2>
+      ${renderDataTable([{
+        model: result.model_name,
+        status: result.status || "unknown",
+        onnx: result.onnx?.status || "не запрошен",
+      }])}
     </article>
   `);
 }
@@ -351,12 +344,12 @@ async function refreshAll() {
 
 async function refreshSessions() {
   try {
-    setModelsLoading(true, "Sessions...");
+    setModelsLoading(true, "Загружаем сессии...");
     await refreshAll();
     renderSessionsList();
   } catch (error) {
     renderError(error);
-    toast("Models", error.message || String(error));
+    toast("Модели", error.message || String(error));
   } finally {
     setModelsLoading(false);
   }
@@ -367,15 +360,15 @@ async function loadSessionDetails() {
     readControls();
 
     if (!state.selectedSessionId) {
-      throw new Error("Сначала выбери training session.");
+      throw new Error("Сначала выберите сессию обучения.");
     }
 
-    setModelsLoading(true, "Session details...");
+    setModelsLoading(true, "Загружаем детали сессии...");
     const details = await api.trainingSession(state.selectedSessionId);
     renderSessionDetails(details);
   } catch (error) {
     renderError(error);
-    toast("Models", error.message || String(error));
+    toast("Модели", error.message || String(error));
   } finally {
     setModelsLoading(false);
   }
@@ -388,7 +381,7 @@ async function loadModelArtifact(modelName = null) {
     const selectedModelName = modelName || state.selectedModelName;
 
     if (!state.selectedSessionId || !selectedModelName) {
-      throw new Error("Сначала выбери training session и model.");
+      throw new Error("Сначала выберите сессию обучения и модель.");
     }
 
     setModelsLoading(true, `${selectedModelName}...`);
@@ -399,7 +392,7 @@ async function loadModelArtifact(modelName = null) {
     renderModelArtifact(details);
   } catch (error) {
     renderError(error);
-    toast("Model artifact", error.message || String(error));
+    toast("Артефакт модели", error.message || String(error));
   } finally {
     setModelsLoading(false);
   }
@@ -410,10 +403,10 @@ async function validateSelectedModel(exportOnnx = false) {
     readControls();
 
     if (!state.selectedSessionId || !state.selectedModelName) {
-      throw new Error("Сначала выбери training session и model.");
+      throw new Error("Сначала выберите сессию обучения и модель.");
     }
 
-    setModelsLoading(true, exportOnnx ? "Export..." : "Validate...");
+    setModelsLoading(true, exportOnnx ? "Экспортируем..." : "Проверяем...");
     const payload = {
       export_onnx: exportOnnx,
       sample_size: state.sampleSize,
@@ -427,7 +420,39 @@ async function validateSelectedModel(exportOnnx = false) {
     syncModelSelect();
   } catch (error) {
     renderError(error);
-    toast("Model export", error.message || String(error));
+    toast("Экспорт модели", error.message || String(error));
+  } finally {
+    setModelsLoading(false);
+  }
+}
+
+async function deleteSelectedModel() {
+  try {
+    readControls();
+
+    if (!state.selectedSessionId || !state.selectedModelName) {
+      throw new Error("Сначала выберите сессию обучения и модель.");
+    }
+
+    const confirmed = window.confirm(
+      `Удалить модель "${state.selectedModelName}" из сессии "${state.selectedSessionId}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setModelsLoading(true, "Удаляем модель...");
+    await api.deleteModel(state.selectedSessionId, state.selectedModelName);
+    state.models = await api.modelsList();
+    state.sessions = await api.trainingSessions();
+    state.selectedModelName = filteredModels()[0]?.model_name || "";
+    syncModelSelect();
+    renderModelsList();
+    toast("Модели", "Артефакт модели удален");
+  } catch (error) {
+    renderError(error);
+    toast("Модели", error.message || String(error));
   } finally {
     setModelsLoading(false);
   }
@@ -484,6 +509,10 @@ function bindEvents() {
   document.querySelector("[data-models-action='export']").addEventListener("click", () => {
     validateSelectedModel(state.exportOnnx);
   });
+
+  document.querySelector("[data-models-action='delete-model']").addEventListener("click", () => {
+    deleteSelectedModel();
+  });
 }
 
 export async function renderModels() {
@@ -502,9 +531,10 @@ export async function renderModels() {
       <article class="card">
         <div class="viewer-section-header">
           <div>
-            <h2>Models</h2>
+            <h2>Модели</h2>
             <p class="muted">
-              Saved models, native artifacts, optional ONNX export and validation status.
+              Просматривайте обученные модели, сравнивайте метрики и проверяйте,
+              что выбранный артефакт готов к использованию.
             </p>
           </div>
           <div class="status-pill status-ok" id="modelsStatus">
@@ -515,21 +545,21 @@ export async function renderModels() {
 
         <div class="toolbar">
           <div class="form-row">
-            <label for="modelsSession">Training session</label>
+            <label for="modelsSession">Сессия обучения</label>
             <select class="select" id="modelsSession">
               ${sessionOptions(state.sessions)}
             </select>
           </div>
 
           <div class="form-row">
-            <label for="modelsModel">Model</label>
+            <label for="modelsModel">Модель</label>
             <select class="select" id="modelsModel">
               ${modelOptions()}
             </select>
           </div>
 
           <div class="form-row">
-            <label for="modelsSampleSize">Validation sample</label>
+            <label for="modelsSampleSize">Размер проверки</label>
             <input
               class="input"
               id="modelsSampleSize"
@@ -543,51 +573,55 @@ export async function renderModels() {
 
         <label class="checkbox-row">
           <input id="modelsExportOnnx" type="checkbox" />
-          <span>Try optional ONNX export</span>
+          <span>попробовать экспорт в ONNX</span>
         </label>
 
         <div class="toolbar">
           <button class="button button-secondary" data-models-action="sessions" type="button">
-            Sessions
+            Сессии
           </button>
           <button class="button button-secondary" data-models-action="models" type="button">
-            Models
+            Модели
           </button>
           <button class="button button-primary" data-models-action="details" type="button">
-            Session details
+            Детали сессии
           </button>
           <button
             class="button button-secondary"
             data-models-action="selected-model"
             type="button"
           >
-            Model details
+            Детали модели
           </button>
           <button class="button button-secondary" data-models-action="validate" type="button">
-            Validate native
+            Проверить
           </button>
           <button class="button button-secondary" data-models-action="export" type="button">
-            Export / validate
+            Экспорт / проверка
+          </button>
+          <button class="button button-danger" data-models-action="delete-model" type="button">
+            Удалить модель
           </button>
           <button class="button button-secondary" data-models-action="refresh" type="button">
-            Refresh
+            Обновить
           </button>
         </div>
       </article>
 
       <article class="card">
-        <h2>Selected</h2>
-        <pre class="code">${prettyJson({
-          session: selectedSession() || {},
-          model: selectedModel() || {},
-        })}</pre>
+        <h2>Что выбрано</h2>
+        <div class="info-list">
+          <p><strong>Сессия:</strong> ${htmlEscape(selectedSession()?.session_id || "не выбрана")}</p>
+          <p><strong>Модель:</strong> ${htmlEscape(selectedModel()?.model_name || "не выбрана")}</p>
+          <p><strong>Датасет:</strong> ${htmlEscape(selectedSession()?.dataset_id || selectedModel()?.dataset_id || "")}</p>
+        </div>
       </article>
     </section>
 
     <section id="modelsOutput" style="margin-top: 16px;">
       <article class="card">
-        <h2>Training sessions</h2>
-        <p class="muted">Загрузка sessions...</p>
+        <h2>Сессии обучения</h2>
+        <p class="muted">Загрузка списка...</p>
       </article>
     </section>
   `;

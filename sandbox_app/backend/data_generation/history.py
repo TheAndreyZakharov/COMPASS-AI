@@ -4,12 +4,13 @@ import csv
 import json
 import random
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.data_contracts import validate_record_required_fields
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now, moscow_now_iso, moscow_stamp
 from sandbox_app.backend.data_generation.outcomes import OutcomeConfig, build_outcome
 from sandbox_app.backend.features.schema import load_feature_schema, schema_preview
 from sandbox_app.backend.utils.json_io import read_json, write_json
@@ -41,12 +42,12 @@ class HistoryGenerationError(RuntimeError):
     """Raised when sandbox assignment history generation cannot be completed safely."""
 
 
-def utc_now() -> datetime:
-    return datetime.now(UTC)
+def utc_now():
+    return moscow_now()
 
 
 def utc_now_iso() -> str:
-    return utc_now().isoformat()
+    return moscow_now_iso()
 
 
 def validate_dataset_id(dataset_id: str) -> str:
@@ -59,7 +60,7 @@ def validate_dataset_id(dataset_id: str) -> str:
 
 
 def generate_dataset_id(domain_profile: str, seed: int | None) -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     seed_part = "random" if seed is None else str(seed)
     return f"history_{domain_profile}_{stamp}_{seed_part}"
 

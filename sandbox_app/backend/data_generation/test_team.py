@@ -5,11 +5,12 @@ import math
 import random
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now, moscow_now_iso, moscow_stamp
 
 TEST_CASES_DIR = PATHS.data_dir / "test_cases"
 TEST_CASE_ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{2,80}$")
@@ -84,7 +85,7 @@ class TestTeamConfig:
 TestTeamConfig.__test__ = False
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def clamp(value: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
@@ -137,7 +138,7 @@ def validate_config(config: TestTeamConfig) -> None:
 
 
 def slug_time_id(prefix: str) -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     return f"{prefix}_{stamp}"
 
 
@@ -231,32 +232,7 @@ def grade_quality_bonus(grade: str) -> float:
 
 
 def person_name(index: int) -> str:
-    first_names = [
-        "Алексей",
-        "Мария",
-        "Иван",
-        "Екатерина",
-        "Дмитрий",
-        "Анна",
-        "Павел",
-        "Ольга",
-        "Никита",
-        "София",
-    ]
-    last_names = [
-        "Смирнов",
-        "Иванова",
-        "Кузнецов",
-        "Соколова",
-        "Попов",
-        "Лебедева",
-        "Новиков",
-        "Морозова",
-        "Волков",
-        "Фёдорова",
-    ]
-
-    return f"{first_names[index % len(first_names)]} {last_names[index % len(last_names)]}"
+    return f"employee_{index + 1:04d}"
 
 
 def pick_skills(
@@ -341,7 +317,7 @@ def generate_active_tasks(
     rng: random.Random,
 ) -> list[dict[str, Any]]:
     tasks: list[dict[str, Any]] = []
-    start_date = datetime.now(UTC).date()
+    start_date = moscow_now().date()
 
     for index in range(config.active_tasks_count):
         task_type = rng.choice(config.task_types)
@@ -352,7 +328,7 @@ def generate_active_tasks(
 
         task = {
             "task_id": f"active_task_{index + 1:04d}",
-            "title": f"{task_type.replace('_', ' ').title()} #{index + 1}",
+            "title": f"active_task_{index + 1:04d}",
             "project_id": f"project_{rng.randint(1, 4):02d}",
             "status": rng.choice(ACTIVE_STATUSES),
             "priority": weighted_choice(rng, config.priorities, [0.18, 0.46, 0.28, 0.08]),
@@ -435,7 +411,7 @@ def generate_history(
     rng: random.Random,
 ) -> list[dict[str, Any]]:
     history: list[dict[str, Any]] = []
-    today = datetime.now(UTC).date()
+    today = moscow_now().date()
 
     for employee in team:
         for index in range(config.history_depth):
@@ -817,14 +793,22 @@ def assignment_capacity(team: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def build_test_case_summary(test_case_id: str) -> dict[str, Any]:
     payload = load_test_case(test_case_id)
     metadata = payload["metadata"]
+    team = payload["team"]
+    active_tasks = payload["active_tasks"]
+    history = payload["history"]
 
     return {
         "test_case_id": test_case_id,
+        "people_count": len(team),
+        "active_tasks_count": len(active_tasks),
+        "history_count": len(history),
+        "team_size": len(team),
+        "history_rows": len(history),
         "metadata": metadata,
-        "capacity": assignment_capacity(payload["team"]),
-        "team_preview": payload["team"][:10],
-        "active_tasks_preview": payload["active_tasks"][:10],
-        "history_preview": payload["history"][:10],
+        "capacity": assignment_capacity(team),
+        "team_preview": team[:10],
+        "active_tasks_preview": active_tasks[:10],
+        "history_preview": history[:10],
     }
 
 

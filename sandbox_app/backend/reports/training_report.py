@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import html
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.reports.training_plots import (
     TrainingPlotError,
     generate_training_plots,
@@ -18,7 +18,7 @@ class TrainingReportError(RuntimeError):
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def read_json(path: Path) -> Any:

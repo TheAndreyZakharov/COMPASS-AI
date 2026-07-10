@@ -83,7 +83,9 @@ def test_settings_frontend_assets_are_wired() -> None:
     api_js = read("frontend/js/api.js")
     index_html = read("frontend/index.html")
 
-    assert "Settings and schema editor" in settings_js
+    assert "Настройки и схемы данных" in settings_js
+    assert "Raw settings JSON" not in settings_js
+    assert "<pre" not in settings_js
     assert "api.sandboxSettings" in settings_js
     assert "api.sandboxSettingsSchema" in settings_js
     assert "api.updateSandboxSettings" in settings_js
@@ -110,4 +112,4 @@ def test_settings_frontend_assets_are_wired() -> None:
     assert "addSchemaFeature" in api_js
     assert "deleteSchemaFeature" in api_js
 
-    assert "Settings" in index_html
+    assert "Настройки" in index_html

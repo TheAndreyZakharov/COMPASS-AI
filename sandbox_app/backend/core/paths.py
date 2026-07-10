@@ -13,6 +13,7 @@ class SandboxPaths:
     frontend_css_dir: Path
     frontend_js_dir: Path
     frontend_assets_dir: Path
+    brand_assets_dir: Path
     config_dir: Path
     data_contracts_dir: Path
     feature_schemas_dir: Path
@@ -49,6 +50,7 @@ def get_paths() -> SandboxPaths:
         frontend_css_dir=frontend_dir / "css",
         frontend_js_dir=frontend_dir / "js",
         frontend_assets_dir=frontend_dir / "assets",
+        brand_assets_dir=sandbox_root / "assets",
         config_dir=config_dir,
         data_contracts_dir=config_dir / "data_contracts",
         feature_schemas_dir=config_dir / "feature_schemas",

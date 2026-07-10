@@ -23,6 +23,48 @@ function stringifyCell(value) {
   return String(value);
 }
 
+const COLUMN_LABELS = {
+  employee_id: "ID сотрудника",
+  name: "Сотрудник",
+  role: "Роль",
+  grade: "Уровень",
+  skills: "Навыки",
+  current_workload: "Загрузка",
+  fatigue_score: "Усталость",
+  availability_score: "Доступность",
+  task_id: "ID задачи",
+  title: "Задача",
+  project_id: "Проект",
+  status: "Статус",
+  priority: "Приоритет",
+  complexity: "Сложность",
+  estimated_hours: "Оценка часов",
+  required_skills: "Требования",
+  assignment_id: "ID назначения",
+  planned_hours: "План",
+  actual_hours: "Факт",
+  quality_score: "Качество",
+  deadline_status: "Дедлайн",
+  outcome_label: "Результат",
+  pair_id: "ID пары",
+  label: "Метка",
+  target_score: "Целевой балл",
+  target_mode: "Цель",
+  split: "Выборка",
+  model_name: "Модель",
+  session_id: "Сессия",
+  dataset_id: "Датасет",
+  dataset_kind: "Тип",
+  feature_count: "Признаки",
+  rows: "Строки",
+  completed_at: "Завершено",
+  created_at: "Создано",
+};
+
+function columnLabel(column) {
+  return COLUMN_LABELS[column] || column;
+}
+
 export function inferColumns(rows, preferredColumns = []) {
   if (!Array.isArray(rows) || rows.length === 0) {
     return preferredColumns;
@@ -42,14 +84,14 @@ export function renderDataTable(rows, preferredColumns = []) {
       <div class="empty">
         <div>
           <h3>Нет строк</h3>
-          <p class="muted">Измени фильтры, search или выбери другой dataset.</p>
+          <p class="muted">Измените фильтры, поиск или выберите другой датасет.</p>
         </div>
       </div>
     `;
   }
 
   const columns = inferColumns(rows, preferredColumns);
-  const header = columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("");
+  const header = columns.map((column) => `<th>${escapeHtml(columnLabel(column))}</th>`).join("");
   const body = rows
     .map((row) => {
       const cells = columns
@@ -91,7 +133,7 @@ export function renderPagination(pagination) {
       </button>
       <div class="pagination-meta">
         <strong>${escapeHtml(page)} / ${escapeHtml(pages || 1)}</strong>
-        <span class="muted">total: ${escapeHtml(total)}, page_size: ${escapeHtml(pageSize)}</span>
+        <span class="muted">всего: ${escapeHtml(total)}, на странице: ${escapeHtml(pageSize)}</span>
       </div>
       <button
         class="button button-secondary"

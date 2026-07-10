@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import shutil
 from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
+from sandbox_app.backend.core.paths import PATHS
 from sandbox_app.backend.training.train_session import (
     SplitConfig,
     TrainingSessionConfig,
@@ -45,6 +47,24 @@ class RunTrainingRequest(BaseModel):
     auto_build_features: bool = True
     overwrite_features: bool = False
     max_pairs: int | None = Field(default=None, ge=1)
+
+
+def delete_training_session_dir(session_id: str) -> dict[str, object]:
+    root = PATHS.training_sessions_dir.resolve()
+    target = (PATHS.training_sessions_dir / session_id).resolve()
+
+    if not target.exists() or not target.is_dir():
+        raise TrainingSessionError(f"Training session not found: {session_id}")
+
+    if target == root or root not in target.parents:
+        raise TrainingSessionError("Refusing to delete path outside training sessions root")
+
+    shutil.rmtree(target)
+    return {
+        "deleted": True,
+        "session_id": session_id,
+        "path": str(target),
+    }
 
 
 @router.post("/run")
@@ -105,5 +125,13 @@ def get_training_model_artifact(
 ) -> dict[str, object]:
     try:
         return read_training_model_artifact(session_id=session_id, model_name=model_name)
+    except TrainingSessionError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.delete("/sessions/{session_id}")
+def delete_training_session_endpoint(session_id: str) -> dict[str, object]:
+    try:
+        return delete_training_session_dir(session_id)
     except TrainingSessionError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

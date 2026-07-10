@@ -32,11 +32,29 @@ def test_assignment_lab_ui_assets_are_wired() -> None:
 
     assert 'from "../app.js"' not in assignment_js
     assert "function htmlEscape" in assignment_js
-    assert "function prettyJson" in assignment_js
+    assert "function prettyJson" not in assignment_js
+    assert "<pre" not in assignment_js
+    assert "raw JSON" not in assignment_js
     assert "function toast" in assignment_js
+    assert "function renderMarkdownText" in assignment_js
+    assert "function readableMarkdownValue" in assignment_js
+    assert "item.message || item.text || item.explanation" in assignment_js
+    assert "markdown-text" in assignment_js
+    assert "function testCaseCounts" in assignment_js
+    assert "metadataCounts" in assignment_js
+    assert "function renderTaskRequirementPanel" in assignment_js
+    assert "function renderTaskCandidateFitChart" in assignment_js
+    assert "function renderRecommendationFacts" in assignment_js
+    assert "fit-radar" in assignment_js
+    assert "Что требуется в задаче" in assignment_js
+    assert "Факты для объяснения" in assignment_js
     assert "recommendationContexts" in assignment_js
     assert "loadRecommendationContexts" in assignment_js
     assert "Promise.allSettled" in assignment_js
+    assert "startLongTaskToast" in assignment_js
+    assert "Создаем набор из датасета..." in assignment_js
+    assert '"assignmentTaskStatuses"' in assignment_js
+    assert 'selectedValue("assignmentTaskStatuses")' in assignment_js
 
     assert "testCaseSummary" in api_js
     assert "testCaseRecommendationContext" in api_js

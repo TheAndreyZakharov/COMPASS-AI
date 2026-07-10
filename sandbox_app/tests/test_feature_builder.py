@@ -45,7 +45,14 @@ def test_build_features_for_generated_dataset() -> None:
                 "avg_quality_score": 0.88,
                 "deadline_reliability": 0.91,
                 "mentor_level": 0.4,
-                "custom_features": {"domain_depth": 0.7, "remote_ready": True},
+                "custom_features": {
+                    "domain_depth": 0.7,
+                    "remote_ready": True,
+                    "department": "cardiology",
+                    "name": "Alice Johnson",
+                    "employee_id": "human_readable_001",
+                    "description": "Should never become a model feature",
+                },
             }
         ],
     )
@@ -63,7 +70,13 @@ def test_build_features_for_generated_dataset() -> None:
                 "deadline_days": 5,
                 "estimated_hours": 12,
                 "required_skills": ["python", "fastapi"],
-                "custom_features": {"requires_review": True},
+                "custom_features": {
+                    "requires_review": True,
+                    "task_group": "urgent_care",
+                    "title": "Treat patient",
+                    "project_id": "hospital_project_001",
+                    "notes": "Should never become a model feature",
+                },
             }
         ],
     )
@@ -117,6 +130,7 @@ def test_build_features_for_generated_dataset() -> None:
     )
     assert metadata["feature_dimensions"]["feature_count"] > 0
     assert metadata["output_counts"]["feature_rows"] == 1
+    assert metadata["safety_limits"]["effective_max_pairs"] >= 1
 
     features = pd.read_parquet(features_dir / "features.parquet")
     targets = pd.read_parquet(features_dir / "targets.parquet")
@@ -124,5 +138,28 @@ def test_build_features_for_generated_dataset() -> None:
     assert len(features) == 1
     assert len(targets) == 1
     assert "skill_match_ratio" in features.columns
+    assert "employee_role_hash" not in features.columns
+    assert "task_status_hash" not in features.columns
+    assert "task_type_hash" not in features.columns
+    assert "task_project_hash" not in features.columns
+    assert "employee_role_bucket_0" in features.columns
+    assert "task_status_bucket_0" in features.columns
+    assert "task_type_bucket_0" in features.columns
+    assert "employee_custom_department_bucket_0" in features.columns
+    assert "task_custom_task_group_bucket_0" in features.columns
+
+    forbidden_fragments = (
+        "name",
+        "title",
+        "description",
+        "notes",
+        "project_id",
+        "employee_id",
+        "task_id",
+    )
+    for column in features.columns:
+        if column == "pair_id":
+            continue
+        assert not any(fragment in column for fragment in forbidden_fragments)
 
     shutil.rmtree(dataset_dir)

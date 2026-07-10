@@ -4,13 +4,13 @@ import json
 import shutil
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import joblib
 import numpy as np
 import pandas as pd
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.inference.model_loader import (
     LoadedSandboxModel,
     ModelLoadError,
@@ -37,7 +37,7 @@ class ModelExportConfig:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def to_json_safe(value: Any) -> Any:

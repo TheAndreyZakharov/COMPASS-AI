@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import shutil
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from sandbox_app.backend.core.paths import PATHS
 from sandbox_app.backend.inference.assignment_optimizer import ASSIGNMENT_MODES
 from sandbox_app.backend.inference.bulk_assignment import (
     BulkAssignmentConfig,
@@ -30,6 +33,26 @@ class BulkAssignmentRequest(BaseModel):
     workload_penalty: float = Field(default=0.18, ge=0.0, le=2.0)
     task_statuses: list[str] = Field(default_factory=lambda: ["todo"])
     save_session: bool = True
+
+
+def delete_assignment_session_dir(assignment_session_id: str) -> dict[str, object]:
+    root = PATHS.assignment_sessions_dir.resolve()
+    target = (PATHS.assignment_sessions_dir / assignment_session_id).resolve()
+
+    if not target.exists() or not target.is_dir():
+        raise BulkAssignmentError(
+            f"Assignment session not found: {assignment_session_id}"
+        )
+
+    if target == root or root not in target.parents:
+        raise BulkAssignmentError("Refusing to delete path outside assignment sessions root")
+
+    shutil.rmtree(target)
+    return {
+        "deleted": True,
+        "assignment_session_id": assignment_session_id,
+        "path": str(target),
+    }
 
 
 def config_from_request(payload: BulkAssignmentRequest) -> BulkAssignmentConfig:
@@ -93,3 +116,11 @@ def get_session_file(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     return FileResponse(path)
+
+
+@router.delete("/{assignment_session_id}")
+def delete_session(assignment_session_id: str) -> dict[str, object]:
+    try:
+        return delete_assignment_session_dir(assignment_session_id)
+    except BulkAssignmentError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

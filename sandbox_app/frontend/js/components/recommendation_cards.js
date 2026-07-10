@@ -3,7 +3,7 @@ import { htmlEscape } from "../app.js";
 const RISK_CLASS = {
   high: "risk-high",
   medium: "risk-medium",
-  low: "risk-low",
+      low: "risk-low",
 };
 
 function percent(value) {
@@ -32,7 +32,7 @@ function riskBadge(risk) {
 
   return `
     <span class="risk-badge ${className}">
-      ${htmlEscape(level)}
+      ${htmlEscape(level === "high" ? "высокий" : level === "medium" ? "средний" : "низкий")}
     </span>
   `;
 }
@@ -55,35 +55,35 @@ export function renderScoreBreakdown(candidate) {
   return `
     <div class="score-breakdown">
       <div>
-        <span>Model score</span>
+        <span>Оценка модели</span>
         <strong>${fixed(factors.model_score ?? candidate?.model_score)}</strong>
       </div>
       <div>
-        <span>Adjusted score</span>
+        <span>Итоговая оценка</span>
         <strong>${fixed(factors.adjusted_score ?? candidate?.score)}</strong>
       </div>
       <div>
-        <span>Skill match</span>
+        <span>Совпадение навыков</span>
         <strong>${percent(factors.skill_match_ratio)}</strong>
       </div>
       <div>
-        <span>Quality</span>
+        <span>Качество</span>
         <strong>${percent(factors.quality_fit_score)}</strong>
       </div>
       <div>
-        <span>Speed</span>
+        <span>Скорость</span>
         <strong>${percent(factors.speed_fit_score)}</strong>
       </div>
       <div>
-        <span>Learning</span>
+        <span>Развитие</span>
         <strong>${percent(factors.learning_fit_score)}</strong>
       </div>
       <div>
-        <span>Risk fit</span>
+        <span>Учет рисков</span>
         <strong>${percent(factors.risk_fit_score)}</strong>
       </div>
       <div>
-        <span>Workload</span>
+        <span>Нагрузка</span>
         <strong>${percent(factors.workload_pressure)}</strong>
       </div>
     </div>
@@ -105,7 +105,7 @@ export function renderRiskList(candidate) {
             <div class="risk-item">
               ${riskBadge(risk)}
               <div>
-                <strong>${htmlEscape(risk.type || "risk")}</strong>
+                <strong>${htmlEscape(risk.type || "риск")}</strong>
                 <p>${htmlEscape(risk.message || "")}</p>
               </div>
               <span>${fixed(risk.score)}</span>
@@ -121,7 +121,7 @@ export function renderRecommendationCards(recommendation, options = {}) {
   const candidates = Array.isArray(recommendation?.candidates)
     ? recommendation.candidates
     : [];
-  const title = options.title || "Top candidates";
+  const title = options.title || "Лучшие кандидаты";
 
   if (!candidates.length) {
     return `
@@ -138,10 +138,10 @@ export function renderRecommendationCards(recommendation, options = {}) {
         <div>
           <h3>${htmlEscape(title)}</h3>
           <p class="muted">
-            Mode: ${htmlEscape(recommendation?.recommendation_mode || "—")}
+            Режим: ${htmlEscape(recommendation?.recommendation_mode || "—")}
           </p>
         </div>
-        <span class="pill">top ${candidates.length}</span>
+        <span class="pill">топ ${candidates.length}</span>
       </div>
 
       <div class="recommendation-card-grid">
@@ -164,12 +164,12 @@ export function renderRecommendationCards(recommendation, options = {}) {
                 ${renderScoreBreakdown(candidate)}
 
                 <div class="skill-block">
-                  <strong>Matched skills</strong>
+                  <strong>Совпавшие навыки</strong>
                   <div>${renderSkillList(candidate.matched_skills, "нет")}</div>
                 </div>
 
                 <div class="skill-block">
-                  <strong>Missing skills</strong>
+                  <strong>Недостающие навыки</strong>
                   <div>${renderSkillList(candidate.missing_skills, "нет")}</div>
                 </div>
 

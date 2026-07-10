@@ -39,7 +39,8 @@ def test_report_export_assets_are_wired() -> None:
     assert 'router.post("/exports/models/{session_id}")' in reports_api
     assert 'router.post("/exports/assignments/{assignment_session_id}")' in reports_api
 
-    assert "Reports and exports" in reports_js
+    assert "Отчеты и выгрузки" in reports_js
+    assert "<pre" not in reports_js
     assert "Promise.allSettled" in reports_js
     assert "api.datasets()" in reports_js
     assert "api.dataViewerDatasets()" not in reports_js

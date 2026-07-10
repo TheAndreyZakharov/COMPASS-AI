@@ -5,11 +5,11 @@ import html
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 from sandbox_app.backend.data_generation.test_team import TestTeamError, load_test_case
 from sandbox_app.backend.inference.assignment_optimizer import (
     ASSIGNMENT_MODES,
@@ -53,11 +53,11 @@ class BulkAssignmentConfig:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def make_assignment_session_id() -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     return f"assignment_{stamp}_{uuid.uuid4().hex[:8]}"
 
 
@@ -191,21 +191,34 @@ def assigned_row(
     task: dict[str, Any],
     candidate: dict[str, Any],
     ranked_candidates: list[dict[str, Any]],
+    employee_task_number: int,
 ) -> dict[str, Any]:
+    score_details = candidate.get("assignment_score_details") or {}
+
     return {
         "task_id": task.get("task_id"),
         "task_title": task.get("title"),
         "project_id": task.get("project_id"),
         "priority": task.get("priority"),
+        "status": task.get("status"),
         "task_type": task.get("task_type"),
+        "complexity": task.get("complexity"),
         "estimated_hours": task.get("estimated_hours"),
+        "required_skills": task.get("required_skills", []),
         "assigned_employee_id": candidate.get("employee_id"),
         "assigned_employee_name": candidate.get("name"),
         "assigned_employee_role": candidate.get("role"),
+        "employee_task_number": employee_task_number,
+        "capacity_status": candidate.get("capacity_status"),
+        "over_soft_limit": not bool(candidate.get("assignable", False)),
+        "workload_before_assignment": candidate.get("workload_before_assignment"),
+        "workload_after_assignment": candidate.get("workload_after_assignment"),
+        "workload_over_limit": score_details.get("workload_over_limit", 0.0),
+        "max_workload_per_person": score_details.get("max_workload_per_person"),
         "assignment_score": candidate.get("assignment_score"),
         "model_score": candidate.get("model_score"),
         "top_candidates": ranked_candidates[:3],
-        "score_details": candidate.get("assignment_score_details"),
+        "score_details": score_details,
         "risks": candidate.get("risks"),
     }
 
@@ -220,8 +233,11 @@ def unassigned_row(
         "task_title": task.get("title"),
         "project_id": task.get("project_id"),
         "priority": task.get("priority"),
+        "status": task.get("status"),
         "task_type": task.get("task_type"),
+        "complexity": task.get("complexity"),
         "estimated_hours": task.get("estimated_hours"),
+        "required_skills": task.get("required_skills", []),
         "reason": reason,
         "top_candidates": ranked_candidates[:3],
     }
@@ -277,6 +293,8 @@ def assignment_report_html(payload: dict[str, Any]) -> str:
         f"<td>{html.escape(str(row.get('task_id', '')))}</td>"
         f"<td>{html.escape(str(row.get('task_title', '')))}</td>"
         f"<td>{html.escape(str(row.get('assigned_employee_name', '')))}</td>"
+        f"<td>{html.escape(str(row.get('employee_task_number', '')))}</td>"
+        f"<td>{html.escape(str(row.get('capacity_status', '')))}</td>"
         f"<td>{html.escape(str(row.get('assignment_score', '')))}</td>"
         "</tr>"
         for row in assigned[:100]
@@ -333,6 +351,8 @@ def assignment_report_html(payload: dict[str, Any]) -> str:
         <th>Task</th>
         <th>Title</th>
         <th>Employee</th>
+        <th>Employee queue #</th>
+        <th>Capacity status</th>
         <th>Score</th>
       </tr>
     </thead>
@@ -457,15 +477,23 @@ def run_bulk_assignment(config: BulkAssignmentConfig) -> dict[str, Any]:
             unassigned_tasks.append(
                 unassigned_row(
                     task=task,
-                    reason="No candidate satisfies max_workload_per_person",
+                    reason="No candidates available for this task",
                     ranked_candidates=ranked,
                 )
             )
             continue
 
         employee_id = str(selected.get("employee_id", ""))
-        apply_assignment(workload_state[employee_id], task)
-        assigned_tasks.append(assigned_row(task, selected, ranked))
+        employee_state = workload_state[employee_id]
+        apply_assignment(employee_state, task)
+        assigned_tasks.append(
+            assigned_row(
+                task=task,
+                candidate=selected,
+                ranked_candidates=ranked,
+                employee_task_number=int(employee_state["assigned_tasks_count"]),
+            )
+        )
 
     workload_rows = workload_after_assignment(workload_state)
     fairness = fairness_report(workload_rows)

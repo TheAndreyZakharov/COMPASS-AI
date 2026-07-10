@@ -107,3 +107,53 @@ def test_bulk_assignment_session(monkeypatch: Any) -> None:
     shutil.rmtree(assignment_session_dir)
 
     assert generated["test_case_id"] == test_case_id
+
+
+def test_bulk_assignment_uses_soft_workload_limit_for_future_queue(
+    monkeypatch: Any,
+) -> None:
+    test_case_id = "pytest_bulk_assignment_soft_limit"
+    test_case_dir = TEST_CASES_DIR / test_case_id
+
+    if test_case_dir.exists():
+        shutil.rmtree(test_case_dir)
+
+    generate_test_case(
+        TestTeamConfig(
+            test_case_id=test_case_id,
+            domain_profile="developers",
+            people_count=3,
+            active_tasks_count=12,
+            history_depth=2,
+            seed=27024,
+            overwrite=True,
+        )
+    )
+
+    monkeypatch.setattr(
+        "sandbox_app.backend.inference.bulk_assignment.load_sandbox_model",
+        lambda _session_id, _model_name: FakeBulkModel(),
+    )
+
+    result = run_bulk_assignment(
+        BulkAssignmentConfig(
+            session_id="training_session_for_bulk_test",
+            model_name="bulk_model_for_test",
+            test_case_id=test_case_id,
+            assignment_mode="balanced",
+            recommendation_mode="balanced",
+            top_k=3,
+            max_workload_per_person=0.1,
+            task_statuses=["todo", "in_progress", "review", "blocked"],
+            save_session=False,
+        )
+    )
+
+    assert result["summary"]["tasks_total"] == 12
+    assert result["summary"]["assigned_tasks"] == 12
+    assert result["summary"]["unassigned_tasks"] == 0
+    assert all(row["employee_task_number"] >= 1 for row in result["assigned_tasks"])
+    assert any(row["over_soft_limit"] for row in result["assigned_tasks"])
+    assert "No candidate satisfies max_workload_per_person" not in str(result)
+
+    shutil.rmtree(test_case_dir)

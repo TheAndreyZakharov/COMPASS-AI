@@ -7,34 +7,38 @@
       name="description"
       content="COMPASS AI Sandbox — локальная автономная песочница для генерации данных, просмотра datasets и экспериментов с моделями."
     />
-    <title>COMPASS AI Sandbox</title>
-    <link rel="stylesheet" href="/css/styles.css?v=20260709_frontend_bootstrap_fix" />
+    <title>COMPASS AI</title>
+    <link rel="icon" type="image/png" href="/brand/image.png" />
+    <link rel="apple-touch-icon" href="/brand/image.png" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260710_bulk_queue" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Навигация COMPASS AI Sandbox">
         <a class="brand" href="/" data-link>
-          <span class="brand-mark">C</span>
+          <span class="brand-mark">
+            <img src="/brand/image.png" alt="" />
+          </span>
           <span>
             <strong>COMPASS AI</strong>
-            <small>Sandbox</small>
+            <small>Песочница</small>
           </span>
         </a>
 
         <nav class="nav-list">
-          <a href="/" data-link data-route="/">Dashboard</a>
-          <a href="/generator" data-link data-route="/generator">Data Generator</a>
-          <a href="/viewer" data-link data-route="/viewer">Data Viewer</a>
-          <a href="/import-data" data-link data-route="/import-data">Import Data</a>
-          <a href="/training" data-link data-route="/training">Training</a>
-          <a href="/models" data-link data-route="/models">Models</a>
-          <a href="/assignment-lab" data-link data-route="/assignment-lab">Assignment Lab</a>
-          <a href="/reports" data-link data-route="/reports">Reports</a>
-          <a href="/settings" data-link data-route="/settings">Settings</a>
+          <a href="/" data-link data-route="/">Главная</a>
+          <a href="/generator" data-link data-route="/generator">Генерация данных</a>
+          <a href="/viewer" data-link data-route="/viewer">Просмотр данных</a>
+          <a href="/import-data" data-link data-route="/import-data">Импорт данных</a>
+          <a href="/training" data-link data-route="/training">Обучение</a>
+          <a href="/models" data-link data-route="/models">Модели</a>
+          <a href="/assignment-lab" data-link data-route="/assignment-lab">Назначение задач</a>
+          <a href="/reports" data-link data-route="/reports">Отчеты</a>
+          <a href="/settings" data-link data-route="/settings">Настройки</a>
         </nav>
 
         <section class="sidebar-card">
-          <p class="muted">Backend</p>
+          <p class="muted">Сервер</p>
           <div class="status-pill status-pending" id="backendStatus">
             <span class="status-dot"></span>
             <span>Проверка...</span>
@@ -45,15 +49,42 @@
       <main class="main-shell">
         <header class="topbar">
           <div>
-            <p class="eyebrow" id="routeEyebrow">Local app</p>
-            <h1 id="pageTitle">Dashboard</h1>
+            <p class="eyebrow" id="routeEyebrow">Локальное приложение</p>
+            <h1 id="pageTitle">Главная</h1>
           </div>
           <div class="topbar-actions">
+            <button
+              class="button button-secondary control-button"
+              id="languageButton"
+              type="button"
+              aria-label="Переключить язык"
+              title="Переключить язык"
+            >
+              RU
+            </button>
+            <button
+              class="button button-secondary control-button"
+              id="themeButton"
+              type="button"
+              aria-label="Переключить тему"
+              title="Переключить тему"
+            >
+              Auto
+            </button>
             <button class="button button-secondary" id="refreshButton" type="button">
               Обновить
             </button>
+            <button
+              class="icon-help-button"
+              id="helpButton"
+              type="button"
+              aria-label="Справка по текущей вкладке"
+              title="Справка по текущей вкладке"
+            >
+              i
+            </button>
             <a class="button button-primary" href="/api/docs" target="_blank" rel="noreferrer">
-              API Docs
+              API
             </a>
           </div>
         </header>
@@ -63,7 +94,8 @@
     </div>
 
     <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+    <div class="long-toast-stack" id="longToastStack" aria-live="polite"></div>
 
-    <script type="module" src="/js/app.js?v=20260709_frontend_bootstrap_fix"></script>
+    <script type="module" src="/js/app.js?v=20260710_bulk_queue"></script>
   </body>
 </html>

@@ -6,11 +6,11 @@ import json
 import re
 import shutil
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.utils.validation import validate_records_against_contract
 
 IMPORTED_ROOT = PATHS.data_dir / "imported"
@@ -47,7 +47,7 @@ class ImportSource:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def validate_dataset_id(dataset_id: str) -> str:

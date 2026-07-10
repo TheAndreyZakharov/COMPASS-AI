@@ -47,6 +47,9 @@ def test_generate_load_and_delete_test_case() -> None:
 
     summary = build_test_case_summary(test_case_id)
     assert summary["test_case_id"] == test_case_id
+    assert summary["people_count"] == 6
+    assert summary["active_tasks_count"] == 9
+    assert summary["history_count"] == 24
     assert len(summary["capacity"]) == 6
     assert summary["metadata"]["recommendation_ready"] is True
 

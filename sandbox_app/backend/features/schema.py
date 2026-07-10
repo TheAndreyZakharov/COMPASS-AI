@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import copy
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.utils.json_io import read_json, write_json
 
 PROFILE_ID_RE = re.compile(r"^[a-z][a-z0-9_-]{1,63}$")
@@ -22,7 +22,7 @@ class FeatureSchemaError(RuntimeError):
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def validate_profile_id(profile_id: str) -> str:

@@ -6,6 +6,26 @@ from sandbox_app.backend.llm.qwen_explainer import (
     explain_recommendation,
     validate_candidate_references,
 )
+from sandbox_app.backend.llm.ollama_client import OllamaGenerateResult
+
+
+class FakeOllamaClient:
+    def __init__(self, response: dict[str, object]) -> None:
+        self.response = response
+        self.prompt = ""
+
+    def generate(
+        self,
+        prompt: str,
+        system: str = "",
+        temperature: float = 0.2,
+    ) -> OllamaGenerateResult:
+        self.prompt = prompt
+        return OllamaGenerateResult(
+            model="fake-qwen",
+            response=__import__("json").dumps(self.response, ensure_ascii=False),
+            raw={},
+        )
 
 
 def recommendation_payload() -> dict[str, object]:
@@ -104,3 +124,49 @@ def test_candidate_reference_validation_rejects_unknown_candidate() -> None:
         assert "unknown employee_id" in str(exc)
     else:
         raise AssertionError("unknown candidate must be rejected")
+
+
+def test_llm_explanation_normalizes_list_risks_and_asks_for_detailed_text() -> None:
+    client = FakeOllamaClient(
+        {
+            "summary": (
+                "Top-1 выбран из-за score 0.91 и полного совпадения навыков. "
+                "Нагрузка умеренная, риск низкий."
+            ),
+            "risks_note": [
+                {
+                    "type": "availability",
+                    "level": "medium",
+                    "message": "Доступность кандидата ограничена.",
+                }
+            ],
+            "candidate_explanations": [
+                {
+                    "employee_id": "emp_1",
+                    "explanation": (
+                        "Anna получает score 0.91: skill_match_ratio 1.0 означает, "
+                        "что ключевые навыки закрыты полностью."
+                    ),
+                    "strengths": ["skill_match_ratio 1.0", "quality_fit_score 0.9"],
+                    "concerns": [
+                        {
+                            "type": "availability",
+                            "message": "availability_gap 0.1 стоит контролировать.",
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+
+    result = explain_recommendation(
+        recommendation=recommendation_payload(),
+        use_llm=True,
+        client=client,  # type: ignore[arg-type]
+    )
+
+    assert result["status"] == "ok"
+    assert result["risks_note"] == "- Доступность кандидата ограничена."
+    assert "[{" not in result["risks_note"]
+    assert "4-6 предложений" in client.prompt
+    assert "fatigue_score" in client.prompt

@@ -24,10 +24,21 @@ def test_training_ui_assets_are_wired() -> None:
     assert "logistic_regression" in training_js
     assert "random_forest" in training_js
     assert "torch_mlp" in training_js
+    assert 'id="featureMaxPairs"' in training_js
+    assert 'value="120000"' in training_js
+    assert "payload.max_pairs = maxPairs" in training_js
+    assert 'id="paramRandomForestEstimators" type="number" value="80"' in training_js
+    assert 'id="paramTorchEpochs" type="number" value="8"' in training_js
+    assert 'id="paramTorchBatchSize" type="number" value="64"' in training_js
 
     assert "export function renderTrainingMetrics" in metrics_js
     assert "export function renderTrainingPlots" in plots_js
     assert "/api/reports/training/" in plots_js
+    assert "plots.session_plots" in plots_js
+    assert "plots.model_plots" in plots_js
+    assert "typeof path !== \"string\"" in plots_js
+    assert "Сводные графики" in plots_js
+    assert "training-plot-image" in plots_js
 
     assert "runTraining" in api_js
     assert "trainingSessions" in api_js

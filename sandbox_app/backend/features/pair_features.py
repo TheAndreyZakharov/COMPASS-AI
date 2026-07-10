@@ -23,6 +23,8 @@ PRIORITY_RANK = {
     "urgent": 1.0,
 }
 
+CATEGORY_BUCKET_COUNT = 8
+
 
 def as_float(value: Any, default: float = 0.0) -> float:
     if value is None or value == "":
@@ -39,6 +41,20 @@ def stable_category_number(value: Any) -> float:
     digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
     integer = int(digest[:10], 16)
     return float(integer / 0xFFFFFFFFFF)
+
+
+def stable_category_bucket(value: Any, bucket_count: int = CATEGORY_BUCKET_COUNT) -> int:
+    text = str(value or "unknown").strip().lower()
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return int(digest[:8], 16) % bucket_count
+
+
+def category_bucket_features(prefix: str, value: Any) -> dict[str, float]:
+    bucket = stable_category_bucket(value)
+    return {
+        f"{prefix}_bucket_{index}": 1.0 if index == bucket else 0.0
+        for index in range(CATEGORY_BUCKET_COUNT)
+    }
 
 
 def grade_rank(value: Any) -> float:
@@ -157,14 +173,10 @@ def build_pair_features(
         ),
         "employee_mentor_level": mentor_level,
         "employee_grade_rank": grade_rank(employee.get("grade")),
-        "employee_role_hash": stable_category_number(employee.get("role")),
         "task_complexity": complexity,
         "task_estimated_hours": estimated_hours,
         "task_deadline_days": deadline_days,
         "task_priority_rank": priority_rank(task.get("priority")),
-        "task_status_hash": stable_category_number(task.get("status")),
-        "task_type_hash": stable_category_number(task.get("task_type")),
-        "task_project_hash": stable_category_number(task.get("project_id")),
         "pair_existing_target_score": as_float(pair.get("target_score"), 0.0),
         "pair_existing_label": as_float(pair.get("label"), 0.0),
         "pair_candidate_rank_hint": as_float(pair.get("candidate_rank_hint"), 0.0),
@@ -176,5 +188,8 @@ def build_pair_features(
         "pair_mentor_complexity_fit": mentor_level * complexity,
     }
 
+    features.update(category_bucket_features("employee_role", employee.get("role")))
+    features.update(category_bucket_features("task_status", task.get("status")))
+    features.update(category_bucket_features("task_type", task.get("task_type")))
     features.update(employee_history)
     return features

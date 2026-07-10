@@ -49,14 +49,14 @@ export function bestModelBadge(rows) {
     .sort((left, right) => Number(right.roc_auc) - Number(left.roc_auc));
 
   if (rankedRows.length === 0) {
-    return '<span class="badge">best model unknown</span>';
+    return '<span class="badge">лучшая модель пока не определена</span>';
   }
 
   const best = rankedRows[0];
 
   return `
     <span class="badge">
-      best: ${htmlEscape(best.model_name || "")} · roc_auc ${htmlEscape(best.roc_auc)}
+      лучшая: ${htmlEscape(best.model_name || "")} · roc_auc ${htmlEscape(best.roc_auc)}
     </span>
   `;
 }
@@ -67,7 +67,7 @@ export function renderTrainingMetrics(rows) {
   if (normalizedRows.length === 0) {
     return `
       <article class="card">
-        <h2>Metrics</h2>
+        <h2>Метрики</h2>
         <p class="muted">Метрики пока не рассчитаны.</p>
       </article>
     `;
@@ -77,8 +77,8 @@ export function renderTrainingMetrics(rows) {
     <article class="card">
       <div class="viewer-section-header">
         <div>
-          <h2>Comparison metrics</h2>
-          <p class="muted">Сравнение качества моделей в training session.</p>
+          <h2>Сравнение метрик</h2>
+          <p class="muted">Сравнение качества моделей в сессии обучения.</p>
         </div>
         ${bestModelBadge(normalizedRows)}
       </div>

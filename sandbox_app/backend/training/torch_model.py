@@ -29,13 +29,22 @@ class TorchMLPBundle:
 
         self.model.eval()
         matrix = self.scaler.transform(features[self.feature_names])
-        tensor = torch.tensor(matrix, dtype=torch.float32)
+        batch_size = int(self.config.get("batch_size", 64))
+        scores: list[np.ndarray] = []
 
         with torch.no_grad():
-            logits = self.model(tensor).reshape(-1)
-            scores = torch.sigmoid(logits).cpu().numpy()
+            for start in range(0, len(matrix), batch_size):
+                tensor = torch.tensor(
+                    matrix[start:start + batch_size],
+                    dtype=torch.float32,
+                )
+                logits = self.model(tensor).reshape(-1)
+                scores.append(torch.sigmoid(logits).cpu().numpy())
 
-        return np.clip(scores, 0.0, 1.0)
+        if not scores:
+            return np.array([], dtype=float)
+
+        return np.clip(np.concatenate(scores), 0.0, 1.0)
 
     def save(self, path: Path) -> None:
         try:
@@ -104,6 +113,7 @@ def train_torch_mlp(
     epochs = int(params.get("epochs", 24))
     learning_rate = float(params.get("learning_rate", 0.001))
     weight_decay = float(params.get("weight_decay", 0.00001))
+    batch_size = int(params.get("batch_size", 64))
 
     model = build_mlp(
         input_dim=features.shape[1],
@@ -121,12 +131,15 @@ def train_torch_mlp(
 
     model.train()
     for _ in range(epochs):
-        optimizer.zero_grad()
-        logits = model(x_tensor)
-        loss = criterion(logits, y_tensor)
-        loss.backward()
-        optimizer.step()
-        loss_history.append(float(loss.detach().cpu().item()))
+        epoch_losses: list[float] = []
+        for start in range(0, len(x_tensor), batch_size):
+            optimizer.zero_grad()
+            logits = model(x_tensor[start:start + batch_size])
+            loss = criterion(logits, y_tensor[start:start + batch_size])
+            loss.backward()
+            optimizer.step()
+            epoch_losses.append(float(loss.detach().cpu().item()))
+        loss_history.append(float(np.mean(epoch_losses)))
 
     return TorchMLPBundle(
         model=model,
@@ -138,6 +151,7 @@ def train_torch_mlp(
             "epochs": epochs,
             "learning_rate": learning_rate,
             "weight_decay": weight_decay,
+            "batch_size": batch_size,
             "loss_history": loss_history,
         },
         loss_history=loss_history,

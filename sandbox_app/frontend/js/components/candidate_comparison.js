@@ -16,7 +16,7 @@ function factor(candidate, key) {
 
 export function renderCandidateComparison(candidates, options = {}) {
   const rows = Array.isArray(candidates) ? candidates : [];
-  const title = options.title || "Candidate comparison";
+  const title = options.title || "Сравнение кандидатов";
 
   if (!rows.length) {
     return `
@@ -32,7 +32,7 @@ export function renderCandidateComparison(candidates, options = {}) {
       <div class="section-heading">
         <div>
           <h3>${htmlEscape(title)}</h3>
-          <p class="muted">Сравнение score, факторов и рисков.</p>
+          <p class="muted">Сравнение итоговой оценки, факторов и рисков.</p>
         </div>
       </div>
 
@@ -40,17 +40,17 @@ export function renderCandidateComparison(candidates, options = {}) {
         <table class="data-table compact-table">
           <thead>
             <tr>
-              <th>Rank</th>
-              <th>Candidate</th>
-              <th>Role</th>
-              <th>Score</th>
-              <th>Model</th>
-              <th>Skill</th>
-              <th>Quality</th>
-              <th>Speed</th>
-              <th>Learning</th>
-              <th>Risk fit</th>
-              <th>Max risk</th>
+              <th>Место</th>
+              <th>Кандидат</th>
+              <th>Роль</th>
+              <th>Оценка</th>
+              <th>Модель</th>
+              <th>Навыки</th>
+              <th>Качество</th>
+              <th>Скорость</th>
+              <th>Развитие</th>
+              <th>Риски</th>
+              <th>Макс. риск</th>
             </tr>
           </thead>
           <tbody>

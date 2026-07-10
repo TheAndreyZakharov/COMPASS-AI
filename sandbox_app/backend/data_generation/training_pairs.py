@@ -3,11 +3,11 @@ from __future__ import annotations
 import random
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from sandbox_app.backend.core.data_contracts import validate_record_required_fields
+from sandbox_app.backend.core.time import moscow_now_iso
 
 
 class TrainingPairsGenerationError(RuntimeError):
@@ -27,7 +27,7 @@ TARGET_MODES = {"quality", "speed", "balanced", "learning", "risk_aware"}
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def clamp(value: float, minimum: float = 0.0, maximum: float = 1.0) -> float:

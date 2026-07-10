@@ -195,15 +195,33 @@ def choose_candidate(
             assignment_mode=assignment_mode,
             weights=weights,
         )
+        next_workload = (
+            to_float(employee_state["projected_workload"])
+            + projected_task_load(task)
+        )
+        assignable = next_workload <= max_workload_per_person
 
         enriched = dict(candidate)
         enriched["assignment_score"] = score_details["final_score"]
-        enriched["assignment_score_details"] = score_details
-        enriched["assignable"] = can_assign(
-            employee_state=employee_state,
-            task=task,
-            max_workload_per_person=max_workload_per_person,
+        score_details["max_workload_per_person"] = max_workload_per_person
+        score_details["next_projected_workload"] = round(next_workload, 6)
+        score_details["workload_over_limit"] = round(
+            max(0.0, next_workload - max_workload_per_person),
+            6,
         )
+        enriched["assignment_score_details"] = score_details
+        enriched["assignable"] = assignable
+        enriched["capacity_status"] = (
+            "within_soft_limit"
+            if assignable
+            else "planned_queue_over_soft_limit"
+        )
+        enriched["workload_before_assignment"] = round(
+            to_float(employee_state["projected_workload"]),
+            6,
+        )
+        enriched["workload_after_assignment"] = round(next_workload, 6)
+        enriched["workload_over_limit"] = score_details["workload_over_limit"]
         ranked.append(enriched)
 
     ranked.sort(
@@ -218,6 +236,9 @@ def choose_candidate(
     for candidate in ranked:
         if candidate["assignable"]:
             return candidate, ranked
+
+    if ranked:
+        return ranked[0], ranked
 
     return None, ranked
 

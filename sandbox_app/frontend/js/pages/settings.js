@@ -2,6 +2,18 @@ import { api } from "../api.js";
 
 const FEATURE_TYPES = ["numeric", "categorical", "boolean", "text", "skill_list"];
 const FEATURE_GROUPS = ["employee", "task", "outcome"];
+const FEATURE_TYPE_LABELS = {
+  numeric: "Число",
+  categorical: "Категория",
+  boolean: "Да / нет",
+  text: "Текст",
+  skill_list: "Список тегов",
+};
+const FEATURE_GROUP_LABELS = {
+  employee: "Сотрудник",
+  task: "Задача",
+  outcome: "Результат",
+};
 
 const state = {
   settings: null,
@@ -20,10 +32,6 @@ function htmlEscape(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function prettyJson(value) {
-  return htmlEscape(JSON.stringify(value ?? {}, null, 2));
 }
 
 function toast(title, message = "") {
@@ -67,6 +75,14 @@ function option(value, label, selected) {
   `;
 }
 
+function typeLabel(type) {
+  return FEATURE_TYPE_LABELS[type] || type;
+}
+
+function groupLabel(group) {
+  return FEATURE_GROUP_LABELS[group] || group;
+}
+
 function settingsValue(section, key, fallback = "") {
   return state.settings?.[section]?.[key] ?? fallback;
 }
@@ -79,9 +95,21 @@ function selectedProfile() {
 
 function schemaFeatureGroups(schema) {
   return {
-    employee: schema?.employee_features || schema?.features?.employee || [],
-    task: schema?.task_features || schema?.features?.task || [],
-    outcome: schema?.outcome_features || schema?.features?.outcome || [],
+    employee:
+      schema?.feature_groups?.employee ||
+      schema?.employee_features ||
+      schema?.features?.employee ||
+      [],
+    task:
+      schema?.feature_groups?.task ||
+      schema?.task_features ||
+      schema?.features?.task ||
+      [],
+    outcome:
+      schema?.feature_groups?.outcome ||
+      schema?.outcome_features ||
+      schema?.features?.outcome ||
+      [],
   };
 }
 
@@ -92,7 +120,7 @@ function renderStatus() {
 
   return `
     <section class="panel error-panel">
-      <h3>Settings warning</h3>
+      <h3>Предупреждение</h3>
       <p>${htmlEscape(state.error)}</p>
     </section>
   `;
@@ -108,22 +136,22 @@ function renderAppSettingsPanel() {
     <section class="panel">
       <div class="section-heading">
         <div>
-          <h3>App settings</h3>
-          <p class="muted">Базовые defaults, limits и Qwen/Ollama settings.</p>
+          <h3>Основные настройки</h3>
+          <p class="muted">Значения по умолчанию, лимиты генерации и параметры Qwen/Ollama.</p>
         </div>
         <button id="resetSettings" class="button-secondary" type="button">
-          Reset settings
+          Сбросить
         </button>
       </div>
 
       <div class="form-grid">
         <label>
-          Default seed
+          Seed по умолчанию
           <input id="defaultSeed" type="number" value="${htmlEscape(defaults.seed)}">
         </label>
 
         <label>
-          Default domain profile
+          Профиль по умолчанию
           <input
             id="defaultDomainProfile"
             type="text"
@@ -132,7 +160,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Default dataset mode
+          Размер датасета по умолчанию
           <select id="defaultDatasetMode">
             ${(schema.dataset_modes || [])
               .map((item) => option(item, item, defaults.dataset_mode))
@@ -141,7 +169,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Default target mode
+          Цель модели по умолчанию
           <select id="defaultTargetMode">
             ${(schema.target_modes || [])
               .map((item) => option(item, item, defaults.target_mode))
@@ -150,7 +178,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Default recommendation mode
+          Режим рекомендации по умолчанию
           <select id="defaultRecommendationMode">
             ${(schema.recommendation_modes || [])
               .map((item) => option(item, item, defaults.recommendation_mode))
@@ -159,7 +187,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Default assignment mode
+          Режим распределения по умолчанию
           <select id="defaultAssignmentMode">
             ${(schema.recommendation_modes || [])
               .map((item) => option(item, item, defaults.assignment_mode))
@@ -168,7 +196,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Training models CSV
+          Модели для обучения
           <input
             id="defaultTrainingModels"
             type="text"
@@ -177,7 +205,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Huge max employees
+          Лимит сотрудников для huge
           <input
             id="hugeMaxEmployees"
             type="number"
@@ -186,7 +214,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Huge max tasks
+          Лимит задач для huge
           <input
             id="hugeMaxTasks"
             type="number"
@@ -195,7 +223,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Huge max pairs
+          Лимит обучающих пар для huge
           <input
             id="hugeMaxPairs"
             type="number"
@@ -204,7 +232,7 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Ollama base URL
+          Адрес Ollama
           <input
             id="ollamaBaseUrl"
             type="text"
@@ -213,12 +241,12 @@ function renderAppSettingsPanel() {
         </label>
 
         <label>
-          Qwen model name
+          Модель Qwen/Ollama
           <input id="ollamaModel" type="text" value="${htmlEscape(ollama.model)}">
         </label>
 
         <label>
-          LLM timeout seconds
+          Таймаут LLM, секунды
           <input
             id="ollamaTimeout"
             type="number"
@@ -232,12 +260,12 @@ function renderAppSettingsPanel() {
             type="checkbox"
             ${ollama.auto_pull ? "checked" : ""}
           >
-          <span>Auto pull Ollama model</span>
+          <span>Автоматически скачивать модель Ollama</span>
         </label>
       </div>
 
       <div class="actions-row">
-        <button id="saveAppSettings" type="button">Save app settings</button>
+        <button id="saveAppSettings" type="button">Сохранить настройки</button>
       </div>
     </section>
   `;
@@ -247,9 +275,14 @@ function renderPathsPanel() {
   const paths = state.settings?.paths || {};
 
   return `
-    <section class="panel">
-      <h3>Paths</h3>
-      <p class="muted">Все paths должны оставаться внутри sandbox_app.</p>
+    <details class="disclosure-card">
+      <summary>
+        <span>
+          <strong>Пути хранения</strong>
+          <small>Папки внутри sandbox_app для данных, моделей и отчетов</small>
+        </span>
+        <span class="badge">дополнительно</span>
+      </summary>
 
       <div class="form-grid">
         ${Object.entries(paths)
@@ -269,9 +302,9 @@ function renderPathsPanel() {
       </div>
 
       <div class="actions-row">
-        <button id="savePathSettings" type="button">Save paths</button>
+        <button id="savePathSettings" type="button">Сохранить пути</button>
       </div>
-    </section>
+    </details>
   `;
 }
 
@@ -280,23 +313,23 @@ function renderSchemaSelectorPanel() {
     <section class="panel">
       <div class="section-heading">
         <div>
-          <h3>Feature schemas</h3>
-          <p class="muted">Schema editor для roles, grades, skills и features.</p>
+          <h3>Схемы данных</h3>
+          <p class="muted">Настройте роли, уровни, теги и собственные поля без ручного редактирования файлов.</p>
         </div>
         <button id="refreshSchemas" class="button-secondary" type="button">
-          Refresh schemas
+          Обновить схемы
         </button>
       </div>
 
       <div class="form-grid">
         <label>
-          Profile
+          Профиль
           <select id="schemaProfileId">
             ${state.featureSchemas
               .map((schema) =>
                 option(
                   schema.profile_id,
-                  `${schema.profile_id}${schema.system ? " · system" : ""}`,
+                  `${schema.profile_id}${schema.system ? " · системный" : " · пользовательский"}`,
                   state.selectedProfileId,
                 ),
               )
@@ -305,10 +338,10 @@ function renderSchemaSelectorPanel() {
         </label>
 
         <label>
-          Feature group
+          Группа полей
           <select id="schemaFeatureGroup">
             ${FEATURE_GROUPS.map((group) =>
-              option(group, group, state.selectedFeatureGroup),
+              option(group, groupLabel(group), state.selectedFeatureGroup),
             ).join("")}
           </select>
         </label>
@@ -316,7 +349,7 @@ function renderSchemaSelectorPanel() {
 
       <div class="actions-row">
         <button id="loadSchemaPreview" class="button-secondary" type="button">
-          Load preview
+          Показать сводку
         </button>
       </div>
     </section>
@@ -326,31 +359,31 @@ function renderSchemaSelectorPanel() {
 function renderCreateSchemaPanel() {
   return `
     <section class="panel">
-      <h3>Create domain profile</h3>
+      <h3>Создать профиль предметной области</h3>
 
       <div class="form-grid">
         <label>
-          Profile id
+          ID профиля
           <input id="newProfileId" type="text" value="custom_domain">
         </label>
 
         <label>
-          Name
-          <input id="newProfileName" type="text" value="Custom Domain">
+          Название
+          <input id="newProfileName" type="text" value="Своя область">
         </label>
 
         <label>
-          Description
+          Описание
           <input
             id="newProfileDescription"
             type="text"
-            value="Custom editable sandbox domain profile"
+            value="Редактируемый профиль для своей предметной области"
           >
         </label>
       </div>
 
       <div class="actions-row">
-        <button id="createSchemaProfile" type="button">Create schema</button>
+        <button id="createSchemaProfile" type="button">Создать схему</button>
       </div>
     </section>
   `;
@@ -362,19 +395,19 @@ function renderSchemaMetaPanel() {
   if (!schema) {
     return `
       <section class="panel">
-        <h3>Schema metadata</h3>
-        <p class="muted">Schema не выбрана.</p>
+        <h3>Параметры схемы</h3>
+        <p class="muted">Схема не выбрана.</p>
       </section>
     `;
   }
 
   return `
     <section class="panel">
-      <h3>Schema metadata</h3>
+      <h3>Параметры схемы</h3>
 
       <div class="form-grid">
         <label>
-          Roles CSV
+          Роли
           <input
             id="schemaRoles"
             type="text"
@@ -383,7 +416,7 @@ function renderSchemaMetaPanel() {
         </label>
 
         <label>
-          Grades CSV
+          Уровни
           <input
             id="schemaGrades"
             type="text"
@@ -392,7 +425,7 @@ function renderSchemaMetaPanel() {
         </label>
 
         <label>
-          Skills CSV
+          Теги / навыки
           <input
             id="schemaSkills"
             type="text"
@@ -402,13 +435,13 @@ function renderSchemaMetaPanel() {
       </div>
 
       <div class="actions-row">
-        <button id="saveSchemaMeta" type="button">Save schema metadata</button>
+        <button id="saveSchemaMeta" type="button">Сохранить схему</button>
         ${
           schema.system
             ? ""
             : `
               <button id="deleteSchemaProfile" class="button-danger" type="button">
-                Delete schema
+                Удалить схему
               </button>
             `
         }
@@ -423,7 +456,7 @@ function renderFeatureListPanel() {
 
   return `
     <section class="panel">
-      <h3>${htmlEscape(state.selectedFeatureGroup)} features</h3>
+      <h3>Поля: ${htmlEscape(groupLabel(state.selectedFeatureGroup))}</h3>
 
       ${
         features.length
@@ -435,8 +468,8 @@ function renderFeatureListPanel() {
                     <article class="list-card">
                       <strong>${htmlEscape(feature.name)}</strong>
                       <span>
-                        ${htmlEscape(feature.type)}
-                        ${feature.required ? " · required" : ""}
+                        ${htmlEscape(typeLabel(feature.type))}
+                        ${feature.required ? " · обязательно" : ""}
                       </span>
                       <span>${htmlEscape(feature.description || "")}</span>
                       <button
@@ -444,7 +477,7 @@ function renderFeatureListPanel() {
                         class="button-secondary"
                         type="button"
                       >
-                        Delete
+                        Удалить
                       </button>
                     </article>
                   `,
@@ -452,7 +485,7 @@ function renderFeatureListPanel() {
                 .join("")}
             </div>
           `
-          : '<p class="muted">Features пока нет.</p>'
+          : '<p class="muted">Поля пока не добавлены.</p>'
       }
     </section>
   `;
@@ -461,54 +494,62 @@ function renderFeatureListPanel() {
 function renderAddFeaturePanel() {
   return `
     <section class="panel">
-      <h3>Add feature</h3>
+      <h3>Добавить поле</h3>
 
       <div class="form-grid">
         <label>
-          Feature name
+          Название поля
           <input id="newFeatureName" type="text" value="custom_score">
         </label>
 
         <label>
-          Feature type
+          Тип поля
           <select id="newFeatureType">
-            ${FEATURE_TYPES.map((type) => option(type, type, "numeric")).join("")}
+            ${FEATURE_TYPES.map((type) => option(type, typeLabel(type), "numeric")).join("")}
           </select>
         </label>
 
         <label>
-          Description
-          <input id="newFeatureDescription" type="text" value="Custom feature">
+          Описание
+          <input id="newFeatureDescription" type="text" value="Пользовательское поле">
         </label>
 
         <label class="checkbox-label">
           <input id="newFeatureRequired" type="checkbox">
-          <span>Required</span>
+          <span>Обязательное поле</span>
         </label>
       </div>
 
       <div class="actions-row">
-        <button id="addSchemaFeature" type="button">Add feature</button>
+        <button id="addSchemaFeature" type="button">Добавить поле</button>
       </div>
     </section>
   `;
 }
 
 function renderSchemaPreviewPanel() {
-  return `
-    <section class="panel">
-      <h3>Schema preview</h3>
-      <pre>${prettyJson(state.schemaPreview || selectedProfile() || {})}</pre>
-    </section>
-  `;
-}
+  const schema = state.schemaPreview || selectedProfile();
+  const groups = schemaFeatureGroups(schema);
 
-function renderRawSettingsPanel() {
   return `
-    <section class="panel">
-      <h3>Raw settings JSON</h3>
-      <pre>${prettyJson(state.settings)}</pre>
-    </section>
+    <details class="disclosure-card">
+      <summary>
+        <span>
+          <strong>Сводка схемы</strong>
+          <small>Количество словарей и пользовательских полей</small>
+        </span>
+        <span class="badge">сводка</span>
+      </summary>
+      <div class="info-list">
+        <p><strong>Профиль:</strong> ${htmlEscape(schema?.profile_id || "не выбран")}</p>
+        <p><strong>Роли:</strong> ${htmlEscape((schema?.roles || []).length)}</p>
+        <p><strong>Уровни:</strong> ${htmlEscape((schema?.grades || []).length)}</p>
+        <p><strong>Теги:</strong> ${htmlEscape((schema?.skills || []).length)}</p>
+        <p><strong>Поля сотрудников:</strong> ${htmlEscape((groups.employee || []).length)}</p>
+        <p><strong>Поля задач:</strong> ${htmlEscape((groups.task || []).length)}</p>
+        <p><strong>Поля результата:</strong> ${htmlEscape((groups.outcome || []).length)}</p>
+      </div>
+    </details>
   `;
 }
 
@@ -517,11 +558,11 @@ function render() {
     <div class="page-stack">
       <section class="hero-panel">
         <div>
-          <p class="eyebrow">Settings</p>
-          <h1>Settings and schema editor</h1>
+          <p class="eyebrow">Настройки</p>
+          <h1>Настройки и схемы данных</h1>
           <p>
-            Управление app settings, defaults, paths, Ollama/Qwen параметрами и
-            custom feature schemas без ручной правки JSON.
+            Управляйте профилями предметной области, лимитами генерации,
+            моделями по умолчанию и подключением LLM в одном месте.
           </p>
         </div>
       </section>
@@ -535,7 +576,6 @@ function render() {
       ${renderFeatureListPanel()}
       ${renderAddFeaturePanel()}
       ${renderSchemaPreviewPanel()}
-      ${renderRawSettingsPanel()}
     </div>
   `;
 }
@@ -546,7 +586,7 @@ async function refreshData() {
   const [settingsPayload, settingsSchema, featureSchemas] = await Promise.all([
     api.sandboxSettings(),
     api.sandboxSettingsSchema(),
-    api.featureSchemas(),
+    api.featureSchemas(false),
   ]);
 
   state.settings = settingsPayload.settings || {};
@@ -603,7 +643,7 @@ async function saveAppSettings() {
 
   const response = await api.updateSandboxSettings({ settings: merged });
   state.settings = response.settings;
-  toast("Settings", "App settings saved");
+  toast("Настройки", "Основные настройки сохранены");
 }
 
 async function savePathSettings() {
@@ -618,19 +658,20 @@ async function savePathSettings() {
     values: paths,
   });
   state.settings = response.settings;
-  toast("Settings", "Paths saved");
+  toast("Настройки", "Пути сохранены");
 }
 
 async function resetSettings() {
   const response = await api.resetSandboxSettings();
   state.settings = response.settings;
-  toast("Settings", "Settings reset");
+  toast("Настройки", "Настройки сброшены");
 }
 
 async function createSchemaProfile() {
   const template = await api.featureSchemaTemplate();
+  const baseSchema = template.template || template.schema || {};
   const payload = {
-    ...template,
+    ...baseSchema,
     profile_id: selectedValue("newProfileId"),
     name: selectedValue("newProfileName"),
     description: selectedValue("newProfileDescription"),
@@ -640,14 +681,14 @@ async function createSchemaProfile() {
   await api.createFeatureSchema(payload);
   state.selectedProfileId = payload.profile_id;
   await refreshData();
-  toast("Settings", "Schema created");
+  toast("Настройки", "Схема создана");
 }
 
 async function saveSchemaMeta() {
   const schema = selectedProfile();
 
   if (!schema) {
-    throw new Error("Schema не выбрана");
+    throw new Error("Схема не выбрана");
   }
 
   const payload = {
@@ -659,27 +700,27 @@ async function saveSchemaMeta() {
 
   await api.updateFeatureSchema(schema.profile_id, payload);
   await refreshData();
-  toast("Settings", "Schema metadata saved");
+  toast("Настройки", "Схема сохранена");
 }
 
 async function deleteSchemaProfile() {
   const schema = selectedProfile();
 
   if (!schema) {
-    throw new Error("Schema не выбрана");
+    throw new Error("Схема не выбрана");
   }
 
   await api.deleteFeatureSchema(schema.profile_id);
   state.selectedProfileId = "";
   await refreshData();
-  toast("Settings", "Schema deleted");
+  toast("Настройки", "Схема удалена");
 }
 
 async function addSchemaFeature() {
   const profileId = state.selectedProfileId;
 
   if (!profileId) {
-    throw new Error("Schema не выбрана");
+    throw new Error("Схема не выбрана");
   }
 
   await api.addSchemaFeature(profileId, state.selectedFeatureGroup, {
@@ -689,7 +730,7 @@ async function addSchemaFeature() {
     required: checkedValue("newFeatureRequired"),
   });
   await refreshData();
-  toast("Settings", "Feature added");
+  toast("Настройки", "Поле добавлено");
 }
 
 async function deleteSchemaFeature(featureName) {
@@ -699,12 +740,12 @@ async function deleteSchemaFeature(featureName) {
     featureName,
   );
   await refreshData();
-  toast("Settings", "Feature deleted");
+  toast("Настройки", "Поле удалено");
 }
 
 async function loadSchemaPreview() {
   state.schemaPreview = await api.featureSchema(state.selectedProfileId, true);
-  toast("Settings", "Schema preview loaded");
+  toast("Настройки", "Сводка схемы обновлена");
 }
 
 async function runAction(action) {
@@ -713,7 +754,7 @@ async function runAction(action) {
     repaint();
   } catch (error) {
     state.error = error.message || String(error);
-    toast("Settings error", state.error);
+    toast("Ошибка настроек", state.error);
     repaint();
   }
 }

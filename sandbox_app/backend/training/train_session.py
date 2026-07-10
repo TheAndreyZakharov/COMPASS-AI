@@ -1,21 +1,23 @@
 from __future__ import annotations
 
 import csv
+import gc
 import json
 import secrets
 import shutil
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 from sandbox_app.backend.features.build_features import (
     FeatureBuildConfig,
     FeatureBuildError,
     build_features_for_dataset,
+    effective_max_pairs,
     read_feature_metadata,
 )
 from sandbox_app.backend.training.baseline import train_baseline_model
@@ -73,11 +75,11 @@ class TrainingSessionConfig:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def new_session_id() -> str:
-    timestamp = datetime.now(UTC).strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = moscow_stamp(compact=False)
     short_id = secrets.token_hex(3)
     return f"{timestamp}_{short_id}"
 
@@ -127,8 +129,21 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def ensure_features(config: TrainingSessionConfig) -> dict[str, Any]:
+    effective_pairs, _safety_limits = effective_max_pairs(config.max_pairs)
+
     try:
-        return read_feature_metadata(config.dataset_id, config.dataset_kind)
+        metadata = read_feature_metadata(config.dataset_id, config.dataset_kind)
+        feature_rows = int(metadata.get("output_counts", {}).get("feature_rows") or 0)
+
+        if (
+            config.auto_build_features
+            and feature_rows > effective_pairs
+        ):
+            raise FeatureBuildError(
+                "Existing features exceed safe training max_pairs and will be rebuilt"
+            )
+
+        return metadata
     except FeatureBuildError:
         if not config.auto_build_features:
             raise TrainingSessionError("Features were not built for this dataset") from None
@@ -138,7 +153,7 @@ def ensure_features(config: TrainingSessionConfig) -> dict[str, Any]:
             dataset_id=config.dataset_id,
             dataset_kind=config.dataset_kind,
             target_mode=config.target_mode,
-            overwrite=config.overwrite_features,
+            overwrite=True,
             max_pairs=config.max_pairs,
         )
     )
@@ -227,8 +242,8 @@ def merged_training_frame(
     if not feature_columns:
         raise TrainingSessionError("No numeric feature columns found")
 
-    merged[feature_columns] = merged[feature_columns].fillna(0.0).astype(float)
-    merged["label"] = merged["label"].fillna(0).astype(int)
+    merged[feature_columns] = merged[feature_columns].fillna(0.0).astype(np.float32)
+    merged["label"] = merged["label"].fillna(0).astype(np.int8)
 
     if "target_score" not in merged.columns:
         merged["target_score"] = merged["label"].astype(float)
@@ -577,6 +592,8 @@ def run_training_session(config: TrainingSessionConfig) -> dict[str, Any]:
             )
         except (TrainingSessionError, TorchTrainingError, ValueError) as exc:
             failures.append({"model_name": model_name, "error": str(exc)})
+        finally:
+            gc.collect()
 
     if not model_results:
         raise TrainingSessionError(f"No models were trained: {failures}")
@@ -611,6 +628,7 @@ def run_training_session(config: TrainingSessionConfig) -> dict[str, Any]:
         "comparison_metrics": comparison_rows,
         "dataset_metadata_available": bool(dataset_metadata),
         "feature_metadata_available": bool(feature_metadata),
+        "safety_limits": feature_metadata.get("safety_limits", {}),
         "paths": {
             "session_dir": str(session_dir),
             "comparison_metrics_json": str(comparison_json_path),

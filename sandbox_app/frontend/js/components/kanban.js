@@ -8,9 +8,17 @@ function escapeHtml(value) {
 }
 
 const STATUS_ORDER = ["todo", "in_progress", "review", "done", "blocked", "failed"];
+const STATUS_LABELS = {
+  todo: "К выполнению",
+  in_progress: "В работе",
+  review: "Проверка",
+  done: "Готово",
+  blocked: "Заблокировано",
+  failed: "Не выполнено",
+};
 
 function taskTitle(task) {
-  return task.title || task.name || task.description || task.task_id || "Untitled task";
+  return task.title || task.name || task.description || task.task_id || "Задача без названия";
 }
 
 function renderTaskCard(task) {
@@ -39,7 +47,7 @@ export function renderKanbanBoard(kanbanPayload) {
       return `
         <section class="kanban-column">
           <h3>
-            <span>${escapeHtml(status)}</span>
+            <span>${escapeHtml(STATUS_LABELS[status] || status)}</span>
             <strong>${escapeHtml(tasks.length)}</strong>
           </h3>
           ${cards || '<p class="muted">Нет задач</p>'}

@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import shutil
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.features.custom_features import flatten_custom_features, parse_jsonish
 from sandbox_app.backend.features.pair_features import (
     aggregate_history_by_employee,
@@ -25,6 +26,8 @@ from sandbox_app.backend.features.targets import build_target_row
 
 DATASET_KINDS = {"generated", "imported"}
 TARGET_MODES = {"quality", "speed", "balanced", "learning", "risk_aware"}
+DEFAULT_SAFE_MAX_PAIRS = 120_000
+HARD_SAFE_MAX_PAIRS = 250_000
 
 
 class FeatureBuildError(RuntimeError):
@@ -41,7 +44,7 @@ class FeatureBuildConfig:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def dataset_root(dataset_kind: str) -> Path:
@@ -102,26 +105,92 @@ def read_table_records(dataset_dir: Path, table_name: str) -> list[dict[str, Any
     raise FeatureBuildError(f"Table '{table_name}' was not found in {dataset_dir}")
 
 
-def read_training_pairs(dataset_dir: Path) -> list[dict[str, Any]]:
+def positive_int_from_env(name: str, default: int) -> int:
+    raw_value = os.getenv(name)
+
+    if not raw_value:
+        return default
+
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return default
+
+    return value if value > 0 else default
+
+
+def effective_max_pairs(requested_max_pairs: int | None) -> tuple[int, dict[str, Any]]:
+    default_limit = positive_int_from_env(
+        "SANDBOX_TRAINING_DEFAULT_MAX_PAIRS",
+        DEFAULT_SAFE_MAX_PAIRS,
+    )
+    hard_limit = positive_int_from_env(
+        "SANDBOX_TRAINING_HARD_MAX_PAIRS",
+        HARD_SAFE_MAX_PAIRS,
+    )
+    safe_limit = min(default_limit, hard_limit)
+    requested = requested_max_pairs if requested_max_pairs is not None else safe_limit
+    effective = min(max(1, int(requested)), hard_limit)
+
+    return effective, {
+        "requested_max_pairs": requested_max_pairs,
+        "default_safe_max_pairs": safe_limit,
+        "hard_safe_max_pairs": hard_limit,
+        "effective_max_pairs": effective,
+        "capped": requested_max_pairs is None or int(requested) != effective,
+    }
+
+
+def read_training_pairs(dataset_dir: Path, max_pairs: int | None = None) -> list[dict[str, Any]]:
     parquet_path = dataset_dir / "training_pairs.parquet"
     json_path = dataset_dir / "training_pairs.json"
     csv_path = dataset_dir / "training_pairs.csv"
 
     if parquet_path.exists():
+        if max_pairs is not None:
+            try:
+                import pyarrow.parquet as pq
+
+                rows: list[dict[str, Any]] = []
+                remaining = max_pairs
+                batch_size = min(50_000, max_pairs)
+
+                for batch in pq.ParquetFile(parquet_path).iter_batches(
+                    batch_size=batch_size,
+                ):
+                    frame = batch.to_pandas()
+                    if len(frame) > remaining:
+                        frame = frame.head(remaining)
+                    rows.extend(frame.to_dict(orient="records"))
+                    remaining -= len(frame)
+
+                    if remaining <= 0:
+                        break
+
+                return rows
+            except ImportError:
+                pass
+            except Exception as exc:
+                raise FeatureBuildError("Could not read training_pairs.parquet") from exc
+
         try:
             frame = pd.read_parquet(parquet_path)
         except Exception as exc:
             raise FeatureBuildError("Could not read training_pairs.parquet") from exc
+
+        if max_pairs is not None:
+            frame = frame.head(max_pairs)
 
         return frame.to_dict(orient="records")
 
     if json_path.exists():
         payload = read_json_file(json_path)
         if isinstance(payload, list):
-            return payload
+            return payload[:max_pairs] if max_pairs is not None else payload
 
     if csv_path.exists():
-        return read_csv_file(csv_path)
+        rows = read_csv_file(csv_path)
+        return rows[:max_pairs] if max_pairs is not None else rows
 
     raise FeatureBuildError(f"training_pairs table was not found in {dataset_dir}")
 
@@ -204,14 +273,12 @@ def build_features_for_dataset(config: FeatureBuildConfig) -> dict[str, Any]:
 
     dataset_dir = dataset_dir_for(config)
     output_dir = prepare_output_dir(dataset_dir, config.overwrite)
+    max_pairs, safety_limits = effective_max_pairs(config.max_pairs)
 
     employees = read_table_records(dataset_dir, "employees")
     tasks = read_table_records(dataset_dir, "tasks")
     assignment_history = read_table_records(dataset_dir, "assignment_history")
-    training_pairs = read_training_pairs(dataset_dir)
-
-    if config.max_pairs is not None:
-        training_pairs = training_pairs[: config.max_pairs]
+    training_pairs = read_training_pairs(dataset_dir, max_pairs=max_pairs)
 
     employee_by_id = {employee_id(record): record for record in employees}
     task_by_id = {task_id(record): record for record in tasks}
@@ -258,8 +325,23 @@ def build_features_for_dataset(config: FeatureBuildConfig) -> dict[str, Any]:
     targets_path = output_dir / "targets.parquet"
     metadata_path = output_dir / "feature_metadata.json"
 
-    pd.DataFrame(normalized_feature_rows).to_parquet(features_path, index=False)
-    pd.DataFrame(target_rows).to_parquet(targets_path, index=False)
+    features_frame = pd.DataFrame(normalized_feature_rows)
+    numeric_feature_columns = [
+        column for column in features_frame.columns if column != "pair_id"
+    ]
+    if numeric_feature_columns:
+        features_frame[numeric_feature_columns] = features_frame[
+            numeric_feature_columns
+        ].astype("float32")
+
+    targets_frame = pd.DataFrame(target_rows)
+    if "label" in targets_frame.columns:
+        targets_frame["label"] = targets_frame["label"].astype("int8")
+    if "target_score" in targets_frame.columns:
+        targets_frame["target_score"] = targets_frame["target_score"].astype("float32")
+
+    features_frame.to_parquet(features_path, index=False)
+    targets_frame.to_parquet(targets_path, index=False)
 
     metadata = {
         "dataset_id": config.dataset_id,
@@ -272,6 +354,7 @@ def build_features_for_dataset(config: FeatureBuildConfig) -> dict[str, Any]:
             "assignment_history": len(assignment_history),
             "training_pairs": len(training_pairs),
         },
+        "safety_limits": safety_limits,
         "output_counts": {
             "feature_rows": len(normalized_feature_rows),
             "target_rows": len(target_rows),

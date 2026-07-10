@@ -1,16 +1,20 @@
 import { htmlEscape } from "../app.js";
 
 const PLOT_TITLES = {
-  calibration_plot: "Calibration plot",
-  confusion_matrix: "Confusion matrix",
-  feature_importance: "Feature importance",
-  learning_curve: "Learning curve",
-  loss_curve: "Loss curve",
-  model_comparison: "Model comparison",
-  precision_recall_curve: "Precision-recall curve",
-  roc_curve: "ROC curve",
-  score_distribution: "Score distribution",
+  calibration_plot: "Калибровка вероятностей",
+  confusion_matrix: "Матрица ошибок",
+  feature_importance: "Важность признаков",
+  learning_curve: "Кривая обучения",
+  loss_curve: "Кривая ошибки",
+  model_comparison: "Сравнение моделей",
+  precision_recall_curve: "Precision-recall кривая",
+  roc_curve: "ROC-кривая",
+  score_distribution: "Распределение оценок",
 };
+
+function isPlotMap(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
 
 function pathToReportRelative(path) {
   if (!path) {
@@ -57,32 +61,52 @@ function renderPlotCard(sessionId, plotName, path) {
       <h2>${htmlEscape(title)}</h2>
       <a href="${htmlEscape(url)}" target="_blank" rel="noreferrer">
         <img
+          class="training-plot-image"
           alt="${htmlEscape(title)}"
           src="${htmlEscape(url)}"
-          style="border-radius: 12px; max-width: 100%; width: 100%;"
         />
       </a>
     </article>
   `;
 }
 
-function flattenPlots(manifest) {
-  const plots = manifest?.plots || {};
-  const cards = [];
+function addPlotGroup(cards, groupName, plotMap) {
+  if (!isPlotMap(plotMap)) {
+    return;
+  }
 
-  Object.entries(plots).forEach(([modelName, modelPlots]) => {
-    if (!modelPlots || typeof modelPlots !== "object") {
+  Object.entries(plotMap).forEach(([plotName, path]) => {
+    if (typeof path !== "string" || !path) {
       return;
     }
 
-    Object.entries(modelPlots).forEach(([plotName, path]) => {
-      cards.push({
-        modelName,
-        plotName,
-        path,
-      });
+    cards.push({
+      groupName,
+      plotName,
+      path,
     });
   });
+}
+
+function flattenPlots(manifest) {
+  const plots = manifest?.plots || {};
+  const cards = [];
+  const sessionPlots = plots.session_plots;
+  const modelPlots = plots.model_plots;
+
+  addPlotGroup(cards, "Сводные графики", sessionPlots);
+
+  if (isPlotMap(modelPlots)) {
+    Object.entries(modelPlots).forEach(([modelName, modelPlotMap]) => {
+      addPlotGroup(cards, modelName, modelPlotMap);
+    });
+  }
+
+  if (!isPlotMap(sessionPlots) && !isPlotMap(modelPlots)) {
+    Object.entries(plots).forEach(([groupName, plotMap]) => {
+      addPlotGroup(cards, groupName, plotMap);
+    });
+  }
 
   return cards;
 }
@@ -100,17 +124,17 @@ export function renderTrainingPlots(sessionId, manifest) {
   }
 
   const grouped = cards.reduce((accumulator, item) => {
-    accumulator[item.modelName] = accumulator[item.modelName] || [];
-    accumulator[item.modelName].push(item);
+    accumulator[item.groupName] = accumulator[item.groupName] || [];
+    accumulator[item.groupName].push(item);
     return accumulator;
   }, {});
 
   return Object.entries(grouped)
     .map(
-      ([modelName, items]) => `
+      ([groupName, items]) => `
         <article class="card">
-          <h2>${htmlEscape(modelName)}</h2>
-          <p class="muted">Training plots для модели.</p>
+          <h2>${htmlEscape(groupName)}</h2>
+          <p class="muted">Все сгенерированные графики для этого раздела.</p>
         </article>
         <section class="grid grid-2">
           ${items
@@ -128,8 +152,8 @@ export function renderReportLinks(sessionId, manifest) {
 
   return `
     <article class="card">
-      <h2>Report artifacts</h2>
-      <p class="muted">Training report и manifest для выбранной session.</p>
+      <h2>Файлы отчета</h2>
+      <p class="muted">HTML-отчет и служебный файл отчета для выбранной сессии.</p>
       <div class="toolbar">
         <a
           class="button button-secondary"
@@ -137,19 +161,13 @@ export function renderReportLinks(sessionId, manifest) {
           target="_blank"
           rel="noreferrer"
         >
-          Open HTML report
+          Открыть HTML-отчет
         </a>
       </div>
-      <pre class="code">${htmlEscape(
-        JSON.stringify(
-          {
-            html_path: htmlPath,
-            manifest_path: manifestPath,
-          },
-          null,
-          2,
-        ),
-      )}</pre>
+      <div class="info-list">
+        <p><strong>HTML:</strong> ${htmlEscape(htmlPath || "готовится")}</p>
+        <p><strong>Манифест:</strong> ${htmlEscape(manifestPath || "готовится")}</p>
+      </div>
     </article>
   `;
 }

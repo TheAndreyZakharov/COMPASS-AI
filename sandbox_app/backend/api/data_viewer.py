@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -82,6 +83,23 @@ def resolve_dataset_dir(dataset_id: str, dataset_kind: str | None = None) -> tup
             return kind, path
 
     raise DataViewerError(f"Dataset '{dataset_id}' not found")
+
+
+def delete_dataset_dir(dataset_id: str, dataset_kind: str | None = None) -> dict[str, Any]:
+    kind, dataset_dir = resolve_dataset_dir(dataset_id, dataset_kind)
+    root = dataset_root(kind).resolve()
+    target = dataset_dir.resolve()
+
+    if target == root or root not in target.parents:
+        raise DataViewerError("Refusing to delete path outside datasets root")
+
+    shutil.rmtree(target)
+    return {
+        "deleted": True,
+        "dataset_id": dataset_id,
+        "dataset_kind": kind,
+        "path": str(target),
+    }
 
 
 def safe_read_json(path: Path) -> Any:
@@ -424,6 +442,17 @@ def get_dataset_summary(
             "metadata": read_optional_metadata(dataset_dir),
             "summary_counts": dataset_table_counts(dataset_dir),
         }
+    except (DataViewerError, JsonFileError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.delete("/datasets/{dataset_id}")
+def delete_dataset(
+    dataset_id: str,
+    dataset_kind: str | None = Query(default=None),
+) -> dict[str, Any]:
+    try:
+        return delete_dataset_dir(dataset_id, dataset_kind)
     except (DataViewerError, JsonFileError) as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

@@ -96,10 +96,16 @@ export const api = {
   resetSandboxSettings: () => apiPost("/api/settings/reset", {}),
 
   contractsSummary: () => apiGet("/api/contracts/summary"),
-  featureSchemas: () => apiGet("/api/feature-schemas?preview=true"),
+  featureSchemas: (preview = true) =>
+    apiGet(`/api/feature-schemas?preview=${preview ? "true" : "false"}`),
 
   datasets: () => apiGet("/api/data-viewer/datasets"),
   dataViewerDatasets: () => apiGet("/api/data-viewer/datasets"),
+  deleteDataset: (datasetId, datasetKind = "") =>
+    apiDelete(
+      `/api/data-viewer/datasets/${encodeURIComponent(datasetId)}` +
+        `${datasetKind ? `?dataset_kind=${encodeURIComponent(datasetKind)}` : ""}`,
+    ),
 
   datasetSummary: (datasetId, query = "") =>
     apiGet(
@@ -145,6 +151,9 @@ export const api = {
   trainingSessionArtifacts: (sessionId) =>
     apiGet(`/api/training/sessions/${encodeURIComponent(sessionId)}/artifacts`),
 
+  deleteTrainingSession: (sessionId) =>
+    apiDelete(`/api/training/sessions/${encodeURIComponent(sessionId)}`),
+
   trainingModelArtifact: (sessionId, modelName) =>
     apiGet(
       `/api/training/sessions/${encodeURIComponent(sessionId)}/models/` +
@@ -180,6 +189,12 @@ export const api = {
       payload,
     ),
 
+  deleteModel: (sessionId, modelName) =>
+    apiDelete(
+      `/api/models/${encodeURIComponent(sessionId)}/` +
+        encodeURIComponent(modelName),
+    ),
+
   exportModel: (sessionId, modelName, payload) =>
     apiPost(
       `/api/models/${encodeURIComponent(sessionId)}/` +
@@ -190,6 +205,8 @@ export const api = {
   testCases: () => apiGet("/api/test-cases"),
   generateTestCase: (payload) => apiPost("/api/test-cases/generate", payload),
   importTestCase: (payload) => apiPost("/api/test-cases/import", payload),
+  createTestCaseFromDataset: (payload) =>
+    apiPost("/api/test-cases/from-dataset", payload),
 
   testCase: (testCaseId) =>
     apiGet(`/api/test-cases/${encodeURIComponent(testCaseId)}`),
@@ -246,6 +263,11 @@ export const api = {
       `/api/assignment-sessions/${encodeURIComponent(assignmentSessionId)}`,
     ),
 
+  deleteAssignmentSession: (assignmentSessionId) =>
+    apiDelete(
+      `/api/assignment-sessions/${encodeURIComponent(assignmentSessionId)}`,
+    ),
+
   llmStatus: () => apiGet("/api/llm/status"),
 
   explainRecommendation: (payload) =>
@@ -266,6 +288,9 @@ export const api = {
 
   exportReport: (reportId) =>
     apiGet(`/api/reports/exports/${encodeURIComponent(reportId)}`),
+
+  deleteExportReport: (reportId) =>
+    apiDelete(`/api/reports/exports/${encodeURIComponent(reportId)}`),
 
   generateDatasetExport: (datasetId, payload = {}) =>
     apiPost(

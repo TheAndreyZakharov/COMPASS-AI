@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import datetime
 from typing import Any
 
 import pandas as pd
+from sandbox_app.backend.core.time import MOSCOW_TZ, moscow_now
 
 PRIORITY_WEIGHTS = {
     "low": 0.15,
@@ -67,9 +68,9 @@ def deadline_days(task: dict[str, Any]) -> float:
         return 30.0
 
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=UTC)
+        parsed = parsed.replace(tzinfo=MOSCOW_TZ)
 
-    today = datetime.now(UTC).date()
+    today = moscow_now().date()
     return float((parsed.date() - today).days)
 
 
@@ -251,4 +252,4 @@ def feature_factors(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def today_iso() -> str:
-    return date.today().isoformat()
+    return moscow_now().date().isoformat()

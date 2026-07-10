@@ -48,7 +48,7 @@ def build_sklearn_model(
             max_depth=params.get("max_depth"),
             min_samples_leaf=int(params.get("min_samples_leaf", 1)),
             random_state=seed,
-            n_jobs=int(params.get("n_jobs", -1)),
+            n_jobs=int(params.get("n_jobs", 1)),
             class_weight=params.get("class_weight"),
         )
 

@@ -24,12 +24,12 @@ def test_recommendation_ui_assets_are_wired() -> None:
     assert "renderFairnessChart" in assignment_lab
     assert "runSingleRecommendation" in assignment_lab
     assert "runBulkAssignment" in assignment_lab
-    assert "Kanban after assignment" in assignment_lab
-    assert "Export results" in assignment_lab
+    assert "Доска после распределения" in assignment_lab
+    assert "Файлы результата" in assignment_lab
 
     assert "renderScoreBreakdown" in cards
     assert "renderRiskList" in cards
-    assert "Candidate comparison" in comparison
+    assert "Сравнение кандидатов" in comparison
     assert "Workload after assignment" in workload
     assert "Fairness report" in fairness
 

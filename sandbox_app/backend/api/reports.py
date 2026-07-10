@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import shutil
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.responses import FileResponse as ExportFileResponse
 from pydantic import BaseModel as ExportBaseModel
+from sandbox_app.backend.core.paths import PATHS
 from sandbox_app.backend.reports.assignment_report import generate_assignment_report
 from sandbox_app.backend.reports.dataset_report import generate_dataset_report
 from sandbox_app.backend.reports.html_export import (
@@ -24,6 +26,28 @@ from sandbox_app.backend.reports.training_report import (
 from sandbox_app.backend.training.train_session import TRAINING_SESSIONS_DIR
 
 router = APIRouter(prefix="/reports", tags=["reports"])
+
+
+def delete_export_report_dirs(report_id: str) -> dict[str, object]:
+    deleted_paths: list[str] = []
+
+    for root in (PATHS.reports_dir, PATHS.exports_dir):
+        target = (root / report_id).resolve()
+        safe_root = root.resolve()
+        if target.exists():
+            if not target.is_dir() or target == safe_root or safe_root not in target.parents:
+                raise ExportError("Refusing to delete path outside reports roots")
+            shutil.rmtree(target)
+            deleted_paths.append(str(target))
+
+    if not deleted_paths:
+        raise ExportError(f"Report export not found: {report_id}")
+
+    return {
+        "deleted": True,
+        "report_id": report_id,
+        "paths": deleted_paths,
+    }
 
 
 def normalize_training_manifest(session_id: str, manifest: dict[str, Any]) -> dict[str, Any]:
@@ -153,6 +177,14 @@ def get_reports_export_file(report_id: str, file_name: str) -> ExportFileRespons
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     return ExportFileResponse(path)
+
+
+@router.delete("/exports/{report_id}")
+def delete_reports_export(report_id: str) -> dict[str, object]:
+    try:
+        return delete_export_report_dirs(report_id)
+    except ExportError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.post("/exports/datasets/{dataset_id}")

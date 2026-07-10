@@ -1,5 +1,10 @@
 import { api } from "../api.js";
-import { getLastDatasetId, htmlEscape, prettyJson, setLastDatasetId, toast } from "../app.js";
+import {
+  getLastDatasetId,
+  htmlEscape,
+  setLastDatasetId,
+  toast,
+} from "../app.js";
 import { renderSummaryCards } from "../components/charts.js";
 import { renderDataTable } from "../components/table.js";
 import {
@@ -18,6 +23,15 @@ const MODEL_NAMES = [
   "torch_mlp",
 ];
 
+const MODEL_DESCRIPTIONS = {
+  baseline_rule_based: "Быстрый понятный базовый алгоритм без обучения, нужен как контрольная точка.",
+  sgd_classifier: "Легкая линейная модель, быстро обучается на больших данных.",
+  logistic_regression: "Стабильная интерпретируемая модель для вероятности успешного назначения.",
+  random_forest: "Ансамбль деревьев, хорошо ловит нелинейные связи и устойчив к шуму.",
+  hist_gradient_boosting: "Бустинг по деревьям, часто дает сильное качество на табличных данных.",
+  torch_mlp: "Нейросеть MLP, полезна для сложных зависимостей, но обучается дольше.",
+};
+
 const state = {
   datasets: null,
   datasetId: "",
@@ -26,6 +40,21 @@ const state = {
   sessions: null,
   selectedSessionId: "",
 };
+
+function startLongTaskToast(options) {
+  const detail = { options, controller: null };
+  window.dispatchEvent(new CustomEvent("sandbox-long-task-start", { detail }));
+
+  return detail.controller || {
+    update() {},
+    done(message = "Готово") {
+      toast(options?.title || "Обучение", message);
+    },
+    error(message = "Ошибка") {
+      toast(options?.title || "Обучение", message);
+    },
+  };
+}
 
 function allDatasets(payload) {
   return [
@@ -159,6 +188,10 @@ function setTrainingLoading(isLoading, label = "Training...") {
     button.classList.toggle("loading", isLoading);
   });
 
+  if (!status) {
+    return;
+  }
+
   status.className = isLoading ? "status-pill status-pending" : "status-pill status-ok";
   status.innerHTML = isLoading
     ? `<span class="status-dot"></span><span>${htmlEscape(label)}</span>`
@@ -166,13 +199,16 @@ function setTrainingLoading(isLoading, label = "Training...") {
 }
 
 function setOutput(html) {
-  document.querySelector("#trainingOutput").innerHTML = html;
+  const output = document.querySelector("#trainingOutput");
+  if (output) {
+    output.innerHTML = html;
+  }
 }
 
 function renderError(title, error) {
   setOutput(`
     <article class="card">
-      <span class="badge">Error</span>
+      <span class="badge">Ошибка</span>
       <h2>${htmlEscape(title)}</h2>
       <p class="muted">${htmlEscape(error.message || String(error))}</p>
     </article>
@@ -224,12 +260,13 @@ function buildTrainingPayload() {
   readDatasetControls();
 
   const modelNames = selectedModels();
+  const maxPairs = integerValue("#featureMaxPairs", 0);
 
   if (modelNames.length === 0) {
     throw new Error("Выбери хотя бы одну модель.");
   }
 
-  return {
+  const payload = {
     auto_build_features: document.querySelector("#trainingAutoBuild").checked,
     dataset_id: state.datasetId,
     dataset_kind: state.datasetKind,
@@ -237,12 +274,19 @@ function buildTrainingPayload() {
     model_params: buildModelParams(),
     seed: integerValue("#trainingSeed", 19001),
     split: {
-      test: numberValue("#splitTest", 0.15),
-      train: numberValue("#splitTrain", 0.7),
-      validation: numberValue("#splitValidation", 0.15),
+      test_size: numberValue("#splitTest", 0.15),
+      train_size: numberValue("#splitTrain", 0.7),
+      validation_size: numberValue("#splitValidation", 0.15),
     },
     target_mode: document.querySelector("#trainingTargetMode").value,
+    overwrite_features: document.querySelector("#featureOverwrite").checked,
   };
+
+  if (maxPairs > 0) {
+    payload.max_pairs = maxPairs;
+  }
+
+  return payload;
 }
 
 function renderFeatureResult(result) {
@@ -276,8 +320,10 @@ function renderFeatureResult(result) {
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Feature metadata</h2>
-      <pre class="code">${prettyJson(metadata)}</pre>
+      <h2>Готово к обучению</h2>
+      <p class="muted">
+        Признаки построены. Теперь можно запускать обучение выбранных моделей.
+      </p>
     </article>
   `);
 }
@@ -308,9 +354,16 @@ function renderTrainingResult(result) {
       ${renderTrainingMetrics(normalizedMetrics)}
     </section>
 
-    <article class="card" style="margin-top: 16px;">
-      <h2>Training response</h2>
-      <pre class="code">${prettyJson(result)}</pre>
+    <article class="card next-step-card" style="margin-top: 16px;">
+      <h2>Следующий шаг</h2>
+      <p class="muted">
+        Модели обучены. Откройте вкладку «Модели» для просмотра артефактов
+        или перейдите к назначению задач.
+      </p>
+      <div class="toolbar">
+        <a class="button button-secondary" href="/models" data-link>Открыть модели</a>
+        <a class="button button-secondary" href="/assignment-lab" data-link>Назначить задачи</a>
+      </div>
     </article>
   `);
 }
@@ -346,8 +399,12 @@ function renderSessionDetails(details) {
     </article>
 
     <article class="card" style="margin-top: 16px;">
-      <h2>Session summary</h2>
-      <pre class="code">${prettyJson(details.summary || details)}</pre>
+      <h2>Сессия обучения</h2>
+      <div class="info-list">
+        <p><strong>ID:</strong> ${htmlEscape(details.session_id || state.selectedSessionId)}</p>
+        <p><strong>Датасет:</strong> ${htmlEscape(details.summary?.dataset_id || "")}</p>
+        <p><strong>Статус:</strong> ${htmlEscape(details.summary?.status || "")}</p>
+      </div>
     </article>
   `);
 }
@@ -359,21 +416,31 @@ function renderReport(sessionId, manifest) {
       ${renderTrainingPlots(sessionId, manifest)}
     </section>
     <article class="card" style="margin-top: 16px;">
-      <h2>Report manifest</h2>
-      <pre class="code">${prettyJson(manifest)}</pre>
+      <h2>Отчет готов</h2>
+      <p class="muted">Графики и HTML-отчет доступны по ссылкам выше.</p>
     </article>
   `);
 }
 
 async function buildFeatures() {
+  const progress = startLongTaskToast({
+    title: "Строим признаки...",
+    message: "Проверяем данные...",
+    steps: ["Проверяем данные...", "Строим признаки...", "Сохраняем артефакты..."],
+  });
+
   try {
-    setTrainingLoading(true, "Building features...");
+    setTrainingLoading(true, "Строим признаки...");
+    progress.update({ message: "Строим признаки...", percent: 35, stepIndex: 1 });
     const result = await api.buildFeatures(buildFeaturePayload());
+    progress.update({ message: "Сохраняем артефакты...", percent: 94, stepIndex: 2 });
+    progress.done("Готово");
     renderFeatureResult(result);
-    toast("Features built", `${state.datasetId}`);
+    toast("Признаки готовы", `${state.datasetId}`);
   } catch (error) {
-    renderError("Feature builder failed", error);
-    toast("Feature builder", error.message || String(error));
+    progress.error(error.message || String(error));
+    renderError("Не удалось построить признаки", error);
+    toast("Ошибка признаков", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
@@ -382,28 +449,45 @@ async function buildFeatures() {
 async function loadFeatureMetadata() {
   try {
     readDatasetControls();
-    setTrainingLoading(true, "Loading metadata...");
+    setTrainingLoading(true, "Загружаем метаданные...");
     const query = `?dataset_kind=${encodeURIComponent(state.datasetKind)}`;
     const result = await api.featureMetadata(state.datasetId, query);
     renderFeatureResult(result);
   } catch (error) {
-    renderError("Feature metadata failed", error);
-    toast("Feature metadata", error.message || String(error));
+    renderError("Не удалось загрузить метаданные признаков", error);
+    toast("Метаданные признаков", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
 }
 
 async function runTraining() {
+  const progress = startLongTaskToast({
+    title: "Обучаем модели...",
+    message: "Проверяем данные...",
+    steps: [
+      "Проверяем данные...",
+      "Строим признаки...",
+      "Делим данные...",
+      "Обучаем модели...",
+      "Считаем метрики...",
+      "Сохраняем артефакты...",
+    ],
+  });
+
   try {
-    setTrainingLoading(true, "Training models...");
+    setTrainingLoading(true, "Обучаем модели...");
+    progress.update({ message: "Строим признаки...", percent: 20, stepIndex: 1 });
     const result = await api.runTraining(buildTrainingPayload());
+    progress.update({ message: "Сохраняем артефакты...", percent: 96, stepIndex: 5 });
+    progress.done("Завершено");
     renderTrainingResult(result);
     await refreshSessions(false);
-    toast("Training finished", result.session_id || state.datasetId);
+    toast("Обучение завершено", result.session_id || state.datasetId);
   } catch (error) {
-    renderError("Training failed", error);
-    toast("Training", error.message || String(error));
+    progress.error(error.message || String(error));
+    renderError("Обучение не удалось", error);
+    toast("Обучение", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
@@ -426,7 +510,7 @@ async function refreshSessions(render = true) {
     const rows = state.sessions?.sessions || [];
     setOutput(`
       <article class="card">
-        <h2>Training sessions</h2>
+        <h2>Сессии обучения</h2>
         ${renderDataTable(rows)}
       </article>
     `);
@@ -438,15 +522,15 @@ async function loadSessionDetails() {
     readSessionControls();
 
     if (!state.selectedSessionId) {
-      throw new Error("Training session не выбрана.");
+      throw new Error("Сессия обучения не выбрана.");
     }
 
-    setTrainingLoading(true, "Loading session...");
+    setTrainingLoading(true, "Загружаем сессию...");
     const details = await api.trainingSession(state.selectedSessionId);
     renderSessionDetails(details);
   } catch (error) {
-    renderError("Session details failed", error);
-    toast("Training session", error.message || String(error));
+    renderError("Не удалось открыть сессию", error);
+    toast("Сессия обучения", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
@@ -457,16 +541,16 @@ async function generateReport() {
     readSessionControls();
 
     if (!state.selectedSessionId) {
-      throw new Error("Training session не выбрана.");
+      throw new Error("Сессия обучения не выбрана.");
     }
 
-    setTrainingLoading(true, "Generating report...");
+    setTrainingLoading(true, "Готовим отчет...");
     const manifest = await api.generateTrainingReport(state.selectedSessionId);
     renderReport(state.selectedSessionId, manifest);
-    toast("Report generated", state.selectedSessionId);
+    toast("Отчет готов", state.selectedSessionId);
   } catch (error) {
-    renderError("Report generation failed", error);
-    toast("Training report", error.message || String(error));
+    renderError("Не удалось создать отчет", error);
+    toast("Отчет обучения", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
@@ -477,15 +561,50 @@ async function loadReport() {
     readSessionControls();
 
     if (!state.selectedSessionId) {
-      throw new Error("Training session не выбрана.");
+      throw new Error("Сессия обучения не выбрана.");
     }
 
-    setTrainingLoading(true, "Loading report...");
+    setTrainingLoading(true, "Загружаем отчет...");
     const manifest = await api.trainingReport(state.selectedSessionId);
     renderReport(state.selectedSessionId, manifest);
   } catch (error) {
-    renderError("Report loading failed", error);
-    toast("Training report", error.message || String(error));
+    renderError("Не удалось загрузить отчет", error);
+    toast("Отчет обучения", error.message || String(error));
+  } finally {
+    setTrainingLoading(false);
+  }
+}
+
+async function deleteSelectedSession() {
+  try {
+    readSessionControls();
+
+    if (!state.selectedSessionId) {
+      throw new Error("Сессия обучения не выбрана.");
+    }
+
+    const confirmed = window.confirm(
+      `Удалить сессию обучения "${state.selectedSessionId}" вместе с моделями и отчетами?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setTrainingLoading(true, "Удаляем сессию...");
+    await api.deleteTrainingSession(state.selectedSessionId);
+    state.selectedSessionId = "";
+    await refreshSessions(false);
+    setOutput(`
+      <article class="card">
+        <h2>Сессия обучения удалена</h2>
+        <p class="muted">Сессия обучения и ее модели удалены.</p>
+      </article>
+    `);
+    toast("Сессия обучения удалена", "Артефакты удалены");
+  } catch (error) {
+    renderError("Не удалось удалить сессию", error);
+    toast("Сессия обучения", error.message || String(error));
   } finally {
     setTrainingLoading(false);
   }
@@ -538,6 +657,13 @@ function bindEvents() {
     loadReport();
   });
 
+  document.querySelector("[data-training-action='delete-session']").addEventListener(
+    "click",
+    () => {
+      deleteSelectedSession();
+    },
+  );
+
   document.querySelector("[data-training-action='select-all']").addEventListener("click", () => {
     toggleAllModels(true);
   });
@@ -555,16 +681,13 @@ function bindEvents() {
 
 function renderModelCheckboxes() {
   return MODEL_NAMES.map((modelName) => {
-    const checked = ["baseline_rule_based", "logistic_regression", "random_forest"].includes(
-      modelName,
-    )
-      ? "checked"
-      : "";
-
     return `
-      <label class="checkbox-row">
-        <input ${checked} data-training-model="${htmlEscape(modelName)}" type="checkbox" />
-        <span>${htmlEscape(modelName)}</span>
+      <label class="checkbox-row model-choice">
+        <input checked data-training-model="${htmlEscape(modelName)}" type="checkbox" />
+        <span>
+          <strong>${htmlEscape(modelName)}</strong>
+          <small>${htmlEscape(MODEL_DESCRIPTIONS[modelName] || "")}</small>
+        </span>
       </label>
     `;
   }).join("");
@@ -583,9 +706,10 @@ export async function renderTraining() {
       <article class="card">
         <div class="viewer-section-header">
           <div>
-            <h2>Training</h2>
+            <h2>Обучение моделей</h2>
             <p class="muted">
-              Build features, train multiple models, compare metrics and generate plots.
+              Выберите датасет и запустите обучение. По умолчанию включены все
+              доступные методы, чтобы их можно было сравнить между собой.
             </p>
           </div>
           <div class="status-pill status-ok" id="trainingStatus">
@@ -597,14 +721,14 @@ export async function renderTraining() {
         <div class="form">
           <div class="grid grid-2">
             <div class="form-row">
-              <label for="trainingDataset">Dataset</label>
+              <label for="trainingDataset">Датасет</label>
               <select class="select" id="trainingDataset">
                 ${datasetOptions(state.datasets)}
               </select>
             </div>
 
             <div class="form-row">
-              <label for="trainingTargetMode">target_mode</label>
+              <label for="trainingTargetMode">Цель модели</label>
               <select class="select" id="trainingTargetMode">
                 <option value="balanced">balanced</option>
                 <option value="quality">quality</option>
@@ -615,29 +739,31 @@ export async function renderTraining() {
             </div>
 
             <div class="form-row">
-              <label for="trainingSeed">seed</label>
+              <label for="trainingSeed">Seed</label>
               <input class="input" id="trainingSeed" type="number" value="19001" />
             </div>
 
             <div class="form-row">
-              <label for="featureMaxPairs">max_pairs</label>
+              <label for="featureMaxPairs">Максимум пар</label>
               <input
                 class="input"
                 id="featureMaxPairs"
                 min="1"
-                placeholder="empty = all pairs"
+                placeholder="120000"
                 type="number"
+                value="120000"
               />
+              <p class="muted">120000 — безопасный режим для 8 ГБ памяти.</p>
             </div>
           </div>
 
           <div class="grid grid-3">
             <div class="form-row">
-              <label for="splitTrain">train split</label>
+              <label for="splitTrain">Доля обучения</label>
               <input class="input" id="splitTrain" step="0.01" type="number" value="0.70" />
             </div>
             <div class="form-row">
-              <label for="splitValidation">validation split</label>
+              <label for="splitValidation">Доля проверки</label>
               <input
                 class="input"
                 id="splitValidation"
@@ -647,7 +773,7 @@ export async function renderTraining() {
               />
             </div>
             <div class="form-row">
-              <label for="splitTest">test split</label>
+              <label for="splitTest">Доля теста</label>
               <input class="input" id="splitTest" step="0.01" type="number" value="0.15" />
             </div>
           </div>
@@ -655,41 +781,42 @@ export async function renderTraining() {
           <div class="grid grid-2">
             <label class="checkbox-row">
               <input checked id="featureOverwrite" type="checkbox" />
-              <span>overwrite existing features</span>
+              <span>перестроить признаки</span>
             </label>
             <label class="checkbox-row">
               <input checked id="trainingAutoBuild" type="checkbox" />
-              <span>auto build features before training</span>
+              <span>автоматически построить признаки перед обучением</span>
             </label>
           </div>
 
-          <h3>Models</h3>
+          <h3>Модели для обучения</h3>
           <div class="grid grid-2">
             ${renderModelCheckboxes()}
           </div>
 
           <div class="toolbar">
             <button class="button button-secondary" data-training-action="select-core" type="button">
-              Select core
+              Выбрать базовые
             </button>
             <button class="button button-secondary" data-training-action="select-all" type="button">
-              Select all
+              Выбрать все
             </button>
             <button class="button button-secondary" data-training-action="features" type="button">
-              Build features
+              Построить признаки
             </button>
             <button class="button button-secondary" data-training-action="metadata" type="button">
-              Load metadata
+              Проверить признаки
             </button>
             <button class="button button-primary" data-training-action="run" type="button">
-              Run training
+              Запустить обучение
             </button>
           </div>
         </div>
       </article>
 
       <article class="card">
-        <h2>Model params</h2>
+        <h2>Параметры моделей</h2>
+        <p class="muted">Оставьте значения по умолчанию, если не хотите тонко настраивать обучение.</p>
         <div class="grid grid-2">
           <div class="form-row">
             <label for="paramLogisticMaxIter">logistic max_iter</label>
@@ -697,7 +824,7 @@ export async function renderTraining() {
           </div>
           <div class="form-row">
             <label for="paramRandomForestEstimators">rf n_estimators</label>
-            <input class="input" id="paramRandomForestEstimators" type="number" value="120" />
+            <input class="input" id="paramRandomForestEstimators" type="number" value="80" />
           </div>
           <div class="form-row">
             <label for="paramRandomForestDepth">rf max_depth</label>
@@ -713,7 +840,7 @@ export async function renderTraining() {
           </div>
           <div class="form-row">
             <label for="paramTorchEpochs">torch epochs</label>
-            <input class="input" id="paramTorchEpochs" type="number" value="12" />
+            <input class="input" id="paramTorchEpochs" type="number" value="8" />
           </div>
           <div class="form-row">
             <label for="paramTorchHidden">torch hidden</label>
@@ -729,7 +856,7 @@ export async function renderTraining() {
           </div>
           <div class="form-row">
             <label for="paramTorchBatchSize">torch batch_size</label>
-            <input class="input" id="paramTorchBatchSize" type="number" value="128" />
+            <input class="input" id="paramTorchBatchSize" type="number" value="64" />
           </div>
         </div>
       </article>
@@ -737,45 +864,53 @@ export async function renderTraining() {
 
     <section class="grid grid-2" style="margin-top: 16px;">
       <article class="card">
-        <h2>Training sessions</h2>
+        <h2>Сессии обучения</h2>
         <div class="toolbar">
           <select class="select" id="trainingSessionSelect">
             ${sessionOptions(state.sessions)}
           </select>
           <button class="button button-secondary" data-training-action="sessions" type="button">
-            Refresh sessions
+            Обновить
           </button>
           <button
             class="button button-secondary"
             data-training-action="session-details"
             type="button"
           >
-            Session details
+            Детали сессии
           </button>
           <button
             class="button button-secondary"
             data-training-action="report-generate"
             type="button"
           >
-            Generate plots
+            Создать графики
           </button>
           <button class="button button-secondary" data-training-action="report-load" type="button">
-            Load plots
+            Открыть графики
+          </button>
+          <button class="button button-danger" data-training-action="delete-session" type="button">
+            Удалить сессию
           </button>
         </div>
       </article>
 
       <article class="card">
-        <h2>Selected dataset</h2>
-        <pre class="code">${prettyJson(selectedDataset() || {})}</pre>
+        <h2>Выбранный датасет</h2>
+        <div class="info-list">
+          <p><strong>ID:</strong> ${htmlEscape(selectedDataset()?.dataset_id || "не выбран")}</p>
+          <p><strong>Тип:</strong> ${htmlEscape(selectedDataset()?.dataset_kind || "")}</p>
+          <p><strong>Задачи:</strong> ${htmlEscape(selectedDataset()?.counts?.tasks || 0)}</p>
+          <p><strong>Пары:</strong> ${htmlEscape(selectedDataset()?.counts?.training_pairs || 0)}</p>
+        </div>
       </article>
     </section>
 
     <section id="trainingOutput" style="margin-top: 16px;">
       <article class="card">
-        <h2>Training UI</h2>
+        <h2>Готово к запуску</h2>
         <p class="muted">
-          Выбери dataset, target mode, модели и запусти training прямо из браузера.
+          Выберите датасет, цель и модели. Затем нажмите «Запустить обучение».
         </p>
       </article>
     </section>

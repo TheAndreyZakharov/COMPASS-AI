@@ -4,11 +4,11 @@ import json
 import re
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from sandbox_app.backend.core.time import moscow_now_iso, moscow_stamp
 from sandbox_app.backend.data_generation.test_team import (
     TEST_CASES_DIR,
     TestTeamError,
@@ -72,11 +72,11 @@ class RecommendationConfig:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return moscow_now_iso()
 
 
 def recommendation_id() -> str:
-    stamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    stamp = moscow_stamp()
     return f"rec_{stamp}_{uuid.uuid4().hex[:8]}"
 
 

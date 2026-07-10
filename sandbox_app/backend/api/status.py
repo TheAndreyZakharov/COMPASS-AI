@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import platform
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter
+from sandbox_app.backend.core.time import moscow_now_iso
 from sandbox_app.backend.core.paths import PATHS
 from sandbox_app.backend.core.settings import load_settings
 
@@ -30,7 +30,7 @@ def health() -> dict[str, Any]:
         "version": settings["app"]["version"],
         "target_python": settings["app"]["target_python"],
         "python": platform.python_version(),
-        "checked_at": datetime.now(UTC).isoformat(),
+        "checked_at": moscow_now_iso(),
     }
 
 
@@ -62,5 +62,5 @@ def status() -> dict[str, Any]:
             "logs": _path_status(PATHS.logs_dir),
         },
         "isolation": settings.get("isolation", {}),
-        "checked_at": datetime.now(UTC).isoformat(),
+        "checked_at": moscow_now_iso(),
     }

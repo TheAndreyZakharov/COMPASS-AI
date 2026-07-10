@@ -40,7 +40,15 @@ PY
 echo "${PYTHON_CHECK}"
 
 echo "Starting Ollama for sandbox LLM explanations"
-bash "${SCRIPT_DIR}/start_ollama.sh"
+if ! bash "${SCRIPT_DIR}/start_ollama.sh"; then
+  if [[ "${SANDBOX_REQUIRE_OLLAMA:-0}" == "1" ]]; then
+    echo "ERROR: Ollama is required but did not start"
+    exit 1
+  fi
+
+  echo "WARN: Ollama did not start; continuing without live LLM explanations"
+  echo "WARN: You can start Ollama manually and refresh /api/llm/status later"
+fi
 
 if [[ -f "${PID_FILE}" ]]; then
   EXISTING_PID="$(cat "${PID_FILE}")"

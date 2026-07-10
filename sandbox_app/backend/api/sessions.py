@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter
 from sandbox_app.backend.core.paths import PATHS
+from sandbox_app.backend.core.time import MOSCOW_TZ
 from sandbox_app.backend.utils.json_io import read_json_or_default
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
@@ -31,8 +32,8 @@ def _session_dir_to_summary(path: Path, session_type: str) -> dict[str, Any]:
         "session_id": path.name,
         "session_type": session_type,
         "path": str(path),
-        "created_at": datetime.fromtimestamp(stat.st_ctime, tz=UTC).isoformat(),
-        "updated_at": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
+        "created_at": datetime.fromtimestamp(stat.st_ctime, tz=MOSCOW_TZ).isoformat(),
+        "updated_at": datetime.fromtimestamp(stat.st_mtime, tz=MOSCOW_TZ).isoformat(),
         "files_count": sum(1 for child in path.rglob("*") if child.is_file()),
         "metadata": metadata,
     }

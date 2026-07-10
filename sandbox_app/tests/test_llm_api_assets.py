@@ -33,7 +33,7 @@ def test_llm_assets_are_wired() -> None:
     assert 'router.post("/explain/assignment")' in api_py
 
     assert "useLlmExplanations" in assignment_lab
-    assert "LLM explanations через Qwen/Ollama" in assignment_lab
+    assert "Добавить объяснения через Qwen/Ollama" in assignment_lab
     assert "maybeExplainSingleRecommendation" in assignment_lab
     assert "maybeExplainBulkAssignment" in assignment_lab
 
