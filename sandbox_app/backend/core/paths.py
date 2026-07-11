@@ -22,6 +22,7 @@ class SandboxPaths:
     data_dir: Path
     generated_data_dir: Path
     imported_data_dir: Path
+    kanban_lab_dir: Path
     test_cases_dir: Path
     exports_dir: Path
     training_sessions_dir: Path
@@ -59,6 +60,7 @@ def get_paths() -> SandboxPaths:
         data_dir=data_dir,
         generated_data_dir=data_dir / "generated",
         imported_data_dir=data_dir / "imported",
+        kanban_lab_dir=data_dir / "kanban_lab",
         test_cases_dir=data_dir / "test_cases",
         exports_dir=data_dir / "exports",
         training_sessions_dir=sandbox_root / "training_sessions",
@@ -78,6 +80,7 @@ def ensure_runtime_dirs() -> None:
     for path in (
         PATHS.generated_data_dir,
         PATHS.imported_data_dir,
+        PATHS.kanban_lab_dir,
         PATHS.test_cases_dir,
         PATHS.exports_dir,
         PATHS.training_sessions_dir,

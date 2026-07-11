@@ -21,8 +21,8 @@ def test_app_uses_lazy_page_imports_and_keeps_backend_status_alive() -> None:
     assert "async function loadRouteRenderer" in app_js
     assert "await import(cacheBustedModulePath(route.modulePath))" in app_js
     assert "APP_BUILD_ID" in app_js
-    assert "/js/app.js?v=20260710_bulk_queue" in index_html
-    assert "/css/styles.css?v=20260710_bulk_queue" in index_html
+    assert "/js/app.js?v=20260711_kanban_lab_style_polish" in index_html
+    assert "/css/styles.css?v=20260711_kanban_lab_style_polish" in index_html
     assert 'id="longToastStack"' in index_html
     assert "export function startLongTaskToast" in app_js
     assert "syncToastOffsets" in app_js
@@ -70,6 +70,7 @@ def test_long_task_toasts_do_not_require_new_app_binding_in_lazy_pages() -> None
         "frontend/js/pages/import_data.js",
         "frontend/js/pages/reports.js",
         "frontend/js/pages/assignment_lab.js",
+        "frontend/js/pages/kanban_lab.js",
     ]:
         page_js = read(path)
         assert "sandbox-long-task-start" in page_js

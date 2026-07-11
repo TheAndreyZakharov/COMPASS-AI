@@ -20,6 +20,9 @@ sandbox_app/data/generated/*
 sandbox_app/data/imported/*
 !sandbox_app/data/imported/.gitkeep
 
+sandbox_app/data/kanban_lab/*
+!sandbox_app/data/kanban_lab/.gitkeep
+
 sandbox_app/data/test_cases/*
 !sandbox_app/data/test_cases/.gitkeep
 

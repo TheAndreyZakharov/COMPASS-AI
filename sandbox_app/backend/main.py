@@ -20,6 +20,7 @@ from sandbox_app.backend.api import (
     generate_tasks,
     generate_team,
     import_data,
+    kanban_lab,
     llm,
     models,
     recommendations,
@@ -103,6 +104,7 @@ def register_api_routes(app: FastAPI) -> None:
     app.include_router(test_cases.router, prefix=api_prefix)
     app.include_router(recommendations.router, prefix=api_prefix)
     app.include_router(assignment_sessions.router, prefix=api_prefix)
+    app.include_router(kanban_lab.router, prefix=api_prefix)
     app.include_router(llm.router, prefix=api_prefix)
     app.include_router(settings.router, prefix=api_prefix)
 

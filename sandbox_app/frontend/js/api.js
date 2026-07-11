@@ -256,6 +256,16 @@ export const api = {
   runBulkAssignment: (payload) =>
     apiPost("/api/assignment-sessions/run", payload),
 
+  recommendKanbanBoard: (payload) =>
+    apiPost("/api/kanban-lab/recommend-board", payload),
+
+  kanbanLabBoards: () => apiGet("/api/kanban-lab/boards"),
+  kanbanLabBoard: (labId) =>
+    apiGet(`/api/kanban-lab/boards/${encodeURIComponent(labId)}`),
+  saveKanbanLabBoard: (payload) => apiPost("/api/kanban-lab/boards", payload),
+  deleteKanbanLabBoard: (labId) =>
+    apiDelete(`/api/kanban-lab/boards/${encodeURIComponent(labId)}`),
+
   assignmentSessions: () => apiGet("/api/assignment-sessions"),
 
   assignmentSession: (assignmentSessionId) =>
