@@ -1,0 +1,24 @@
+flowchart TD
+    Developer["Developer in VS Code"] --> Tasks["VS Code task\nCOMPASS: start stack"]
+    Tasks --> Docker["Docker Desktop / local Plane stack"]
+    Tasks --> Ollama["Ollama service\nQwen2.5 1.5B"]
+    Tasks --> API["app/api.py\nFastAPI COMPASS API"]
+    Tasks --> Dashboard["app/dashboard.py\nStreamlit dashboard"]
+    Docker --> Plane["Plane web application\nprojects, issues and members"]
+    Plane --> PlaneAPI["Plane REST API"]
+    PlaneAPI --> Integration["src/integration/\nPlane client, mapping and comment formatting"]
+    Integration --> Features["src/features/\nskill vectors and task-employee features"]
+    Features --> Models["src/models/ and models/\nmatching model and ONNX artifact"]
+    Models --> Ranking["src/recommendation/\nranking, workload, growth and fairness scoring"]
+    Ranking --> Agents["src/agents/\nteam analysis and explanation orchestration"]
+    Agents --> Ollama
+    Agents --> API
+    API --> Dashboard
+    Dashboard --> User["Manager reviews candidates, explanations and metrics"]
+    API --> PlaneComment["Optional formatted recommendation comment"]
+    PlaneComment --> Plane
+    Tasks --> Stop["VS Code task\nCOMPASS: stop stack"]
+    Stop --> Docker
+    Stop --> Ollama
+    Stop --> API
+    Stop --> Dashboard

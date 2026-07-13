@@ -1,0 +1,31 @@
+flowchart LR
+    subgraph Repo["COMPASS-AI repository"]
+        Docs["docs/\nconcept, roadmap, sandbox pipeline"]
+        Assets["assets/forreadme/\nREADME screenshots and rendered diagrams"]
+        Config["config/\nroot settings and synthetic schemas"]
+        RootApp["app/\nFastAPI API and Streamlit dashboard"]
+        Src["src/\ncore ML, recommendation and Plane integration"]
+        PlaneStack["plane/ + scripts/\nlocal Plane, Ollama and stack orchestration"]
+        Sandbox["sandbox_app/\nautonomous browser sandbox"]
+        Tests["tests/ + sandbox_app/tests/\nroot and sandbox checks"]
+        Artifacts["data/, models/, reports/, notebooks/\nroot datasets, models and analysis artifacts"]
+        DiagramSrc["diagrams/\nMermaid architecture sources"]
+    end
+
+    RootApp --> Src
+    RootApp --> PlaneStack
+    Src --> Config
+    Src --> Artifacts
+    Src --> PlaneStack
+    Sandbox --> SandboxBackend["sandbox_app/backend/\nFastAPI routers, generators, training, inference, reports"]
+    Sandbox --> SandboxFrontend["sandbox_app/frontend/\nHTML, CSS and vanilla JavaScript UI"]
+    Sandbox --> SandboxData["sandbox_app/data/\ngenerated, imported, test cases, Kanban Lab boards"]
+    SandboxBackend --> SandboxData
+    SandboxBackend --> SandboxSessions["sandbox_app/training_sessions/\nsaved training sessions"]
+    SandboxBackend --> SandboxAssignments["sandbox_app/assignment_sessions/\nsaved assignment decisions"]
+    PlaneStack --> PlaneLive["Plane Docker stack\nprojects, issues and members"]
+    DiagramSrc --> Assets
+    Docs --> RootApp
+    Docs --> Sandbox
+    Tests --> RootApp
+    Tests --> Sandbox

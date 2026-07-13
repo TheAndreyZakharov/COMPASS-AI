@@ -1,0 +1,20 @@
+flowchart TD
+    Browser["Browser UI\nрусский / английский, светлая / темная темы"] --> SandboxAPI["Sandbox FastAPI backend"]
+    SandboxAPI --> Settings["config/app_settings.json\nfeature schemas и model presets"]
+    Browser --> Generator["Вкладка генерации данных\nsample profiles или custom schema"]
+    Generator --> Generated["data/generated/\nemployees, tasks, history, training pairs"]
+    Generated --> Viewer["Вкладка просмотра данных\nsummary, tables, graphs и Kanban view"]
+    Generated --> Training["Вкладка обучения\nbaseline, sklearn и PyTorch models"]
+    Training --> Sessions["training_sessions/\nmetrics, plots, model artifacts и ONNX exports"]
+    Sessions --> Models["Вкладка моделей\nvalidation и ONNX export checks"]
+    Generated --> TestCases["Проверочные наборы назначений\nteam, active tasks и history"]
+    TestCases --> AssignmentLab["Вкладка назначения задач\nsingle-task и bulk recommendation"]
+    Sessions --> AssignmentLab
+    AssignmentLab --> Ollama["Ollama + Qwen2.5 1.5B\nчеловеческие объяснения"]
+    AssignmentLab --> AssignmentSessions["assignment_sessions/\nсохраненные рекомендации"]
+    Generated --> KanbanCopy["Копия Kanban Lab\nизолированная редактируемая доска"]
+    KanbanCopy --> KanbanLab["Вкладка Kanban Lab\nредактирование задач и персонала, drag columns, рекомендации"]
+    KanbanLab --> SavedBoards["data/kanban_lab/\nсохраненные experimental boards"]
+    KanbanLab --> Ollama
+    AssignmentSessions --> Reports["Вкладка отчетов\ndataset, model и assignment reports"]
+    Sessions --> Reports

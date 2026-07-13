@@ -687,12 +687,58 @@ Local Plane stack
 
 Для машин с ограниченной памятью обучение можно ограничивать через количество training pairs. Документированный sandbox workflow использует именно этот подход, чтобы система оставалась пригодной к работе, пока одновременно открыты браузер, редактор и локальные сервисы.
 
+## Архитектурные диаграммы
+
+Исходники диаграмм хранятся в `diagrams/` как Mermaid files. README ссылается на PNG-файлы в `assets/forreadme/`.
+
+### Простая общая схема
+
+<p align="center">
+  <img src="assets/forreadme/compass_overview_RU.png" width="600" alt="COMPASS AI simple overview">
+</p>
+
+Источник: `diagrams/compass_overview_RU.mmd`.
+
+### Подробная архитектура репозитория
+
+<p align="center">
+  <img src="assets/forreadme/repository_architecture_RU.png" width="600" alt="COMPASS AI repository architecture">
+</p>
+
+Источник: `diagrams/repository_architecture_RU.mmd`.
+
+### Sandbox pipeline
+
+<p align="center">
+  <img src="assets/forreadme/sandbox_pipeline_RU.png" width="600" alt="COMPASS AI sandbox pipeline">
+</p>
+
+Источник: `diagrams/sandbox_pipeline_RU.mmd`.
+
+### Plane integration pipeline
+
+<p align="center">
+  <img src="assets/forreadme/plane_integration_RU.png" width="600" alt="COMPASS AI Plane integration pipeline">
+</p>
+
+Источник: `diagrams/plane_integration_RU.mmd`.
+
 ## Структура проекта
 
 Репозиторий является единым проектом. Root-приложение, интеграция с Plane и автономный Sandbox находятся в одном репозитории, но разделены по папкам и runtime-границам данных.
 
 ```text
 COMPASS-AI/
+├── .env.example                       Environment variable template
+├── .vscode/
+│   ├── settings.json                  Local editor settings
+│   └── tasks.json                     VS Code tasks for COMPASS stack control
+├── commands.txt                       Short local command reference
+├── docker-compose.compass.yml         Root Docker Compose integration file
+├── Makefile                           Root maintenance and helper commands
+├── pyproject.toml                     Python tooling configuration
+├── requirements.txt                   Root runtime dependencies
+├── requirements-dev.txt               Root development dependencies
 ├── app/
 │   ├── api.py                         FastAPI entrypoint основного COMPASS API
 │   └── dashboard.py                   Streamlit dashboard для Plane и аналитики
@@ -709,9 +755,16 @@ COMPASS-AI/
 │   └── synthetic/                     Synthetic employees, tasks and assignments
 ├── docs/
 │   ├── doc.md                         Project concept and architecture
+│   ├── plan.md                        Additional planning notes
+│   ├── synthetic_data_design.md       Synthetic data design notes
 │   ├── todo.md                        Full development roadmap
 │   ├── todo_subproj_27.md             Sandbox implementation record
 │   └── sandbox27.md                   Manual sandbox pipeline
+├── diagrams/
+│   ├── compass_overview.mmd           Simple high-level architecture diagram
+│   ├── repository_architecture.mmd    Detailed repository architecture diagram
+│   ├── sandbox_pipeline.mmd           Sandbox data, training and assignment flow
+│   └── plane_integration.mmd          Plane integration and live recommendation flow
 ├── logs/                              Runtime logs for local services
 ├── models/
 │   ├── compass_matching_model.pt      PyTorch matching model artifact
@@ -736,6 +789,7 @@ COMPASS-AI/
 │   ├── start_ollama.sh                Start Ollama helper
 │   └── stop_ollama.sh                 Stop Ollama helper
 ├── src/
+│   ├── __init__.py                    Root Python package marker
 │   ├── agents/                        Agentic task, team, matching and explanation logic
 │   ├── api/                           API routers for Plane and recommendations
 │   ├── data/                          Synthetic data generation and splits
@@ -748,8 +802,12 @@ COMPASS-AI/
 │   └── utils/                         Shared utilities
 ├── tests/                             Root project tests
 ├── sandbox_app/
+│   ├── .python-version                Sandbox Python version pin
+│   ├── README.md                      Sandbox-specific README
+│   ├── requirements.txt               Sandbox runtime dependencies
 │   ├── assets/                        Sandbox logo and local assets
 │   ├── backend/
+│   │   ├── main.py                    Sandbox FastAPI application entrypoint
 │   │   ├── api/                       Sandbox API routers
 │   │   ├── core/                      Settings, paths, time and contracts
 │   │   ├── data_generation/           Employees, tasks, history and training pairs
@@ -774,7 +832,11 @@ COMPASS-AI/
 │   ├── frontend/
 │   │   ├── index.html                 Sandbox browser shell
 │   │   ├── css/                       Sandbox styles
-│   │   └── js/                        Router, API client, pages and components
+│   │   └── js/
+│   │       ├── app.js                 Sandbox frontend bootstrap and router
+│   │       ├── api.js                 Browser API client
+│   │       ├── components/            Shared frontend components
+│   │       └── pages/                 Sandbox UI tabs and workflows
 │   ├── logs/                          Sandbox runtime logs
 │   ├── reports/                       Generated sandbox reports
 │   ├── scripts/                       Sandbox start, stop, restart and smoke scripts

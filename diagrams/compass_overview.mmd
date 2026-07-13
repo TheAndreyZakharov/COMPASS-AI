@@ -1,0 +1,14 @@
+flowchart TD
+    User["Team lead or analyst"] --> Compass["COMPASS AI"]
+    Compass --> Sandbox["Sandbox: synthetic data and controlled experiments"]
+    Compass --> Plane["Plane integration: real task-management context"]
+    Sandbox --> DataLab["Dataset generation, schema editing and Kanban Lab"]
+    Sandbox --> Training["Local model training and comparison"]
+    Plane --> LiveData["Plane projects, issues, members and workload"]
+    DataLab --> Recommender["Assignment recommendation engine"]
+    Training --> Recommender
+    LiveData --> Recommender
+    Recommender --> Explanations["Ollama / Qwen explanations"]
+    Recommender --> Reports["Metrics, reports and fairness checks"]
+    Explanations --> Decision["Human-reviewed task assignment decision"]
+    Reports --> Decision
